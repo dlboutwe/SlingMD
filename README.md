@@ -12,6 +12,7 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 
 - Export Outlook emails directly to Obsidian markdown format
 - Preserve email metadata and formatting
+- Create follow-up tasks in Obsidian notes and/or Outlook
 - Seamless integration with Outlook's interface
 - Easy-to-use ribbon interface
 - Support for attachments and email threading
@@ -52,6 +53,7 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 2. Select any email you want to save to Obsidian
 3. In the Outlook ribbon menu, locate and click the "Sling" button from the Sling Ribbon
 4. The email will be converted to Markdown format and saved to your configured Obsidian vault
+5. If enabled, follow-up tasks will be created in Obsidian and/or Outlook
 
 ## Configuration
 
@@ -65,10 +67,56 @@ Before using SlingMD, you'll need to configure your Obsidian vault settings:
    - **Launch Obsidian**: Toggle whether Obsidian should automatically open after saving an email
    - **Delay (seconds)**: Set how long to wait before launching Obsidian (default: 1 second)
    - **Show countdown**: Toggle whether to show a countdown before launching Obsidian
+   - **Create task in Obsidian note**: Toggle whether to create a follow-up task in the Obsidian note
+   - **Create task in Outlook**: Toggle whether to create a follow-up task in Outlook
+   - **Due in Days**: Set the default number of days until tasks are due (0 = today, 1 = tomorrow, etc.)
+   - **Use Relative Dates**: Choose between relative or absolute date mode:
+     - When enabled (relative): Reminder days are calculated backwards from the due date
+     - When disabled (absolute): Reminder date is calculated forward from today
+   - **Reminder Days**: Set the default reminder timing:
+     - In relative mode: How many days before the due date
+     - In absolute mode: How many days from today
+   - **Reminder Hour**: Set the default hour for task reminders (24-hour format)
+   - **Ask for dates**: Toggle whether to prompt for dates each time (shows the Task Options form)
 
 3. Click "Save" to apply your settings
 
 Note: Make sure your Vault Base Path points to an existing Obsidian vault directory. If you haven't created a vault yet, please set one up in Obsidian first.
+
+## Task Creation
+
+When task creation is enabled, SlingMD can create follow-up tasks in two locations:
+
+### Obsidian Tasks
+- Created at the top of the note
+- Uses Obsidian's task format with date metadata
+- Links back to the email note
+- Tagged with #FollowUp for easy tracking
+
+### Outlook Tasks
+- Creates a task in your Outlook task list
+- Includes the email subject and content
+- Configurable due date (0-30 days from creation)
+- Configurable reminder time (0-23 hour)
+- Option to prompt for due date and reminder time for each task
+
+## Task Options
+
+When "Ask for dates" is enabled, the Task Options form will appear when creating tasks. This form allows you to:
+
+1. Set the due date using either:
+   - Relative mode: Specify number of days from today
+   - Absolute mode: Pick a specific date from a calendar
+
+2. Set the reminder using either:
+   - Relative mode: Specify number of days before the due date
+   - Absolute mode: Pick a specific date from a calendar
+
+3. Set the reminder hour (in 24-hour format)
+
+The "Use Relative Dates" toggle switches between:
+- Relative mode: Reminder is set relative to the due date (e.g., "remind me 2 days before it's due")
+- Absolute mode: Reminder is set to a specific date (e.g., "remind me next Tuesday")
 
 ## Contributing
 
@@ -81,3 +129,27 @@ This project is licensed under the terms included in the [LICENSE](LICENSE) file
 ## Support
 
 If you encounter any issues or have questions, please open an issue in the GitHub repository.
+
+## Changelog
+
+### Version 1.0.0.10
+- Added ability to create follow-up tasks in Obsidian notes
+- Added ability to create follow-up tasks in Outlook
+- Added configurable due dates for tasks
+- Added configurable reminder times for tasks
+- Added option to prompt for due date and reminder time
+- Added task options dialog for custom timing
+- Updated settings interface with task configuration options
+
+### Version 1.0.0.8
+- Initial release
+- Basic email to Obsidian note conversion
+- Email metadata preservation
+- Obsidian vault configuration
+- Launch delay settings
+
+## Disclaimer
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The author is not responsible for any data loss, corruption, or other issues that may occur while using this software. Always ensure you have proper backups of your data before using any software that modifies your files.

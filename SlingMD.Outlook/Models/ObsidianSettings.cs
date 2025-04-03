@@ -11,6 +11,22 @@ namespace SlingMD.Outlook.Models
         public bool LaunchObsidian { get; set; } = true;
         public int ObsidianDelaySeconds { get; set; } = 1;
         public bool ShowCountdown { get; set; } = true;
+        public bool CreateObsidianTask { get; set; } = true;
+        public bool CreateOutlookTask { get; set; } = false;
+        public int DefaultDueDays { get; set; } = 1;  // Due tomorrow
+        /// <summary>
+        /// If true, DefaultReminderDays represents days before the due date.
+        /// If false, DefaultReminderDays represents days from now (absolute).
+        /// </summary>
+        public bool UseRelativeReminder { get; set; } = false;
+        /// <summary>
+        /// Gets or sets the number of days for the reminder.
+        /// If UseRelativeReminder is true: represents days before the due date
+        /// If UseRelativeReminder is false: represents days from now (absolute)
+        /// </summary>
+        public int DefaultReminderDays { get; set; } = 0;  // Remind today
+        public int DefaultReminderHour { get; set; } = 9;  // at 9am
+        public bool AskForDates { get; set; } = false;
 
         public string GetFullVaultPath()
         {

@@ -24,6 +24,12 @@ namespace SlingMD.Outlook.Forms
             this.chkLaunchObsidian = new CheckBox();
             this.numDelay = new NumericUpDown();
             this.chkShowCountdown = new CheckBox();
+            this.chkCreateObsidianTask = new CheckBox();
+            this.chkCreateOutlookTask = new CheckBox();
+            this.numDefaultDueDays = new NumericUpDown();
+            this.numDefaultReminderDays = new NumericUpDown();
+            this.numDefaultReminderHour = new NumericUpDown();
+            this.chkAskForDates = new CheckBox();
             this.btnBrowse = new Button();
             this.btnSave = new Button();
             this.btnCancel = new Button();
@@ -31,10 +37,15 @@ namespace SlingMD.Outlook.Forms
             this.lblVaultPath = new Label();
             this.lblInboxFolder = new Label();
             this.lblDelay = new Label();
+            this.lblFollowUpTasks = new Label();
+            this.lblDefaultDueDays = new Label();
+            this.lblDefaultReminderDays = new Label();
+            this.lblDefaultReminderHour = new Label();
+            this.lblDueDaysHelp = new Label();
 
             // Form settings
             this.Text = "Obsidian Settings";
-            this.Size = new System.Drawing.Size(700, 500);
+            this.Size = new System.Drawing.Size(900, 650); // Increased height for new controls
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -49,9 +60,13 @@ namespace SlingMD.Outlook.Forms
             const int controlWidth = 350;
             const int labelWidth = 160;
             const int buttonHeight = 35;
+            const int smallControlWidth = 80;
+            const int helpTextX = controlX + smallControlWidth + 10;
+            const int checkboxX = helpTextX + 200;
 
             // Style all labels
-            foreach (var label in new[] { lblVaultName, lblVaultPath, lblInboxFolder, lblDelay })
+            foreach (var label in new[] { lblVaultName, lblVaultPath, lblInboxFolder, lblDelay, lblFollowUpTasks, 
+                                        lblDefaultDueDays, lblDefaultReminderDays, lblDefaultReminderHour })
             {
                 label.AutoSize = false;
                 label.Size = new Size(labelWidth, 25);
@@ -79,6 +94,18 @@ namespace SlingMD.Outlook.Forms
             this.lblDelay.Text = "Delay (seconds):";
             this.lblDelay.Location = new Point(labelX, startY + lineHeight * 4);
 
+            this.lblFollowUpTasks.Text = "Follow-up Tasks:";
+            this.lblFollowUpTasks.Location = new Point(labelX, startY + lineHeight * 6);
+
+            this.lblDefaultDueDays.Text = "Due in Days:";
+            this.lblDefaultDueDays.Location = new Point(labelX, startY + lineHeight * 8);
+
+            this.lblDefaultReminderDays.Text = "Reminder Days:";
+            this.lblDefaultReminderDays.Location = new Point(labelX, startY + lineHeight * 9);
+
+            this.lblDefaultReminderHour.Text = "Reminder Hour:";
+            this.lblDefaultReminderHour.Location = new Point(labelX, startY + lineHeight * 10);
+
             // Controls
             this.txtVaultName.Location = new Point(controlX, startY);
 
@@ -98,7 +125,7 @@ namespace SlingMD.Outlook.Forms
             this.chkLaunchObsidian.AutoSize = true;
 
             this.numDelay.Location = new Point(controlX, startY + lineHeight * 4);
-            this.numDelay.Size = new Size(80, 25);
+            this.numDelay.Size = new Size(smallControlWidth, 25);
             this.numDelay.Font = new Font("Segoe UI", 10F);
             this.numDelay.Minimum = 0;
             this.numDelay.Maximum = 10;
@@ -107,6 +134,67 @@ namespace SlingMD.Outlook.Forms
             this.chkShowCountdown.Location = new Point(controlX, startY + lineHeight * 5);
             this.chkShowCountdown.Font = new Font("Segoe UI", 10F);
             this.chkShowCountdown.AutoSize = true;
+
+            this.chkCreateObsidianTask.Text = "Create task in Obsidian note";
+            this.chkCreateObsidianTask.Location = new Point(controlX, startY + lineHeight * 6);
+            this.chkCreateObsidianTask.Font = new Font("Segoe UI", 10F);
+            this.chkCreateObsidianTask.AutoSize = true;
+
+            this.chkCreateOutlookTask.Text = "Create task in Outlook";
+            this.chkCreateOutlookTask.Location = new Point(controlX, startY + lineHeight * 7);
+            this.chkCreateOutlookTask.Font = new Font("Segoe UI", 10F);
+            this.chkCreateOutlookTask.AutoSize = true;
+
+            // Due days settings
+            this.numDefaultDueDays.Location = new Point(controlX, startY + lineHeight * 8);
+            this.numDefaultDueDays.Size = new Size(smallControlWidth, 25);
+            this.numDefaultDueDays.Font = new Font("Segoe UI", 10F);
+            this.numDefaultDueDays.Minimum = 0;
+            this.numDefaultDueDays.Maximum = 30;
+
+            // Help text for due days
+            this.lblDueDaysHelp.Text = "0 = Today, 1 = Tomorrow, etc.";
+            this.lblDueDaysHelp.Location = new Point(helpTextX, startY + lineHeight * 8 + 3);
+            this.lblDueDaysHelp.AutoSize = true;
+            this.lblDueDaysHelp.Font = new Font("Segoe UI", 9F, FontStyle.Italic);
+
+            // Reminder days settings
+            this.numDefaultReminderDays.Location = new Point(controlX, startY + lineHeight * 9);
+            this.numDefaultReminderDays.Size = new Size(smallControlWidth, 25);
+            this.numDefaultReminderDays.Font = new Font("Segoe UI", 10F);
+            this.numDefaultReminderDays.Minimum = 0;
+            this.numDefaultReminderDays.Maximum = 30;
+
+            // Help text for reminder days
+            var lblReminderDaysHelp = new Label
+            {
+                Text = "Days before due date",
+                Location = new Point(helpTextX, startY + lineHeight * 9 + 3),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F, FontStyle.Italic)
+            };
+
+            // Reminder hour settings
+            this.numDefaultReminderHour.Location = new Point(controlX, startY + lineHeight * 10);
+            this.numDefaultReminderHour.Size = new Size(smallControlWidth, 25);
+            this.numDefaultReminderHour.Font = new Font("Segoe UI", 10F);
+            this.numDefaultReminderHour.Minimum = 0;
+            this.numDefaultReminderHour.Maximum = 23;
+
+            // Help text for reminder hour
+            var lblReminderHourHelp = new Label
+            {
+                Text = "(24-hour format)",
+                Location = new Point(helpTextX, startY + lineHeight * 10 + 3),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F, FontStyle.Italic)
+            };
+
+            // Ask for dates checkbox
+            this.chkAskForDates.Text = "Ask for dates and times each time";
+            this.chkAskForDates.Location = new Point(checkboxX, startY + lineHeight * 9);
+            this.chkAskForDates.Font = new Font("Segoe UI", 10F);
+            this.chkAskForDates.AutoSize = true;
 
             // Action Buttons at the bottom
             int bottomButtonY = this.ClientSize.Height - buttonHeight - 30;
@@ -132,6 +220,16 @@ namespace SlingMD.Outlook.Forms
                 this.chkLaunchObsidian,
                 this.lblDelay, this.numDelay,
                 this.chkShowCountdown,
+                this.lblFollowUpTasks,
+                this.chkCreateObsidianTask,
+                this.chkCreateOutlookTask,
+                this.lblDefaultDueDays, this.numDefaultDueDays,
+                this.lblDueDaysHelp,
+                this.lblDefaultReminderDays, this.numDefaultReminderDays,
+                lblReminderDaysHelp,
+                this.lblDefaultReminderHour, this.numDefaultReminderHour,
+                lblReminderHourHelp,
+                this.chkAskForDates,
                 this.btnSave, this.btnCancel
             });
 
@@ -147,6 +245,12 @@ namespace SlingMD.Outlook.Forms
             chkLaunchObsidian.Checked = _settings.LaunchObsidian;
             numDelay.Value = _settings.ObsidianDelaySeconds;
             chkShowCountdown.Checked = _settings.ShowCountdown;
+            chkCreateObsidianTask.Checked = _settings.CreateObsidianTask;
+            chkCreateOutlookTask.Checked = _settings.CreateOutlookTask;
+            numDefaultDueDays.Value = _settings.DefaultDueDays;
+            numDefaultReminderDays.Value = _settings.DefaultReminderDays;
+            numDefaultReminderHour.Value = _settings.DefaultReminderHour;
+            chkAskForDates.Checked = _settings.AskForDates;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -171,6 +275,12 @@ namespace SlingMD.Outlook.Forms
             _settings.LaunchObsidian = chkLaunchObsidian.Checked;
             _settings.ObsidianDelaySeconds = (int)numDelay.Value;
             _settings.ShowCountdown = chkShowCountdown.Checked;
+            _settings.CreateObsidianTask = chkCreateObsidianTask.Checked;
+            _settings.CreateOutlookTask = chkCreateOutlookTask.Checked;
+            _settings.DefaultDueDays = (int)numDefaultDueDays.Value;
+            _settings.DefaultReminderDays = (int)numDefaultReminderDays.Value;
+            _settings.DefaultReminderHour = (int)numDefaultReminderHour.Value;
+            _settings.AskForDates = chkAskForDates.Checked;
         }
 
         // Designer-generated variables
@@ -180,6 +290,12 @@ namespace SlingMD.Outlook.Forms
         private CheckBox chkLaunchObsidian;
         private NumericUpDown numDelay;
         private CheckBox chkShowCountdown;
+        private CheckBox chkCreateObsidianTask;
+        private CheckBox chkCreateOutlookTask;
+        private NumericUpDown numDefaultDueDays;
+        private NumericUpDown numDefaultReminderDays;
+        private NumericUpDown numDefaultReminderHour;
+        private CheckBox chkAskForDates;
         private Button btnBrowse;
         private Button btnSave;
         private Button btnCancel;
@@ -187,5 +303,10 @@ namespace SlingMD.Outlook.Forms
         private Label lblVaultPath;
         private Label lblInboxFolder;
         private Label lblDelay;
+        private Label lblFollowUpTasks;
+        private Label lblDefaultDueDays;
+        private Label lblDefaultReminderDays;
+        private Label lblDefaultReminderHour;
+        private Label lblDueDaysHelp;
     }
 } 

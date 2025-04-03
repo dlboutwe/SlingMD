@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Microsoft.Office.Interop.Outlook;
+using SlingMD.Outlook.Forms;
 using SlingMD.Outlook.Models;
 
 namespace SlingMD.Outlook.Services
@@ -11,6 +13,11 @@ namespace SlingMD.Outlook.Services
     public class EmailProcessor
     {
         private readonly ObsidianSettings _settings;
+        private int? _taskDueDays;
+        private int? _taskReminderDays;
+        private int? _taskReminderHour;
+        private bool _createTasks = true;
+        private bool _useRelativeReminder;
 
         public EmailProcessor(ObsidianSettings settings)
         {
@@ -19,6 +26,32 @@ namespace SlingMD.Outlook.Services
 
         public async Task ProcessEmail(MailItem mail)
         {
+            // Get task options first if needed
+            if ((_settings.CreateOutlookTask || _settings.CreateObsidianTask) && _settings.AskForDates)
+            {
+                using (var form = new TaskOptionsForm(_settings.DefaultDueDays, _settings.DefaultReminderDays, _settings.DefaultReminderHour, _settings.UseRelativeReminder))
+                {
+                    if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        _taskDueDays = form.DueDays;
+                        _taskReminderDays = form.ReminderDays;
+                        _taskReminderHour = form.ReminderHour;
+                        _useRelativeReminder = form.UseRelativeReminder;
+                    }
+                    else
+                    {
+                        _createTasks = false;
+                    }
+                }
+            }
+            else
+            {
+                _taskDueDays = _settings.DefaultDueDays;
+                _taskReminderDays = _settings.DefaultReminderDays;
+                _taskReminderHour = _settings.DefaultReminderHour;
+                _useRelativeReminder = _settings.UseRelativeReminder;
+            }
+
             using (var status = new StatusService())
             {
                 try
@@ -63,16 +96,42 @@ namespace SlingMD.Outlook.Services
                     frontmatter.AppendLine("---");
                     frontmatter.AppendLine();
 
-                    // Add task line
-                    string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
-                    frontmatter.AppendLine($"- [ ] [[{fileNameNoExt}]] #FollowUp ➕ {currentDate} 📅 {currentDate}");
-                    frontmatter.AppendLine();
+                    // Add Obsidian task if enabled
+                    if (_settings.CreateObsidianTask && _createTasks)
+                    {
+                        string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
+                        string dueDate = DateTime.Now.Date.AddDays(_taskDueDays.Value).ToString("yyyy-MM-dd");
+                        
+                        // Calculate reminder date based on setting
+                        DateTime reminderDateTime;
+                        if (_useRelativeReminder)
+                        {
+                            // Relative: Calculate from due date
+                            reminderDateTime = DateTime.Now.Date.AddDays(_taskDueDays.Value - _taskReminderDays.Value);
+                        }
+                        else
+                        {
+                            // Absolute: Calculate from today
+                            reminderDateTime = DateTime.Now.Date.AddDays(_taskReminderDays.Value);
+                        }
+                        string reminderDate = reminderDateTime.ToString("yyyy-MM-dd");
+                        
+                        frontmatter.AppendLine($"- [ ] [[{fileNameNoExt}]] #FollowUp ➕ {currentDate} 🛫 {reminderDate} 📅 {dueDate}");
+                        frontmatter.AppendLine();
+                    }
 
                     status.UpdateProgress("Writing note file", 75);
 
                     // Combine content and write file
                     string content = frontmatter.ToString() + mail.Body;
                     WriteUtf8File(filePath, content);
+
+                    // Create Outlook task if enabled
+                    if (_settings.CreateOutlookTask && _createTasks)
+                    {
+                        status.UpdateProgress("Creating Outlook task", 80);
+                        await CreateOutlookTaskAsync(mail);
+                    }
 
                     status.UpdateProgress("Launching Obsidian", 90);
 
@@ -201,6 +260,58 @@ namespace SlingMD.Outlook.Services
                 FileName = command,
                 UseShellExecute = true
             });
+        }
+
+        private async Task CreateOutlookTaskAsync(MailItem mail)
+        {
+            try
+            {
+                var outlookApp = mail.Application;
+                var task = outlookApp.CreateItem(OlItemType.olTaskItem);
+                task.Subject = $"Follow up: {mail.Subject}";
+                task.Body = $"Follow up on email from {mail.SenderName}\n\nOriginal email:\n{mail.Body}";
+                
+                // Set due date based on settings
+                var dueDate = DateTime.Now.Date.AddDays(_taskDueDays.Value);
+                task.DueDate = dueDate;
+                task.ReminderSet = true;
+                
+                // Calculate reminder time based on setting
+                DateTime reminderDate;
+                if (_useRelativeReminder)
+                {
+                    // Relative: Calculate from due date
+                    reminderDate = dueDate.AddDays(-_taskReminderDays.Value);
+                }
+                else
+                {
+                    // Absolute: Calculate from today
+                    reminderDate = DateTime.Now.Date.AddDays(_taskReminderDays.Value);
+                }
+                var reminderTime = reminderDate.AddHours(_taskReminderHour.Value);
+                
+                // If reminder would be in the past, set it to the next possible time
+                if (reminderTime < DateTime.Now)
+                {
+                    if (reminderTime.Date == DateTime.Now.Date)
+                    {
+                        // If it's today but earlier hour, set to next hour
+                        reminderTime = DateTime.Now.AddHours(1);
+                    }
+                    else
+                    {
+                        // If it's a past day, set to tomorrow at the specified hour
+                        reminderTime = DateTime.Now.Date.AddDays(1).AddHours(_taskReminderHour.Value);
+                    }
+                }
+                
+                task.ReminderTime = reminderTime;
+                task.Save();
+            }
+            catch (System.Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show($"Failed to create Outlook task: {ex.Message}", "SlingMD", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
     }
 } 
