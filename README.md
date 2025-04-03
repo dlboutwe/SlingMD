@@ -20,7 +20,16 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 
 1. Go to the [Releases](./Releases) folder in this repository
 2. Download the latest version (currently `SlingMD.Outlook_1_0_0_8.zip`)
-3. Extract the ZIP file to a location on your computer
+3. **Important Security Step - Unblock the ZIP File**:
+   - Right-click the downloaded ZIP file
+   - Click "Properties"
+   - At the bottom of the General tab, check the "Unblock" box
+   - Click "Apply"
+   - If you've already extracted the ZIP, delete the extracted folder first
+   - Extract the ZIP file again after unblocking
+   
+   This step ensures all extracted files are trusted and in the same security zone, preventing potential issues.
+
 4. Run the setup executable to install the Outlook add-in
 5. Restart Outlook after installation
 6. Enable the Sling Ribbon:
