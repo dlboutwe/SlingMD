@@ -3,7 +3,6 @@
 .vscode/
 bin/
 obj/
-publish/
 SlingMD.Outlook/bin/
 SlingMD.Outlook/obj/
 SlingMD.Outlook/SlingMD.Outlook.csproj.user
