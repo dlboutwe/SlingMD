@@ -44,7 +44,22 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 3. In the Outlook ribbon menu, locate and click the "Sling" button from the Sling Ribbon
 4. The email will be converted to Markdown format and saved to your configured Obsidian vault
 
-[Additional usage instructions and configuration options to be added]
+## Configuration
+
+Before using SlingMD, you'll need to configure your Obsidian vault settings:
+
+1. Click the "Settings" button in the Sling Ribbon
+2. Configure the following options:
+   - **Vault Name**: Enter the name of your Obsidian vault
+   - **Vault Base Path**: Set the path to your Obsidian vault folder (e.g., C:\Users\YourName\Documents\Notes)
+   - **Inbox Folder**: Specify the folder within your vault where emails should be saved (default: "Inbox")
+   - **Launch Obsidian**: Toggle whether Obsidian should automatically open after saving an email
+   - **Delay (seconds)**: Set how long to wait before launching Obsidian (default: 1 second)
+   - **Show countdown**: Toggle whether to show a countdown before launching Obsidian
+
+3. Click "Save" to apply your settings
+
+Note: Make sure your Vault Base Path points to an existing Obsidian vault directory. If you haven't created a vault yet, please set one up in Obsidian first.
 
 ## Contributing
 
