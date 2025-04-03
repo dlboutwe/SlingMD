@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
+  <ribbon>
+    <tabs>
+      <tab id="SlingTab" label="Sling">
+        <group id="EmailGroup" label="Email">
+          <button id="SlingButton" 
+                  label="Sling" 
+                  size="large"
+                  onAction="OnSlingButtonClick"
+                  getImage="GetSlingButtonImage" />
+        </group>
+        <group id="SettingsGroup" label="Settings">
+          <button id="SettingsButton" 
+                  label="Configure" 
+                  size="large"
+                  imageMso="ControlProperties"
+                  onAction="OnSettingsButtonClick" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI> 
