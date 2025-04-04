@@ -35,11 +35,14 @@ namespace SlingMD.Outlook.Models
 
         public List<string> SubjectCleanupPatterns { get; set; } = new List<string>
         {
-            @"^(?:Re|Fwd|FW|RE|FWD):\s*",  // Reply and forward prefixes
+            @"^(?:Re|Fwd|FW|RE|FWD):\s*",   // Reply and forward prefixes
             @"\[EXTERNAL\]\s*",             // External email tags
             @"\[Internal\]\s*",             // Internal email tags
             @"\[Confidential\]\s*",         // Confidential tags
             @"\[Secure\]\s*"                // Secure email tags
+            @"\[Sensitive\]\s*"             // Sensitive email tags
+            @"\[Private\]\s*"               // Private email tags
+            @"\[PHI\]\s*"                   // PHI email tags
         };
 
         public string GetFullVaultPath()
