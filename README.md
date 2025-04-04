@@ -16,6 +16,8 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 - Seamless integration with Outlook's interface
 - Easy-to-use ribbon interface
 - Support for attachments and email threading
+- Automatic email thread organization
+- Thread summary pages with timeline views
 
 ## Installation
 
@@ -78,6 +80,8 @@ Before using SlingMD, you'll need to configure your Obsidian vault settings:
      - In absolute mode: How many days from today
    - **Reminder Hour**: Set the default hour for task reminders (24-hour format)
    - **Ask for dates**: Toggle whether to prompt for dates each time (shows the Task Options form)
+   - **Group Email Threads**: Toggle whether to automatically organize related emails into thread folders
+   - **Subject Cleanup Patterns**: Configure patterns for cleaning up email subjects (e.g., removing "Re:", "[EXTERNAL]", etc.)
 
 3. Click "Save" to apply your settings
 
@@ -118,6 +122,23 @@ The "Use Relative Dates" toggle switches between:
 - Relative mode: Reminder is set relative to the due date (e.g., "remind me 2 days before it's due")
 - Absolute mode: Reminder is set to a specific date (e.g., "remind me next Tuesday")
 
+## Email Threading
+
+When email threading is enabled (via the "Group Email Threads" setting), SlingMD will:
+
+1. Automatically detect related emails using conversation topics and thread IDs
+2. Create a dedicated folder for each email thread
+3. Generate a thread summary note (0-threadname.md) containing:
+   - Thread start and end dates
+   - Number of messages
+   - List of participants
+   - Timeline view of all emails in the thread
+4. Move all related emails into the thread folder
+5. Update thread summary when new emails are added
+6. Link emails to their thread summary for easy navigation
+
+This organization helps keep related emails together and provides a clear overview of email conversations in your vault.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -131,6 +152,17 @@ This project is licensed under the terms included in the [LICENSE](LICENSE) file
 If you encounter any issues or have questions, please open an issue in the GitHub repository.
 
 ## Changelog
+
+### Version 1.0.0.44
+- Added automatic email thread detection and organization
+- Added thread summary pages with timeline views
+- Added configurable subject cleanup patterns
+- Added thread folder creation for related emails
+- Added participant tracking in thread summaries
+- Added dataview integration for thread visualization
+- Improved email relationship detection
+- Enhanced thread navigation with bidirectional links
+- Fixed various bugs and improved stability
 
 ### Version 1.0.0.14
 - Added ability to create follow-up tasks in Obsidian notes
