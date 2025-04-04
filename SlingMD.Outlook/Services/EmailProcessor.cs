@@ -68,12 +68,12 @@ namespace SlingMD.Outlook.Services
                         subjectClean = subjectClean.Substring(0, 47) + "...";
                     }
                     string senderClean = GetShortName(mail.SenderName);
-                    string fileDate = mail.ReceivedTime.ToString("yyyy-MM-dd");
+                    string fileDateTime = mail.ReceivedTime.ToString("yyyy-MM-dd-HHmm");
                     
                     status.UpdateProgress("Creating note file", 25);
 
-                    // Build file name with date prepended
-                    string fileName = $"{fileDate}-{subjectClean}-{senderClean}.md";
+                    // Build file name with date and time prepended
+                    string fileName = $"{fileDateTime}-{subjectClean}-{senderClean}.md";
                     string filePath = Path.Combine(_settings.GetInboxPath(), fileName);
                     string fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
 
@@ -146,7 +146,7 @@ namespace SlingMD.Outlook.Services
                     }
 
                     frontmatter.AppendLine($"date: {mail.ReceivedTime:yyyy-MM-dd HH:mm}");
-                    frontmatter.AppendLine($"dailyNoteLink: \"[[{fileDate}]]\"");
+                    frontmatter.AppendLine($"dailyNoteLink: \"[[{mail.ReceivedTime:yyyy-MM-dd}]]\"");
                     frontmatter.AppendLine("tags: [email]");
                     
                     // Add threadNote if this is part of a thread
@@ -207,13 +207,27 @@ namespace SlingMD.Outlook.Services
                             if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
                             {
                                 // Get the date from the file content
-                                var dateMatch = Regex.Match(emailContent, @"date: (\d{4}-\d{2}-\d{2})");
-                                string emailDate = dateMatch.Success ? dateMatch.Groups[1].Value : DateTime.Now.ToString("yyyy-MM-dd");
+                                var dateMatch = Regex.Match(emailContent, @"date: (\d{4}-\d{2}-\d{2} \d{2}:\d{2})");
+                                string emailDateTime = dateMatch.Success 
+                                    ? DateTime.ParseExact(dateMatch.Groups[1].Value, "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd-HHmm")
+                                    : DateTime.Now.ToString("yyyy-MM-dd-HHmm");
                                 
-                                // Create new file name with date prepended
+                                // Create new file name with date and time prepended
                                 string oldFileName = Path.GetFileName(file);
-                                string newFileName = $"{emailDate} - {oldFileName.Substring(0, oldFileName.LastIndexOf(" - "))}.md";
-                                string newFilePath = Path.Combine(threadFolderPath, newFileName);
+                                string newFileName;
+                                string newFilePath;
+                                
+                                // If filename already starts with a date-time pattern, use it as is
+                                if (Regex.IsMatch(oldFileName, @"^\d{4}-\d{2}-\d{2}-\d{4}"))
+                                {
+                                    newFileName = oldFileName;
+                                    newFilePath = Path.Combine(threadFolderPath, newFileName);
+                                }
+                                else
+                                {
+                                    newFileName = $"{emailDateTime}-{oldFileName.Substring(0, oldFileName.LastIndexOf(" - "))}.md";
+                                    newFilePath = Path.Combine(threadFolderPath, newFileName);
+                                }
 
                                 // Add threadNote to frontmatter if not present
                                 if (!emailContent.Contains($"threadNote: \"[[0-{threadNoteName}]]\""))
