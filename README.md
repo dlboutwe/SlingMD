@@ -132,7 +132,7 @@ If you encounter any issues or have questions, please open an issue in the GitHu
 
 ## Changelog
 
-### Version 1.0.0.10
+### Version 1.0.0.14
 - Added ability to create follow-up tasks in Obsidian notes
 - Added ability to create follow-up tasks in Outlook
 - Added configurable due dates for tasks

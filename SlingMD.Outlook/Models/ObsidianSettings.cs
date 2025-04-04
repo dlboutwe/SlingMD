@@ -1,5 +1,9 @@
 using System;
 using System.Configuration;
+using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SlingMD.Outlook.Models
 {
@@ -28,6 +32,15 @@ namespace SlingMD.Outlook.Models
         public int DefaultReminderHour { get; set; } = 9;  // at 9am
         public bool AskForDates { get; set; } = false;
 
+        public List<string> SubjectCleanupPatterns { get; set; } = new List<string>
+        {
+            @"^(?:Re|Fwd|FW|RE|FWD):\s*",  // Reply and forward prefixes
+            @"\[EXTERNAL\]\s*",             // External email tags
+            @"\[Internal\]\s*",             // Internal email tags
+            @"\[Confidential\]\s*",         // Confidential tags
+            @"\[Secure\]\s*"                // Secure email tags
+        };
+
         public string GetFullVaultPath()
         {
             return System.IO.Path.Combine(VaultBasePath, VaultName);
@@ -36,6 +49,105 @@ namespace SlingMD.Outlook.Models
         public string GetInboxPath()
         {
             return System.IO.Path.Combine(GetFullVaultPath(), InboxFolder);
+        }
+
+        public void Save()
+        {
+            var settings = new Dictionary<string, object>
+            {
+                { "VaultName", VaultName },
+                { "VaultBasePath", VaultBasePath },
+                { "InboxFolder", InboxFolder },
+                { "LaunchObsidian", LaunchObsidian },
+                { "ObsidianDelaySeconds", ObsidianDelaySeconds },
+                { "ShowCountdown", ShowCountdown },
+                { "CreateObsidianTask", CreateObsidianTask },
+                { "CreateOutlookTask", CreateOutlookTask },
+                { "DefaultDueDays", DefaultDueDays },
+                { "UseRelativeReminder", UseRelativeReminder },
+                { "DefaultReminderDays", DefaultReminderDays },
+                { "DefaultReminderHour", DefaultReminderHour },
+                { "AskForDates", AskForDates },
+                { "SubjectCleanupPatterns", SubjectCleanupPatterns }
+            };
+
+            string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+            File.WriteAllText(GetSettingsPath(), json);
+        }
+
+        public void Load()
+        {
+            if (File.Exists(GetSettingsPath()))
+            {
+                string json = File.ReadAllText(GetSettingsPath());
+                var settings = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(json);
+
+                if (settings.ContainsKey("VaultName"))
+                {
+                    VaultName = settings["VaultName"].Value<string>();
+                }
+                if (settings.ContainsKey("VaultBasePath"))
+                {
+                    VaultBasePath = settings["VaultBasePath"].Value<string>();
+                }
+                if (settings.ContainsKey("InboxFolder"))
+                {
+                    InboxFolder = settings["InboxFolder"].Value<string>();
+                }
+                if (settings.ContainsKey("LaunchObsidian"))
+                {
+                    LaunchObsidian = settings["LaunchObsidian"].Value<bool>();
+                }
+                if (settings.ContainsKey("ObsidianDelaySeconds"))
+                {
+                    ObsidianDelaySeconds = settings["ObsidianDelaySeconds"].Value<int>();
+                }
+                if (settings.ContainsKey("ShowCountdown"))
+                {
+                    ShowCountdown = settings["ShowCountdown"].Value<bool>();
+                }
+                if (settings.ContainsKey("CreateObsidianTask"))
+                {
+                    CreateObsidianTask = settings["CreateObsidianTask"].Value<bool>();
+                }
+                if (settings.ContainsKey("CreateOutlookTask"))
+                {
+                    CreateOutlookTask = settings["CreateOutlookTask"].Value<bool>();
+                }
+                if (settings.ContainsKey("DefaultDueDays"))
+                {
+                    DefaultDueDays = settings["DefaultDueDays"].Value<int>();
+                }
+                if (settings.ContainsKey("UseRelativeReminder"))
+                {
+                    UseRelativeReminder = settings["UseRelativeReminder"].Value<bool>();
+                }
+                if (settings.ContainsKey("DefaultReminderDays"))
+                {
+                    DefaultReminderDays = settings["DefaultReminderDays"].Value<int>();
+                }
+                if (settings.ContainsKey("DefaultReminderHour"))
+                {
+                    DefaultReminderHour = settings["DefaultReminderHour"].Value<int>();
+                }
+                if (settings.ContainsKey("AskForDates"))
+                {
+                    AskForDates = settings["AskForDates"].Value<bool>();
+                }
+                if (settings.ContainsKey("SubjectCleanupPatterns"))
+                {
+                    var patterns = settings["SubjectCleanupPatterns"].ToObject<List<string>>();
+                    if (patterns != null && patterns.Count > 0)
+                    {
+                        SubjectCleanupPatterns = patterns;
+                    }
+                }
+            }
+        }
+
+        private string GetSettingsPath()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SlingMD.Outlook", "ObsidianSettings.json");
         }
     }
 } 

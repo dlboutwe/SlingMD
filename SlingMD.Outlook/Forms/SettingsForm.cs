@@ -2,17 +2,78 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 using SlingMD.Outlook.Models;
+using System.Collections.Generic;
 
 namespace SlingMD.Outlook.Forms
 {
     public partial class SettingsForm : Form
     {
         private readonly ObsidianSettings _settings;
+        private ListBox lstPatterns;
+        private Button btnAdd;
+        private Button btnEdit;
+        private Button btnRemove;
 
         public SettingsForm(ObsidianSettings settings)
         {
             InitializeComponent();
             _settings = settings;
+
+            // Add pattern management controls
+            var patternGroup = new GroupBox
+            {
+                Text = "Subject Cleanup Patterns",
+                Dock = DockStyle.Top,
+                Height = 150,
+                Padding = new Padding(10)
+            };
+
+            lstPatterns = new ListBox
+            {
+                Dock = DockStyle.Left,
+                Width = 300
+            };
+            patternGroup.Controls.Add(lstPatterns);
+
+            var buttonPanel = new Panel
+            {
+                Dock = DockStyle.Right,
+                Width = 100
+            };
+
+            btnAdd = new Button
+            {
+                Text = "Add",
+                Dock = DockStyle.Top,
+                Height = 30
+            };
+            btnAdd.Click += BtnAdd_Click;
+
+            btnEdit = new Button
+            {
+                Text = "Edit",
+                Dock = DockStyle.Top,
+                Height = 30
+            };
+            btnEdit.Click += BtnEdit_Click;
+
+            btnRemove = new Button
+            {
+                Text = "Remove",
+                Dock = DockStyle.Top,
+                Height = 30
+            };
+            btnRemove.Click += BtnRemove_Click;
+
+            buttonPanel.Controls.Add(btnRemove);
+            buttonPanel.Controls.Add(btnEdit);
+            buttonPanel.Controls.Add(btnAdd);
+            patternGroup.Controls.Add(buttonPanel);
+
+            // Insert the pattern group at the top of the form
+            Controls.Add(patternGroup);
+            patternGroup.BringToFront();
+
             LoadSettings();
         }
 
@@ -251,6 +312,13 @@ namespace SlingMD.Outlook.Forms
             numDefaultReminderDays.Value = _settings.DefaultReminderDays;
             numDefaultReminderHour.Value = _settings.DefaultReminderHour;
             chkAskForDates.Checked = _settings.AskForDates;
+
+            // Load patterns
+            lstPatterns.Items.Clear();
+            foreach (var pattern in _settings.SubjectCleanupPatterns)
+            {
+                lstPatterns.Items.Add(pattern);
+            }
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -281,6 +349,49 @@ namespace SlingMD.Outlook.Forms
             _settings.DefaultReminderDays = (int)numDefaultReminderDays.Value;
             _settings.DefaultReminderHour = (int)numDefaultReminderHour.Value;
             _settings.AskForDates = chkAskForDates.Checked;
+
+            // Save patterns
+            _settings.SubjectCleanupPatterns.Clear();
+            foreach (string pattern in lstPatterns.Items)
+            {
+                _settings.SubjectCleanupPatterns.Add(pattern);
+            }
+
+            _settings.Save();
+        }
+
+        private void BtnAdd_Click(object sender, EventArgs e)
+        {
+            using (var form = new InputDialog("Add Pattern", "Enter regex pattern:"))
+            {
+                if (form.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(form.InputText))
+                {
+                    lstPatterns.Items.Add(form.InputText);
+                }
+            }
+        }
+
+        private void BtnEdit_Click(object sender, EventArgs e)
+        {
+            if (lstPatterns.SelectedItem != null)
+            {
+                using (var form = new InputDialog("Edit Pattern", "Edit regex pattern:", lstPatterns.SelectedItem.ToString()))
+                {
+                    if (form.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(form.InputText))
+                    {
+                        int index = lstPatterns.SelectedIndex;
+                        lstPatterns.Items[index] = form.InputText;
+                    }
+                }
+            }
+        }
+
+        private void BtnRemove_Click(object sender, EventArgs e)
+        {
+            if (lstPatterns.SelectedItem != null)
+            {
+                lstPatterns.Items.RemoveAt(lstPatterns.SelectedIndex);
+            }
         }
 
         // Designer-generated variables

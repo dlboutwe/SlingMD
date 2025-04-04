@@ -7,6 +7,9 @@ using System.Windows.Forms;
 using Microsoft.Office.Interop.Outlook;
 using SlingMD.Outlook.Forms;
 using SlingMD.Outlook.Models;
+using System.Linq;
+using System.Text.RegularExpressions;
+using SlingMD.Outlook.Helpers;
 
 namespace SlingMD.Outlook.Services
 {
@@ -59,40 +62,99 @@ namespace SlingMD.Outlook.Services
                     status.UpdateProgress("Processing email...", 0);
 
                     // Clean and prepare file name components
-                    string subjectClean = CleanFileName(mail.Subject);
-                    string senderClean = CleanFileName(mail.SenderName);
+                    string subjectClean = CleanSubject(mail.Subject);
+                    if (subjectClean.Length > 50)  // Limit subject length
+                    {
+                        subjectClean = subjectClean.Substring(0, 47) + "...";
+                    }
+                    string senderClean = GetShortName(mail.SenderName);
                     string fileDate = mail.ReceivedTime.ToString("yyyy-MM-dd");
                     
                     status.UpdateProgress("Creating note file", 25);
 
-                    // Build file name and path
-                    string fileName = $"{subjectClean} - {senderClean} - {fileDate}.md";
+                    // Build file name with date prepended
+                    string fileName = $"{fileDate}-{subjectClean}-{senderClean}.md";
                     string filePath = Path.Combine(_settings.GetInboxPath(), fileName);
                     string fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
 
-                    // Build YAML frontmatter
+                    // Initialize StringBuilder for frontmatter
                     var frontmatter = new StringBuilder();
+
+                    // Get thread info early
+                    string conversationId = GetConversationId(mail);
+                    string threadNoteName = GetThreadNoteName(mail);
+                    string threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+                    string threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
+
+                    // Check if there are other emails in this thread and get existing thread folder if any
+                    bool hasExistingThread = false;
+                    string existingThreadFolder = null;
+                    var files = Directory.GetFiles(_settings.GetInboxPath(), "*.md", SearchOption.AllDirectories);
+                    foreach (var file in files)
+                    {
+                        if (file.Equals(filePath, StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        string emailContent = File.ReadAllText(file);
+                        var threadIdMatch = Regex.Match(emailContent, @"threadId: ""([^""]+)""");
+                        if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
+                        {
+                            hasExistingThread = true;
+                            // Get the existing thread folder path
+                            string directory = Path.GetDirectoryName(file);
+                            if (directory.Contains("Thread-"))
+                            {
+                                existingThreadFolder = Path.GetFileName(directory);
+                                threadNoteName = existingThreadFolder;
+                                threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+                            }
+                            break;
+                        }
+                    }
+
+                    // If this is part of a thread, update the file path to be in the thread folder
+                    if (hasExistingThread)
+                    {
+                        Directory.CreateDirectory(threadFolderPath);
+                        filePath = Path.Combine(threadFolderPath, fileName);
+                    }
+
+                    status.UpdateProgress("Processing email metadata", 50);
+
+                    // Build YAML frontmatter
                     frontmatter.AppendLine("---");
                     frontmatter.AppendLine($"title: \"{mail.Subject}\"");
                     frontmatter.AppendLine($"from: \"[[{mail.SenderName}]]\"");
                     frontmatter.AppendLine($"fromEmail: \"{GetSenderEmail(mail)}\"");
-                    frontmatter.AppendLine($"to: \"{BuildLinkedNames(mail.Recipients, OlMailRecipientType.olTo)}\"");
-                    frontmatter.AppendLine($"toEmail: \"{BuildEmailList(mail.Recipients, OlMailRecipientType.olTo)}\"");
+                    frontmatter.AppendLine("to:");
+                    frontmatter.AppendLine(BuildLinkedNames(mail.Recipients, OlMailRecipientType.olTo));
+                    frontmatter.AppendLine("toEmail:");
+                    frontmatter.AppendLine(BuildEmailList(mail.Recipients, OlMailRecipientType.olTo));
 
-                    status.UpdateProgress("Processing email metadata", 50);
+                    // Always add the thread ID
+                    frontmatter.AppendLine($"threadId: \"{conversationId}\"");
 
                     // Add CC if present
                     string ccLinked = BuildLinkedNames(mail.Recipients, OlMailRecipientType.olCC);
                     string ccEmails = BuildEmailList(mail.Recipients, OlMailRecipientType.olCC);
                     if (!string.IsNullOrEmpty(ccEmails))
                     {
-                        frontmatter.AppendLine($"cc: \"{ccLinked}\"");
-                        frontmatter.AppendLine($"ccEmail: \"{ccEmails}\"");
+                        frontmatter.AppendLine("cc:");
+                        frontmatter.AppendLine(ccLinked);
+                        frontmatter.AppendLine("ccEmail:");
+                        frontmatter.AppendLine(ccEmails);
                     }
 
                     frontmatter.AppendLine($"date: {mail.ReceivedTime:yyyy-MM-dd HH:mm}");
                     frontmatter.AppendLine($"dailyNoteLink: \"[[{fileDate}]]\"");
                     frontmatter.AppendLine("tags: [email]");
+                    
+                    // Add threadNote if this is part of a thread
+                    if (hasExistingThread)
+                    {
+                        frontmatter.AppendLine($"threadNote: \"[[0-{threadNoteName}]]\"");
+                    }
+                    
                     frontmatter.AppendLine("---");
                     frontmatter.AppendLine();
 
@@ -125,6 +187,68 @@ namespace SlingMD.Outlook.Services
                     // Combine content and write file
                     string content = frontmatter.ToString() + mail.Body;
                     WriteUtf8File(filePath, content);
+
+                    // If this is part of a thread, move any existing related emails into the thread folder
+                    if (hasExistingThread)
+                    {
+                        foreach (var file in files)
+                        {
+                            if (file.StartsWith(threadFolderPath, StringComparison.OrdinalIgnoreCase))
+                                continue; // Skip files already in thread folder
+
+                            // Read with UTF-8 encoding
+                            string emailContent;
+                            using (var reader = new StreamReader(file, new UTF8Encoding(false)))
+                            {
+                                emailContent = reader.ReadToEnd();
+                            }
+                            
+                            var threadIdMatch = Regex.Match(emailContent, @"threadId: ""([^""]+)""");
+                            if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
+                            {
+                                // Get the date from the file content
+                                var dateMatch = Regex.Match(emailContent, @"date: (\d{4}-\d{2}-\d{2})");
+                                string emailDate = dateMatch.Success ? dateMatch.Groups[1].Value : DateTime.Now.ToString("yyyy-MM-dd");
+                                
+                                // Create new file name with date prepended
+                                string oldFileName = Path.GetFileName(file);
+                                string newFileName = $"{emailDate} - {oldFileName.Substring(0, oldFileName.LastIndexOf(" - "))}.md";
+                                string newFilePath = Path.Combine(threadFolderPath, newFileName);
+
+                                // Add threadNote to frontmatter if not present
+                                if (!emailContent.Contains($"threadNote: \"[[0-{threadNoteName}]]\""))
+                                {
+                                    var lines = emailContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
+                                    int frontmatterEnd = lines.FindIndex(1, line => line == "---"); // Find second ---
+                                    if (frontmatterEnd > 0)
+                                    {
+                                        // Insert threadNote just before the closing ---
+                                        lines.Insert(frontmatterEnd, $"threadNote: \"[[0-{threadNoteName}]]\"");
+                                        emailContent = string.Join(Environment.NewLine, lines);
+                                    }
+                                    else
+                                    {
+                                        // If we can't find the end of frontmatter, try to add it after the tags line
+                                        int tagsLine = lines.FindIndex(line => line.StartsWith("tags:"));
+                                        if (tagsLine > 0)
+                                        {
+                                            lines.Insert(tagsLine + 1, $"threadNote: \"[[0-{threadNoteName}]]\"");
+                                            emailContent = string.Join(Environment.NewLine, lines);
+                                        }
+                                    }
+                                }
+
+                                // Write the file with UTF-8 encoding
+                                WriteUtf8File(newFilePath, emailContent);
+                                
+                                // Delete the old file
+                                File.Delete(file);
+                            }
+                        }
+
+                        // Create or update thread note
+                        await UpdateThreadNote(mail, conversationId, threadNoteName, fileName);
+                    }
 
                     // Create Outlook task if enabled
                     if (_settings.CreateOutlookTask && _createTasks)
@@ -188,10 +312,10 @@ namespace SlingMD.Outlook.Services
             {
                 if (recipient.Type == (int)type)
                 {
-                    names.Add($"[[{recipient.Name}]]");
+                    names.Add($"  - \"[[{recipient.Name}]]\"");
                 }
             }
-            return string.Join(", ", names);
+            return $"\n{string.Join("\n", names)}";
         }
 
         private string BuildEmailList(Recipients recipients, OlMailRecipientType type)
@@ -207,7 +331,7 @@ namespace SlingMD.Outlook.Services
                         string email = recipient.PropertyAccessor.GetProperty(PR_SMTP_ADDRESS);
                         if (!string.IsNullOrEmpty(email))
                         {
-                            emails.Add(email);
+                            emails.Add($"  - \"{email}\"");
                         }
                     }
                     catch
@@ -215,51 +339,311 @@ namespace SlingMD.Outlook.Services
                         // Fallback to Address property
                         if (!string.IsNullOrEmpty(recipient.Address))
                         {
-                            emails.Add(recipient.Address);
+                            emails.Add($"  - \"{recipient.Address}\"");
                         }
                     }
                 }
             }
-            return string.Join(", ", emails);
+            return $"\n{string.Join("\n", emails)}";
         }
 
         private string CleanFileName(string input)
         {
-            if (string.IsNullOrEmpty(input))
-                return string.Empty;
-
-            // Replace invalid characters with a dash
-            var invalidChars = Path.GetInvalidFileNameChars();
-            var sb = new StringBuilder(input);
-            foreach (char c in invalidChars)
-            {
-                sb.Replace(c, '-');
-            }
-            return sb.ToString().Trim();
+            return FileHelper.CleanFileName(input);
         }
 
         private void WriteUtf8File(string filePath, string content)
         {
-            // Ensure the directory exists
-            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-            // Write the file with UTF-8 encoding
-            using (var stream = new StreamWriter(filePath, false, new UTF8Encoding(false)))
-            {
-                stream.Write(content);
-            }
+            FileHelper.WriteUtf8File(filePath, content);
         }
 
         private void LaunchObsidian(string vaultName, string filePath)
         {
-            string encodedPath = Uri.EscapeDataString(filePath);
-            string command = $"obsidian://open?vault={vaultName}&file={encodedPath}";
-            
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            FileHelper.LaunchObsidian(vaultName, filePath);
+        }
+
+        private string CleanSubject(string subject)
+        {
+            if (string.IsNullOrEmpty(subject))
+                return string.Empty;
+
+            string cleaned = subject;
+
+            // Apply all cleanup patterns from settings
+            foreach (var pattern in _settings.SubjectCleanupPatterns)
             {
-                FileName = command,
-                UseShellExecute = true
+                cleaned = Regex.Replace(cleaned, pattern, "", RegexOptions.IgnoreCase);
+            }
+
+            // Clean the remaining text for file name safety
+            return CleanFileName(cleaned);
+        }
+
+        private string GetThreadNoteName(MailItem mail)
+        {
+            // Get clean base subject
+            string baseSubject = mail.ConversationTopic ?? mail.Subject;
+            string cleanSubject = CleanSubject(baseSubject);
+            
+            if (cleanSubject.Length > 50)  // Limit subject length
+            {
+                cleanSubject = cleanSubject.Substring(0, 47) + "...";
+            }
+            
+            // Get first sender and recipient initials or short names
+            string firstSender = GetShortName(mail.SenderName);
+            string firstRecipient = "";
+            foreach (Recipient recipient in mail.Recipients)
+            {
+                if (recipient.Type == (int)OlMailRecipientType.olTo)
+                {
+                    firstRecipient = GetShortName(recipient.Name);
+                    break;
+                }
+            }
+            
+            return $"Thread-{cleanSubject}-{firstSender}-{firstRecipient}";
+        }
+
+        private string GetShortName(string fullName)
+        {
+            // Clean the name first
+            string cleanName = CleanFileName(fullName);
+            
+            // If name contains parentheses, take what's before them
+            int parenIndex = cleanName.IndexOf('(');
+            if (parenIndex > 0)
+            {
+                cleanName = cleanName.Substring(0, parenIndex).Trim();
+            }
+
+            // Split into parts
+            string[] parts = cleanName.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            if (parts.Length == 0) return "Unknown";
+            if (parts.Length == 1) return parts[0].Length > 10 ? parts[0].Substring(0, 10) : parts[0];
+            
+            // For multiple parts, use first name and last name initial
+            string firstName = parts[0].Length > 10 ? parts[0].Substring(0, 10) : parts[0];
+            string lastInitial = parts[parts.Length - 1].Substring(0, 1).ToUpper();
+            return $"{firstName}{lastInitial}";
+        }
+
+        private string ProcessTemplate(string templateContent, Dictionary<string, string> replacements)
+        {
+            string result = templateContent;
+            foreach (var replacement in replacements)
+            {
+                result = result.Replace($"{{{{{replacement.Key}}}}}", replacement.Value);
+            }
+            return result;
+        }
+
+        private async Task UpdateThreadNote(MailItem mail, string conversationId, string threadNoteName, string currentEmailFile)
+        {
+            // Initialize with default values
+            string threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+            string threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
+
+            // First check if a thread note already exists for this conversation
+            var threadNotes = Directory.GetFiles(_settings.GetInboxPath(), "0-Thread-*.md", SearchOption.AllDirectories);
+            string existingThreadNote = null;
+            
+            foreach (var note in threadNotes)
+            {
+                string noteContent = File.ReadAllText(note);
+                var threadIdMatch = Regex.Match(noteContent, @"threadId: ""([^""]+)""");
+                if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
+                {
+                    existingThreadNote = note;
+                    // Update threadNoteName and paths to use the existing note's location
+                    threadNoteName = Path.GetFileName(Path.GetDirectoryName(note));
+                    threadFolderPath = Path.GetDirectoryName(note);
+                    threadNotePath = note;
+                    break;
+                }
+            }
+
+            // If no existing thread note was found, create a new one
+            if (existingThreadNote == null)
+            {
+                threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+                threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
+                Directory.CreateDirectory(threadFolderPath);
+            }
+            
+            // Try multiple locations for the template file
+            string[] possibleTemplatePaths = new[]
+            {
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "ThreadNoteTemplate.md"),
+                Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Templates", "ThreadNoteTemplate.md"),
+                Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ThreadNoteTemplate.md"),
+                Path.Combine(Environment.CurrentDirectory, "Templates", "ThreadNoteTemplate.md")
+            };
+
+            string templateContent = null;
+            string foundPath = null;
+
+            foreach (var path in possibleTemplatePaths)
+            {
+                if (File.Exists(path))
+                {
+                    templateContent = File.ReadAllText(path);
+                    foundPath = path;
+                    break;
+                }
+            }
+
+            if (templateContent == null)
+            {
+                // If template file not found, use embedded template
+                templateContent = @"---
+title: ""{{title}}""
+type: email-thread
+threadId: ""{{threadId}}""
+tags: [email-thread]
+---
+
+# {{title}}
+
+```dataviewjs
+// Get all emails with matching threadId from current folder
+const threadId = ""{{threadId}}"";
+const emails = dv.pages("""")
+    .where(p => p.threadId === threadId && p.file.name !== dv.current().file.name)
+    .sort(p => p.date, 'desc');
+
+// Display thread summary
+if (emails.length > 0) {
+    const startDate = emails[emails.length-1].date;
+    const latestDate = emails[0].date;
+    const participants = new Set();
+    emails.forEach(e => {
+        // Handle from field
+        if (e.from) {
+            const fromName = String(e.from).match(/\[\[(.*?)\]\]/)?.[1];
+            if (fromName) participants.add(fromName);
+        }
+
+        // Handle to field
+        if (e.to) {
+            const toList = Array.isArray(e.to) ? e.to : [e.to];
+            toList.forEach(to => {
+                const name = String(to).match(/\[\[(.*?)\]\]/)?.[1];
+                if (name) participants.add(name);
             });
+        }
+
+        // Handle cc field
+        if (e.cc) {
+            const ccList = Array.isArray(e.cc) ? e.cc : [e.cc];
+            ccList.forEach(cc => {
+                const name = String(cc).match(/\[\[(.*?)\]\]/)?.[1];
+                if (name) participants.add(name);
+            });
+        }
+    });
+
+    dv.header(2, 'Thread Summary');
+    dv.list([
+        `Started: ${startDate}`,
+        `Latest: ${latestDate}`,
+        `Messages: ${emails.length}`,
+        `Participants: ${Array.from(participants).map(p => `[[${p}]]`).join(', ')}`
+    ]);
+}
+
+// Display email timeline
+dv.header(2, 'Email Timeline');
+for (const email of emails) {
+    dv.header(3, `${email.file.name} - ${email.date}`);
+    dv.paragraph(`![[${email.file.name}]]`);
+}
+```";
+            }
+            
+            // Prepare replacements
+            var replacements = new Dictionary<string, string>
+            {
+                { "title", mail.ConversationTopic ?? mail.Subject },
+                { "threadId", conversationId }
+            };
+            
+            // Process the template
+            string content = ProcessTemplate(templateContent, replacements);
+            
+            // Write thread note
+            WriteUtf8File(threadNotePath, content);
+        }
+
+        private string MoveToThreadFolder(string emailPath, string threadFolderPath)
+        {
+            string fileName = Path.GetFileName(emailPath);
+            string threadPath = Path.Combine(threadFolderPath, fileName);
+            
+            if (!Directory.Exists(threadFolderPath))
+            {
+                Directory.CreateDirectory(threadFolderPath);
+            }
+
+            if (File.Exists(threadPath))
+            {
+                File.Delete(threadPath);
+            }
+
+            File.Move(emailPath, threadPath);
+            return threadPath;
+        }
+
+        private string BuildFrontMatter(string subject, string from, string fromEmail, List<string> to, List<string> toEmail, 
+            string threadId, List<string> cc, List<string> ccEmail, DateTime date, string threadNote)
+        {
+            var frontMatter = new StringBuilder();
+            frontMatter.AppendLine("---");
+            frontMatter.AppendLine($"title: {subject}");
+            frontMatter.AppendLine($"from: \"[[{from}]]\"");
+            frontMatter.AppendLine($"fromEmail: \"{fromEmail}\"");
+
+            // Handle 'to' fields
+            frontMatter.AppendLine("to:");
+            foreach (var person in to)
+            {
+                frontMatter.AppendLine($"  - [[{person}]]");
+            }
+            frontMatter.AppendLine("toEmail:");
+            foreach (var email in toEmail)
+            {
+                frontMatter.AppendLine($"  - {email}");
+            }
+
+            frontMatter.AppendLine($"threadId: {threadId}");
+
+            // Handle 'cc' fields if present
+            if (cc != null && cc.Any())
+            {
+                frontMatter.AppendLine("cc:");
+                foreach (var person in cc)
+                {
+                    frontMatter.AppendLine($"  - [[{person}]]");
+                }
+                frontMatter.AppendLine("ccEmail:");
+                foreach (var email in ccEmail)
+                {
+                    frontMatter.AppendLine($"  - {email}");
+                }
+            }
+
+            frontMatter.AppendLine($"date: {date:yyyy-MM-dd HH:mm}");
+            frontMatter.AppendLine($"dailyNoteLink: [[{date:yyyy-MM-dd}]]");
+            frontMatter.AppendLine("tags: [email]");
+            if (!string.IsNullOrEmpty(threadNote))
+            {
+                frontMatter.AppendLine($"threadNote: [[{threadNote}]]");
+            }
+            frontMatter.AppendLine("---");
+            frontMatter.AppendLine();
+
+            return frontMatter.ToString();
         }
 
         private async Task CreateOutlookTaskAsync(MailItem mail)
@@ -313,5 +697,46 @@ namespace SlingMD.Outlook.Services
                 System.Windows.Forms.MessageBox.Show($"Failed to create Outlook task: {ex.Message}", "SlingMD", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+
+        private string GetConversationId(MailItem mail)
+        {
+            try
+            {
+                // Try to get the conversation index using PR_CONVERSATION_INDEX property
+                // This is a more reliable way to track conversation threads in Outlook
+                const string PR_CONVERSATION_INDEX = "http://schemas.microsoft.com/mapi/proptag/0x0071001F";
+                byte[] conversationIndex = (byte[])mail.PropertyAccessor.GetProperty(PR_CONVERSATION_INDEX);
+                
+                if (conversationIndex != null && conversationIndex.Length >= 22)
+                {
+                    // The first 22 bytes of the conversation index identify the thread
+                    // Convert to a readable string format
+                    return BitConverter.ToString(conversationIndex.Take(22).ToArray())
+                        .Replace("-", "").Substring(0, 16);
+                }
+
+                // Fallback to conversation topic if available
+                if (!string.IsNullOrEmpty(mail.ConversationTopic))
+                {
+                    string normalizedSubject = mail.ConversationTopic;
+                    // Remove all variations of Re, Fwd, etc. and [EXTERNAL] tags
+                    normalizedSubject = Regex.Replace(normalizedSubject, @"^(?:(?:Re|Fwd|FW|RE|FWD)[- :]|\[EXTERNAL\]\s*)+", "", RegexOptions.IgnoreCase);
+                    return BitConverter.ToString(System.Security.Cryptography.MD5.Create()
+                        .ComputeHash(Encoding.UTF8.GetBytes(normalizedSubject)))
+                        .Replace("-", "").Substring(0, 16);
+                }
+            }
+            catch
+            {
+                // If both methods fail, use the normalized subject as last resort
+                string normalizedSubject = mail.Subject;
+                normalizedSubject = Regex.Replace(normalizedSubject, @"^(?:(?:Re|Fwd|FW|RE|FWD)[- :]|\[EXTERNAL\]\s*)+", "", RegexOptions.IgnoreCase);
+                return BitConverter.ToString(System.Security.Cryptography.MD5.Create()
+                    .ComputeHash(Encoding.UTF8.GetBytes(normalizedSubject)))
+                    .Replace("-", "").Substring(0, 16);
+            }
+            
+            return Guid.NewGuid().ToString("N").Substring(0, 16);
+        }
     }
-} 
+}
