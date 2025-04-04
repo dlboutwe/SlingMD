@@ -89,31 +89,36 @@ namespace SlingMD.Outlook.Services
                     // Check if there are other emails in this thread and get existing thread folder if any
                     bool hasExistingThread = false;
                     string existingThreadFolder = null;
-                    var files = Directory.GetFiles(_settings.GetInboxPath(), "*.md", SearchOption.AllDirectories);
-                    foreach (var file in files)
-                    {
-                        if (file.Equals(filePath, StringComparison.OrdinalIgnoreCase))
-                            continue;
 
-                        string emailContent = File.ReadAllText(file);
-                        var threadIdMatch = Regex.Match(emailContent, @"threadId: ""([^""]+)""");
-                        if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
+                    // Only check for thread grouping if the setting is enabled
+                    if (_settings.GroupEmailThreads)
+                    {
+                        var files = Directory.GetFiles(_settings.GetInboxPath(), "*.md", SearchOption.AllDirectories);
+                        foreach (var file in files)
                         {
-                            hasExistingThread = true;
-                            // Get the existing thread folder path
-                            string directory = Path.GetDirectoryName(file);
-                            if (directory.Contains("Thread-"))
+                            if (file.Equals(filePath, StringComparison.OrdinalIgnoreCase))
+                                continue;
+
+                            string emailContent = File.ReadAllText(file);
+                            var threadIdMatch = Regex.Match(emailContent, @"threadId: ""([^""]+)""");
+                            if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
                             {
-                                existingThreadFolder = Path.GetFileName(directory);
-                                threadNoteName = existingThreadFolder;
-                                threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+                                hasExistingThread = true;
+                                // Get the existing thread folder path
+                                string directory = Path.GetDirectoryName(file);
+                                if (directory != _settings.GetInboxPath())
+                                {
+                                    existingThreadFolder = Path.GetFileName(directory);
+                                    threadNoteName = existingThreadFolder;
+                                    threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
 
-                    // If this is part of a thread, update the file path to be in the thread folder
-                    if (hasExistingThread)
+                    // If this is part of a thread and thread grouping is enabled, update the file path to be in the thread folder
+                    if (hasExistingThread && _settings.GroupEmailThreads)
                     {
                         Directory.CreateDirectory(threadFolderPath);
                         filePath = Path.Combine(threadFolderPath, fileName);
@@ -149,8 +154,8 @@ namespace SlingMD.Outlook.Services
                     frontmatter.AppendLine($"dailyNoteLink: \"[[{mail.ReceivedTime:yyyy-MM-dd}]]\"");
                     frontmatter.AppendLine("tags: [email]");
                     
-                    // Add threadNote if this is part of a thread
-                    if (hasExistingThread)
+                    // Add threadNote if this is part of a thread and thread grouping is enabled
+                    if (hasExistingThread && _settings.GroupEmailThreads)
                     {
                         frontmatter.AppendLine($"threadNote: \"[[0-{threadNoteName}]]\"");
                     }
@@ -188,9 +193,10 @@ namespace SlingMD.Outlook.Services
                     string content = frontmatter.ToString() + mail.Body;
                     WriteUtf8File(filePath, content);
 
-                    // If this is part of a thread, move any existing related emails into the thread folder
-                    if (hasExistingThread)
+                    // If this is part of a thread and thread grouping is enabled, move any existing related emails into the thread folder
+                    if (hasExistingThread && _settings.GroupEmailThreads)
                     {
+                        var files = Directory.GetFiles(_settings.GetInboxPath(), "*.md", SearchOption.AllDirectories);
                         foreach (var file in files)
                         {
                             if (file.StartsWith(threadFolderPath, StringComparison.OrdinalIgnoreCase))
@@ -198,7 +204,7 @@ namespace SlingMD.Outlook.Services
 
                             // Read with UTF-8 encoding
                             string emailContent;
-                            using (var reader = new StreamReader(file, new UTF8Encoding(false)))
+                            using (var reader = new StreamReader(file, encoding: new UTF8Encoding(false)))
                             {
                                 emailContent = reader.ReadToEnd();
                             }
@@ -416,7 +422,7 @@ namespace SlingMD.Outlook.Services
                 }
             }
             
-            return $"Thread-{cleanSubject}-{firstSender}-{firstRecipient}";
+            return $"{cleanSubject}-{firstSender}-{firstRecipient}";
         }
 
         private string GetShortName(string fullName)
@@ -460,7 +466,7 @@ namespace SlingMD.Outlook.Services
             string threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
 
             // First check if a thread note already exists for this conversation
-            var threadNotes = Directory.GetFiles(_settings.GetInboxPath(), "0-Thread-*.md", SearchOption.AllDirectories);
+            var threadNotes = Directory.GetFiles(_settings.GetInboxPath(), "0-*.md", SearchOption.AllDirectories);
             string existingThreadNote = null;
             
             foreach (var note in threadNotes)
@@ -716,8 +722,20 @@ for (const email of emails) {
         {
             try
             {
+                // Try to get the conversation topic first as it's most reliable for threading
+                if (!string.IsNullOrEmpty(mail.ConversationTopic))
+                {
+                    string normalizedSubject = mail.ConversationTopic;
+                    // Remove all variations of Re, Fwd, etc. and [EXTERNAL] tags
+                    normalizedSubject = Regex.Replace(normalizedSubject, @"^(?:(?:Re|Fwd|FW|RE|FWD)[- :]|\[EXTERNAL\]|\s)+", "", RegexOptions.IgnoreCase);
+                    // Also remove any "Re:" that might appear after [EXTERNAL]
+                    normalizedSubject = Regex.Replace(normalizedSubject, @"^Re:\s+", "", RegexOptions.IgnoreCase);
+                    return BitConverter.ToString(System.Security.Cryptography.MD5.Create()
+                        .ComputeHash(Encoding.UTF8.GetBytes(normalizedSubject)))
+                        .Replace("-", "").Substring(0, 16);
+                }
+
                 // Try to get the conversation index using PR_CONVERSATION_INDEX property
-                // This is a more reliable way to track conversation threads in Outlook
                 const string PR_CONVERSATION_INDEX = "http://schemas.microsoft.com/mapi/proptag/0x0071001F";
                 byte[] conversationIndex = (byte[])mail.PropertyAccessor.GetProperty(PR_CONVERSATION_INDEX);
                 
@@ -729,28 +747,18 @@ for (const email of emails) {
                         .Replace("-", "").Substring(0, 16);
                 }
 
-                // Fallback to conversation topic if available
-                if (!string.IsNullOrEmpty(mail.ConversationTopic))
-                {
-                    string normalizedSubject = mail.ConversationTopic;
-                    // Remove all variations of Re, Fwd, etc. and [EXTERNAL] tags
-                    normalizedSubject = Regex.Replace(normalizedSubject, @"^(?:(?:Re|Fwd|FW|RE|FWD)[- :]|\[EXTERNAL\]\s*)+", "", RegexOptions.IgnoreCase);
-                    return BitConverter.ToString(System.Security.Cryptography.MD5.Create()
-                        .ComputeHash(Encoding.UTF8.GetBytes(normalizedSubject)))
-                        .Replace("-", "").Substring(0, 16);
-                }
+                // If both methods fail, use the normalized subject as last resort
+                string subject = mail.Subject;
+                subject = Regex.Replace(subject, @"^(?:(?:Re|Fwd|FW|RE|FWD)[- :]|\[EXTERNAL\]|\s)+", "", RegexOptions.IgnoreCase);
+                subject = Regex.Replace(subject, @"^Re:\s+", "", RegexOptions.IgnoreCase);
+                return BitConverter.ToString(System.Security.Cryptography.MD5.Create()
+                    .ComputeHash(Encoding.UTF8.GetBytes(subject)))
+                    .Replace("-", "").Substring(0, 16);
             }
             catch
             {
-                // If both methods fail, use the normalized subject as last resort
-                string normalizedSubject = mail.Subject;
-                normalizedSubject = Regex.Replace(normalizedSubject, @"^(?:(?:Re|Fwd|FW|RE|FWD)[- :]|\[EXTERNAL\]\s*)+", "", RegexOptions.IgnoreCase);
-                return BitConverter.ToString(System.Security.Cryptography.MD5.Create()
-                    .ComputeHash(Encoding.UTF8.GetBytes(normalizedSubject)))
-                    .Replace("-", "").Substring(0, 16);
+                return Guid.NewGuid().ToString("N").Substring(0, 16);
             }
-            
-            return Guid.NewGuid().ToString("N").Substring(0, 16);
         }
     }
 }

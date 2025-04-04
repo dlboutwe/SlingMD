@@ -103,6 +103,7 @@ namespace SlingMD.Outlook.Forms
             this.lblDefaultReminderDays = new Label();
             this.lblDefaultReminderHour = new Label();
             this.lblDueDaysHelp = new Label();
+            this.chkGroupEmailThreads = new CheckBox();
 
             // Form settings
             this.Text = "Obsidian Settings";
@@ -257,6 +258,12 @@ namespace SlingMD.Outlook.Forms
             this.chkAskForDates.Font = new Font("Segoe UI", 10F);
             this.chkAskForDates.AutoSize = true;
 
+            // Group email threads checkbox
+            this.chkGroupEmailThreads.Text = "Group email threads";
+            this.chkGroupEmailThreads.Location = new Point(checkboxX, startY + lineHeight * 10);
+            this.chkGroupEmailThreads.Font = new Font("Segoe UI", 10F);
+            this.chkGroupEmailThreads.AutoSize = true;
+
             // Action Buttons at the bottom
             int bottomButtonY = this.ClientSize.Height - buttonHeight - 30;
             
@@ -291,6 +298,7 @@ namespace SlingMD.Outlook.Forms
                 this.lblDefaultReminderHour, this.numDefaultReminderHour,
                 lblReminderHourHelp,
                 this.chkAskForDates,
+                this.chkGroupEmailThreads,
                 this.btnSave, this.btnCancel
             });
 
@@ -308,10 +316,11 @@ namespace SlingMD.Outlook.Forms
             chkShowCountdown.Checked = _settings.ShowCountdown;
             chkCreateObsidianTask.Checked = _settings.CreateObsidianTask;
             chkCreateOutlookTask.Checked = _settings.CreateOutlookTask;
+            chkAskForDates.Checked = _settings.AskForDates;
+            chkGroupEmailThreads.Checked = _settings.GroupEmailThreads;
             numDefaultDueDays.Value = _settings.DefaultDueDays;
             numDefaultReminderDays.Value = _settings.DefaultReminderDays;
             numDefaultReminderHour.Value = _settings.DefaultReminderHour;
-            chkAskForDates.Checked = _settings.AskForDates;
 
             // Load patterns
             lstPatterns.Items.Clear();
@@ -345,10 +354,11 @@ namespace SlingMD.Outlook.Forms
             _settings.ShowCountdown = chkShowCountdown.Checked;
             _settings.CreateObsidianTask = chkCreateObsidianTask.Checked;
             _settings.CreateOutlookTask = chkCreateOutlookTask.Checked;
+            _settings.AskForDates = chkAskForDates.Checked;
+            _settings.GroupEmailThreads = chkGroupEmailThreads.Checked;
             _settings.DefaultDueDays = (int)numDefaultDueDays.Value;
             _settings.DefaultReminderDays = (int)numDefaultReminderDays.Value;
             _settings.DefaultReminderHour = (int)numDefaultReminderHour.Value;
-            _settings.AskForDates = chkAskForDates.Checked;
 
             // Save patterns
             _settings.SubjectCleanupPatterns.Clear();
@@ -403,10 +413,11 @@ namespace SlingMD.Outlook.Forms
         private CheckBox chkShowCountdown;
         private CheckBox chkCreateObsidianTask;
         private CheckBox chkCreateOutlookTask;
+        private CheckBox chkAskForDates;
+        private CheckBox chkGroupEmailThreads;
         private NumericUpDown numDefaultDueDays;
         private NumericUpDown numDefaultReminderDays;
         private NumericUpDown numDefaultReminderHour;
-        private CheckBox chkAskForDates;
         private Button btnBrowse;
         private Button btnSave;
         private Button btnCancel;

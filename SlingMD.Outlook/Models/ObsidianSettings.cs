@@ -31,6 +31,7 @@ namespace SlingMD.Outlook.Models
         public int DefaultReminderDays { get; set; } = 0;  // Remind today
         public int DefaultReminderHour { get; set; } = 9;  // at 9am
         public bool AskForDates { get; set; } = false;
+        public bool GroupEmailThreads { get; set; } = true;
 
         public List<string> SubjectCleanupPatterns { get; set; } = new List<string>
         {
@@ -68,7 +69,8 @@ namespace SlingMD.Outlook.Models
                 { "DefaultReminderDays", DefaultReminderDays },
                 { "DefaultReminderHour", DefaultReminderHour },
                 { "AskForDates", AskForDates },
-                { "SubjectCleanupPatterns", SubjectCleanupPatterns }
+                { "SubjectCleanupPatterns", SubjectCleanupPatterns },
+                { "GroupEmailThreads", GroupEmailThreads }
             };
 
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
@@ -141,6 +143,10 @@ namespace SlingMD.Outlook.Models
                     {
                         SubjectCleanupPatterns = patterns;
                     }
+                }
+                if (settings.ContainsKey("GroupEmailThreads"))
+                {
+                    GroupEmailThreads = settings["GroupEmailThreads"].Value<bool>();
                 }
             }
         }
