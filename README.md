@@ -153,3 +153,9 @@ If you encounter any issues or have questions, please open an issue in the GitHu
 THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The author is not responsible for any data loss, corruption, or other issues that may occur while using this software. Always ensure you have proper backups of your data before using any software that modifies your files.
+
+---
+
+☕ Like what I’m building? Help fuel my next project (or my next coffee)!  
+Support me on [Buy Me a Coffee](https://buymeacoffee.com/plainsprepper) 💻🧵🔥
+
