@@ -89,6 +89,8 @@ namespace SlingMD.Outlook.Services
                     // Check if there are other emails in this thread and get existing thread folder if any
                     bool hasExistingThread = false;
                     string existingThreadFolder = null;
+                    DateTime? earliestEmailDate = null;
+                    string earliestEmailThreadName = null;
 
                     // Only check for thread grouping if the setting is enabled
                     if (_settings.GroupEmailThreads)
@@ -104,16 +106,51 @@ namespace SlingMD.Outlook.Services
                             if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
                             {
                                 hasExistingThread = true;
-                                // Get the existing thread folder path
-                                string directory = Path.GetDirectoryName(file);
-                                if (directory != _settings.GetInboxPath())
+
+                                // Get the date from the file content
+                                var dateMatch = Regex.Match(emailContent, @"date: (\d{4}-\d{2}-\d{2} \d{2}:\d{2})");
+                                if (dateMatch.Success)
                                 {
-                                    existingThreadFolder = Path.GetFileName(directory);
-                                    threadNoteName = existingThreadFolder;
-                                    threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+                                    var emailDate = DateTime.ParseExact(dateMatch.Groups[1].Value, "yyyy-MM-dd HH:mm", null);
+                                    if (!earliestEmailDate.HasValue || emailDate < earliestEmailDate.Value)
+                                    {
+                                        earliestEmailDate = emailDate;
+                                        // Get thread name from this email
+                                        string directory = Path.GetDirectoryName(file);
+                                        if (directory != _settings.GetInboxPath())
+                                        {
+                                            earliestEmailThreadName = Path.GetFileName(directory);
+                                        }
+                                        else
+                                        {
+                                            // If the earliest email is not in a thread folder yet,
+                                            // generate its thread name using its subject and recipients
+                                            var subjectMatch = Regex.Match(emailContent, @"title: ""([^""]+)""");
+                                            var fromMatch = Regex.Match(emailContent, @"from: ""[^""]*\[\[([^""]+)\]\]""");
+                                            var toMatch = Regex.Match(emailContent, @"to:.*?\n\s*- ""[^""]*\[\[([^""]+)\]\]""", RegexOptions.Singleline);
+                                            
+                                            if (subjectMatch.Success && fromMatch.Success && toMatch.Success)
+                                            {
+                                                string subject = CleanSubject(subjectMatch.Groups[1].Value);
+                                                if (subject.Length > 50)
+                                                {
+                                                    subject = subject.Substring(0, 47) + "...";
+                                                }
+                                                string sender = GetShortName(fromMatch.Groups[1].Value);
+                                                string recipient = GetShortName(toMatch.Groups[1].Value);
+                                                earliestEmailThreadName = $"{subject}-{sender}-{recipient}";
+                                            }
+                                        }
+                                    }
                                 }
-                                break;
                             }
+                        }
+
+                        // If we found an existing thread, use the earliest email's thread name
+                        if (hasExistingThread && !string.IsNullOrEmpty(earliestEmailThreadName))
+                        {
+                            threadNoteName = earliestEmailThreadName;
+                            threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
                         }
                     }
 
