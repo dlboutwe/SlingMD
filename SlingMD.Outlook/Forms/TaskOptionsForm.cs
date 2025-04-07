@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace SlingMD.Outlook.Forms
 {
-    public partial class TaskOptionsForm : Form
+    public partial class TaskOptionsForm : BaseForm
     {
         private const int formWidth = 550;
         private const int formHeight = 250;

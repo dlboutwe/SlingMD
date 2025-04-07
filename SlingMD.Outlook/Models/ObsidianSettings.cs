@@ -39,9 +39,9 @@ namespace SlingMD.Outlook.Models
             @"\[EXTERNAL\]\s*",             // External email tags
             @"\[Internal\]\s*",             // Internal email tags
             @"\[Confidential\]\s*",         // Confidential tags
-            @"\[Secure\]\s*"                // Secure email tags
-            @"\[Sensitive\]\s*"             // Sensitive email tags
-            @"\[Private\]\s*"               // Private email tags
+            @"\[Secure\]\s*",                // Secure email tags
+            @"\[Sensitive\]\s*",             // Sensitive email tags
+            @"\[Private\]\s*",               // Private email tags
             @"\[PHI\]\s*"                   // PHI email tags
         };
 

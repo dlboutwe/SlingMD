@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SlingMD.Outlook.Forms
 {
-    public partial class SettingsForm : Form
+    public partial class SettingsForm : BaseForm
     {
         private readonly ObsidianSettings _settings;
         private ListBox lstPatterns;
@@ -18,67 +18,19 @@ namespace SlingMD.Outlook.Forms
         {
             InitializeComponent();
             _settings = settings;
-
-            // Add pattern management controls
-            var patternGroup = new GroupBox
-            {
-                Text = "Subject Cleanup Patterns",
-                Dock = DockStyle.Top,
-                Height = 150,
-                Padding = new Padding(10)
-            };
-
-            lstPatterns = new ListBox
-            {
-                Dock = DockStyle.Left,
-                Width = 300
-            };
-            patternGroup.Controls.Add(lstPatterns);
-
-            var buttonPanel = new Panel
-            {
-                Dock = DockStyle.Right,
-                Width = 100
-            };
-
-            btnAdd = new Button
-            {
-                Text = "Add",
-                Dock = DockStyle.Top,
-                Height = 30
-            };
-            btnAdd.Click += BtnAdd_Click;
-
-            btnEdit = new Button
-            {
-                Text = "Edit",
-                Dock = DockStyle.Top,
-                Height = 30
-            };
-            btnEdit.Click += BtnEdit_Click;
-
-            btnRemove = new Button
-            {
-                Text = "Remove",
-                Dock = DockStyle.Top,
-                Height = 30
-            };
-            btnRemove.Click += BtnRemove_Click;
-
-            buttonPanel.Controls.Add(btnRemove);
-            buttonPanel.Controls.Add(btnEdit);
-            buttonPanel.Controls.Add(btnAdd);
-            patternGroup.Controls.Add(buttonPanel);
-
-            // Insert the pattern group at the top of the form
-            Controls.Add(patternGroup);
-            patternGroup.BringToFront();
-
             LoadSettings();
         }
 
         private void InitializeComponent()
         {
+            // Create a panel to contain all controls
+            var contentPanel = new Panel
+            {
+                AutoScroll = true,
+                Dock = DockStyle.Fill,
+                Padding = new Padding(20)
+            };
+
             this.txtVaultName = new TextBox();
             this.txtVaultPath = new TextBox();
             this.txtInboxFolder = new TextBox();
@@ -104,24 +56,28 @@ namespace SlingMD.Outlook.Forms
             this.lblDefaultReminderHour = new Label();
             this.lblDueDaysHelp = new Label();
             this.chkGroupEmailThreads = new CheckBox();
+            this.lstPatterns = new ListBox();
+            this.btnAdd = new Button();
+            this.btnEdit = new Button();
+            this.btnRemove = new Button();
 
             // Form settings
             this.Text = "Obsidian Settings";
-            this.Size = new System.Drawing.Size(900, 650); // Increased height for new controls
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(800, 600);
+            this.Size = new System.Drawing.Size(900, 700); // Reduced default height
+            this.FormBorderStyle = FormBorderStyle.Sizable;
+            this.MaximizeBox = true;
+            this.MinimizeBox = true;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Padding = new Padding(20);
 
             // Constants for layout
-            const int labelX = 30;
-            const int controlX = 200;
-            const int startY = 40;
-            const int lineHeight = 45;
+            const int labelX = 20;  // Reduced left margin
+            const int controlX = 160;  // Reduced space between label and control
+            const int startY = 20;  // Reduced top margin
+            const int lineHeight = 30;  // Further reduced space between lines
             const int controlWidth = 350;
-            const int labelWidth = 160;
-            const int buttonHeight = 35;
+            const int labelWidth = 130;
+            const int buttonHeight = 30;
             const int smallControlWidth = 80;
             const int helpTextX = controlX + smallControlWidth + 10;
             const int checkboxX = helpTextX + 200;
@@ -264,24 +220,18 @@ namespace SlingMD.Outlook.Forms
             this.chkGroupEmailThreads.Font = new Font("Segoe UI", 10F);
             this.chkGroupEmailThreads.AutoSize = true;
 
-            // Action Buttons at the bottom
-            int bottomButtonY = this.ClientSize.Height - buttonHeight - 30;
-            
-            this.btnSave.Text = "Save";
-            this.btnSave.DialogResult = DialogResult.OK;
-            this.btnSave.Location = new Point(this.ClientSize.Width - 230, bottomButtonY);
-            this.btnSave.Size = new Size(100, buttonHeight);
-            this.btnSave.Font = new Font("Segoe UI", 9F);
-            this.btnSave.Click += new EventHandler(btnSave_Click);
+            // Create main settings group
+            var mainSettingsGroup = new GroupBox
+            {
+                Text = "General Settings",
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                Padding = new Padding(10),
+                Margin = new Padding(0, 0, 0, 10)
+            };
 
-            this.btnCancel.Text = "Cancel";
-            this.btnCancel.DialogResult = DialogResult.Cancel;
-            this.btnCancel.Location = new Point(this.ClientSize.Width - 120, bottomButtonY);
-            this.btnCancel.Size = new Size(100, buttonHeight);
-            this.btnCancel.Font = new Font("Segoe UI", 9F);
-
-            // Add controls to form
-            this.Controls.AddRange(new Control[] {
+            // Add controls to the main settings group
+            mainSettingsGroup.Controls.AddRange(new Control[] {
                 this.lblVaultName, this.txtVaultName,
                 this.lblVaultPath, this.txtVaultPath, this.btnBrowse,
                 this.lblInboxFolder, this.txtInboxFolder,
@@ -298,12 +248,107 @@ namespace SlingMD.Outlook.Forms
                 this.lblDefaultReminderHour, this.numDefaultReminderHour,
                 lblReminderHourHelp,
                 this.chkAskForDates,
-                this.chkGroupEmailThreads,
-                this.btnSave, this.btnCancel
+                this.chkGroupEmailThreads
             });
+
+            // Add pattern management controls
+            var patternGroup = new GroupBox
+            {
+                Text = "Subject Cleanup Patterns",
+                Dock = DockStyle.Fill,
+                Padding = new Padding(10),
+                MinimumSize = new Size(0, 150)
+            };
+
+            // Create a container panel for the list and buttons
+            var patternContentPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(3, 30, 30, 3), // Added right padding of 10
+                Margin = new Padding(3, 30, 30, 3) // Added right padding of 10
+            };
+
+            lstPatterns.Dock = DockStyle.Fill;
+            lstPatterns.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+            lstPatterns.Margin = new Padding(0, 0, 20, 0); // Added right margin to the list
+
+            var patternButtonPanel = new Panel
+            {
+                Dock = DockStyle.Right,
+                Width = 100,
+                Padding = new Padding(20, 0, 0, 0), // Increased left padding from 10 to 20
+                Margin = new Padding(20, 0, 0, 0) // Increased left padding from 10 to 20
+            };
+
+            btnAdd.Text = "Add";
+            btnAdd.Dock = DockStyle.Top;
+            btnAdd.Height = 30;
+            btnAdd.Margin = new Padding(0, 0, 0, 5);
+            btnAdd.Click += BtnAdd_Click;
+
+            btnEdit.Text = "Edit";
+            btnEdit.Dock = DockStyle.Top;
+            btnEdit.Height = 30;
+            btnEdit.Margin = new Padding(0, 0, 0, 5);
+            btnEdit.Click += BtnEdit_Click;
+
+            btnRemove.Text = "Remove";
+            btnRemove.Dock = DockStyle.Top;
+            btnRemove.Height = 30;
+            btnRemove.Margin = new Padding(0, 0, 0, 5);
+            btnRemove.Click += BtnRemove_Click;
+
+            patternButtonPanel.Controls.Add(btnRemove);
+            patternButtonPanel.Controls.Add(btnEdit);
+            patternButtonPanel.Controls.Add(btnAdd);
+
+            patternContentPanel.Controls.Add(lstPatterns);
+            patternContentPanel.Controls.Add(patternButtonPanel);
+            patternGroup.Controls.Add(patternContentPanel);
+
+            // Create a panel for the bottom buttons that stays at the bottom
+            var buttonPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 50,
+                Padding = new Padding(10)
+            };
+
+            // Configure Save/Cancel buttons
+            this.btnSave.Text = "Save";
+            this.btnSave.DialogResult = DialogResult.OK;
+            this.btnSave.Size = new Size(100, 30);
+            this.btnSave.Font = new Font("Segoe UI", 9F);
+            this.btnSave.Click += new EventHandler(btnSave_Click);
+            this.btnSave.Anchor = AnchorStyles.Right;
+
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.DialogResult = DialogResult.Cancel;
+            this.btnCancel.Size = new Size(100, 30);
+            this.btnCancel.Font = new Font("Segoe UI", 9F);
+            this.btnCancel.Anchor = AnchorStyles.Right;
+
+            // Position the buttons
+            this.btnSave.Location = new Point(buttonPanel.ClientSize.Width - 230, 10);
+            this.btnCancel.Location = new Point(buttonPanel.ClientSize.Width - 120, 10);
+            buttonPanel.Controls.AddRange(new Control[] { this.btnSave, this.btnCancel });
+
+            // Add panels to form in correct order
+            contentPanel.Controls.Add(patternGroup);
+            contentPanel.Controls.Add(mainSettingsGroup);
+            this.Controls.Add(contentPanel);
+            this.Controls.Add(buttonPanel);
 
             this.AcceptButton = this.btnSave;
             this.CancelButton = this.btnCancel;
+
+            // Handle form resize to adjust controls
+            this.Resize += (s, e) => {
+                buttonPanel.SuspendLayout();
+                btnSave.Left = buttonPanel.ClientSize.Width - 230;
+                btnCancel.Left = buttonPanel.ClientSize.Width - 120;
+                buttonPanel.ResumeLayout();
+            };
         }
 
         private void LoadSettings()

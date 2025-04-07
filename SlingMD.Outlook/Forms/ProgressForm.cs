@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace SlingMD.Outlook.Forms
 {
-    public partial class ProgressForm : Form
+    public partial class ProgressForm : BaseForm
     {
         private readonly Timer _autoCloseTimer;
         private readonly Label _statusLabel;
