@@ -29,53 +29,16 @@ namespace SlingMD.Outlook.Forms
 
         private void InitializeComponent()
         {
-            this.lblMessage = new Label();
-            this.progressBar = new ProgressBar();
-            this.btnClose = new Button();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProgressForm));
             this.SuspendLayout();
-
-            // Label
-            this.lblMessage = new Label();
-            this.lblMessage.AutoSize = true;
-            this.lblMessage.Location = new System.Drawing.Point(12, 9);
-            this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(35, 13);
-            this.lblMessage.TabIndex = 0;
-            this.lblMessage.Text = "Please wait...";
-
-            // Progress Bar
-            this.progressBar = new ProgressBar();
-            this.progressBar.Location = new System.Drawing.Point(12, 34);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(360, 23);
-            this.progressBar.Style = ProgressBarStyle.Marquee;
-            this.progressBar.MarqueeAnimationSpeed = 30;
-            this.progressBar.TabIndex = 1;
-
-            // Close Button (hidden by default)
-            this.btnClose = new Button();
-            this.btnClose.Text = "Close";
-            this.btnClose.Size = new Size(75, 23);
-            this.btnClose.Location = new Point(297, 63);
-            this.btnClose.Visible = false;
-            this.btnClose.Click += (s, e) => this.Close();
-
-            // Form
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 101);
-            this.ControlBox = false;
-            this.Controls.Add(this.btnClose);
-            this.Controls.Add(this.progressBar);
-            this.Controls.Add(this.lblMessage);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+            // 
+            // ProgressForm
+            // 
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ProgressForm";
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Text = "Processing...";
             this.ResumeLayout(false);
-            this.PerformLayout();
+
         }
 
         public void UpdateProgress(string message, int percentage)

@@ -68,121 +68,16 @@ namespace SlingMD.Outlook.Forms
 
         private void InitializeComponent()
         {
-            this.Text = "Task Options";
-            this.Size = new Size(formWidth, formHeight);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.StartPosition = FormStartPosition.CenterParent;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TaskOptionsForm));
+            this.SuspendLayout();
+            // 
+            // TaskOptionsForm
+            // 
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "TaskOptionsForm";
+            this.ResumeLayout(false);
 
-            // Due Days/Date
-            this.lblDueDays = new Label();
-            this.lblDueDays.Text = "Due:";
-            this.lblDueDays.Location = new Point(labelX, startY);
-            this.lblDueDays.Size = new Size(100, 25);
-
-            this.numDueDays = new NumericUpDown();
-            this.numDueDays.Location = new Point(controlX, startY);
-            this.numDueDays.Size = new Size(60, 25);
-            this.numDueDays.Font = new Font("Segoe UI", 10F);
-            this.numDueDays.Minimum = 0;
-            this.numDueDays.Maximum = 365;
-            this.numDueDays.Value = DueDays;
-
-            this.dtpDueDate = new DateTimePicker();
-            this.dtpDueDate.Location = new Point(controlX, startY);
-            this.dtpDueDate.Size = new Size(150, 25);
-            this.dtpDueDate.Font = new Font("Segoe UI", 10F);
-            this.dtpDueDate.Format = DateTimePickerFormat.Short;
-            this.dtpDueDate.Value = DueDate;
-            this.dtpDueDate.MinDate = DateTime.Now.Date;
-
-            this.lblDueDaysHelp = new Label();
-            this.lblDueDaysHelp.Location = new Point(helpTextX, startY + 3);
-            this.lblDueDaysHelp.AutoSize = true;
-
-            // Relative Reminder Checkbox
-            this.chkUseRelativeReminder = new CheckBox();
-            this.chkUseRelativeReminder.Text = "Use Relative Dates";
-            this.chkUseRelativeReminder.Location = new Point(labelX, startY + lineHeight);
-            this.chkUseRelativeReminder.Size = new Size(200, 25);
-            this.chkUseRelativeReminder.Checked = UseRelativeReminder;
-            this.chkUseRelativeReminder.CheckedChanged += ChkUseRelativeReminder_CheckedChanged;
-
-            // Reminder Days/Date
-            this.lblReminderDays = new Label();
-            this.lblReminderDays.Text = "Reminder:";
-            this.lblReminderDays.Location = new Point(labelX, startY + lineHeight * 2);
-            this.lblReminderDays.Size = new Size(150, 25);
-
-            this.numReminderDays = new NumericUpDown();
-            this.numReminderDays.Location = new Point(controlX, startY + lineHeight * 2);
-            this.numReminderDays.Size = new Size(60, 25);
-            this.numReminderDays.Font = new Font("Segoe UI", 10F);
-            this.numReminderDays.Minimum = 0;
-            this.numReminderDays.Maximum = 365;
-            this.numReminderDays.Value = ReminderDays;
-
-            this.dtpReminderDate = new DateTimePicker();
-            this.dtpReminderDate.Location = new Point(controlX, startY + lineHeight * 2);
-            this.dtpReminderDate.Size = new Size(150, 25);
-            this.dtpReminderDate.Font = new Font("Segoe UI", 10F);
-            this.dtpReminderDate.Format = DateTimePickerFormat.Short;
-            this.dtpReminderDate.Value = ReminderDate;
-            this.dtpReminderDate.MinDate = DateTime.Now.Date;
-
-            this.lblReminderDaysHelp = new Label();
-            this.lblReminderDaysHelp.Location = new Point(helpTextX, startY + lineHeight * 2 + 3);
-            this.lblReminderDaysHelp.AutoSize = true;
-
-            // Reminder Hour
-            this.lblReminderHour = new Label();
-            this.lblReminderHour.Text = "Reminder Hour:";
-            this.lblReminderHour.Location = new Point(labelX, startY + lineHeight * 3);
-            this.lblReminderHour.Size = new Size(150, 25);
-
-            this.numReminderHour = new NumericUpDown();
-            this.numReminderHour.Location = new Point(controlX, startY + lineHeight * 3);
-            this.numReminderHour.Size = new Size(60, 25);
-            this.numReminderHour.Font = new Font("Segoe UI", 10F);
-            this.numReminderHour.Minimum = 0;
-            this.numReminderHour.Maximum = 23;
-            this.numReminderHour.Value = ReminderHour;
-
-            this.lblReminderHourHelp = new Label();
-            this.lblReminderHourHelp.Text = "(24-hour format)";
-            this.lblReminderHourHelp.Location = new Point(helpTextX, startY + lineHeight * 3 + 3);
-            this.lblReminderHourHelp.AutoSize = true;
-
-            // Buttons
-            this.btnOK = new Button();
-            this.btnOK.Text = "OK";
-            this.btnOK.DialogResult = DialogResult.OK;
-            this.btnOK.Location = new Point(formWidth - 180, formHeight - 80);
-            this.btnOK.Size = new Size(75, 25);
-            this.btnOK.Click += BtnOK_Click;
-
-            this.btnCancel = new Button();
-            this.btnCancel.Text = "Cancel";
-            this.btnCancel.DialogResult = DialogResult.Cancel;
-            this.btnCancel.Location = new Point(formWidth - 90, formHeight - 80);
-            this.btnCancel.Size = new Size(75, 25);
-
-            // Add controls to form
-            this.Controls.AddRange(new Control[] {
-                lblDueDays, numDueDays, dtpDueDate, lblDueDaysHelp,
-                chkUseRelativeReminder,
-                lblReminderDays, numReminderDays, dtpReminderDate, lblReminderDaysHelp,
-                lblReminderHour, numReminderHour, lblReminderHourHelp,
-                btnOK, btnCancel
-            });
-
-            this.AcceptButton = btnOK;
-            this.CancelButton = btnCancel;
-
-            // Initialize visibility based on mode
-            UpdateControlsVisibility();
-            UpdateHelpText();
         }
 
         private void ChkUseRelativeReminder_CheckedChanged(object sender, EventArgs e)
