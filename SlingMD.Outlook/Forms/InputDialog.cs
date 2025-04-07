@@ -1,12 +1,13 @@
 using System;
+using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace SlingMD.Outlook.Forms
 {
-    public partial class InputDialog : BaseForm, IDisposable
+    public partial class InputDialog : Form
     {
-        private bool _disposed = false;
-
         private TextBox txtInput;
         private Button btnOK;
         private Button btnCancel;
@@ -62,35 +63,12 @@ namespace SlingMD.Outlook.Forms
             AutoSize = true;
             Padding = new Padding(12);
         }
-
         private void InitializeComponent()
         {
             this.SuspendLayout();
             this.ClientSize = new System.Drawing.Size(384, 141);
             this.Name = "InputDialog";
             this.ResumeLayout(false);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    // Dispose managed resources
-                    if (txtInput != null) txtInput.Dispose();
-                    if (btnOK != null) btnOK.Dispose();
-                    if (btnCancel != null) btnCancel.Dispose();
-                }
-
-                _disposed = true;
-            }
-            base.Dispose(disposing);
-        }
-
-        ~InputDialog()
-        {
-            Dispose(false);
         }
     }
 } 

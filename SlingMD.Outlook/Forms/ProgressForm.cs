@@ -4,66 +4,78 @@ using System.Windows.Forms;
 
 namespace SlingMD.Outlook.Forms
 {
-    public partial class ProgressForm : BaseForm
+    public partial class ProgressForm : Form
     {
-        private readonly Timer _autoCloseTimer;
-        private readonly Label _statusLabel;
-        private readonly ProgressBar _progressBar;
-        private readonly Button _closeButton;
+        private Label lblMessage;
+        private ProgressBar progressBar;
+        private Button btnClose;
+        private Timer autoCloseTimer;
 
-        public ProgressForm()
+        public ProgressForm(string message = "Please wait...")
         {
-            // Form settings
-            this.Text = "SlingMD Progress";
-            this.Size = new Size(400, 150);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.ShowInTaskbar = false;
-            this.TopMost = true;
+            InitializeComponent();
+            lblMessage.Text = message;
 
-            // Status label
-            _statusLabel = new Label
-            {
-                Location = new Point(20, 20),
-                Size = new Size(360, 20),
-                TextAlign = ContentAlignment.MiddleLeft,
-                Text = "Starting..."
-            };
-            this.Controls.Add(_statusLabel);
-
-            // Progress bar
-            _progressBar = new ProgressBar
-            {
-                Location = new Point(20, 50),
-                Size = new Size(360, 23),
-                Style = ProgressBarStyle.Continuous,
-                Value = 0
-            };
-            this.Controls.Add(_progressBar);
-
-            // Close button (hidden by default)
-            _closeButton = new Button
-            {
-                Location = new Point(305, 85),
-                Size = new Size(75, 23),
-                Text = "Close",
-                Visible = false
-            };
-            _closeButton.Click += (s, e) => this.Close();
-            this.Controls.Add(_closeButton);
-
-            // Auto-close timer
-            _autoCloseTimer = new Timer
+            autoCloseTimer = new Timer
             {
                 Interval = 3000 // 3 seconds
             };
-            _autoCloseTimer.Tick += (s, e) =>
+            autoCloseTimer.Tick += (s, e) =>
             {
-                _autoCloseTimer.Stop();
+                autoCloseTimer.Stop();
                 this.Close();
             };
+        }
+
+        private void InitializeComponent()
+        {
+            this.lblMessage = new Label();
+            this.progressBar = new ProgressBar();
+            this.btnClose = new Button();
+            this.SuspendLayout();
+
+            // Label
+            this.lblMessage = new Label();
+            this.lblMessage.AutoSize = true;
+            this.lblMessage.Location = new System.Drawing.Point(12, 9);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(35, 13);
+            this.lblMessage.TabIndex = 0;
+            this.lblMessage.Text = "Please wait...";
+
+            // Progress Bar
+            this.progressBar = new ProgressBar();
+            this.progressBar.Location = new System.Drawing.Point(12, 34);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(360, 23);
+            this.progressBar.Style = ProgressBarStyle.Marquee;
+            this.progressBar.MarqueeAnimationSpeed = 30;
+            this.progressBar.TabIndex = 1;
+
+            // Close Button (hidden by default)
+            this.btnClose = new Button();
+            this.btnClose.Text = "Close";
+            this.btnClose.Size = new Size(75, 23);
+            this.btnClose.Location = new Point(297, 63);
+            this.btnClose.Visible = false;
+            this.btnClose.Click += (s, e) => this.Close();
+
+            // Form
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(384, 101);
+            this.ControlBox = false;
+            this.Controls.Add(this.btnClose);
+            this.Controls.Add(this.progressBar);
+            this.Controls.Add(this.lblMessage);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "ProgressForm";
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Text = "Processing...";
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
         public void UpdateProgress(string message, int percentage)
@@ -74,8 +86,9 @@ namespace SlingMD.Outlook.Forms
                 return;
             }
 
-            _statusLabel.Text = message;
-            _progressBar.Value = Math.Min(100, Math.Max(0, percentage));
+            lblMessage.Text = message;
+            progressBar.Style = ProgressBarStyle.Continuous;
+            progressBar.Value = Math.Min(100, Math.Max(0, percentage));
             this.Update();
         }
 
@@ -87,16 +100,17 @@ namespace SlingMD.Outlook.Forms
                 return;
             }
 
-            _statusLabel.Text = message;
-            _progressBar.Value = 100;
+            lblMessage.Text = message;
+            progressBar.Style = ProgressBarStyle.Continuous;
+            progressBar.Value = 100;
             
             if (autoClose)
             {
-                _autoCloseTimer.Start();
+                autoCloseTimer.Start();
             }
             else
             {
-                _closeButton.Visible = true;
+                btnClose.Visible = true;
             }
         }
 
@@ -108,20 +122,33 @@ namespace SlingMD.Outlook.Forms
                 return;
             }
 
-            _statusLabel.Text = message;
-            _progressBar.Value = 0;
-            _closeButton.Visible = true;
+            lblMessage.Text = message;
+            progressBar.Style = ProgressBarStyle.Continuous;
+            progressBar.Value = 0;
+            btnClose.Visible = true;
             
             if (autoClose)
             {
-                _autoCloseTimer.Start();
+                autoCloseTimer.Start();
             }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            _autoCloseTimer.Stop();
+            autoCloseTimer.Stop();
             base.OnFormClosing(e);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (lblMessage != null) lblMessage.Dispose();
+                if (progressBar != null) progressBar.Dispose();
+                if (btnClose != null) btnClose.Dispose();
+                if (autoCloseTimer != null) autoCloseTimer.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 } 

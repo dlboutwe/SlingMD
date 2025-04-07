@@ -3,10 +3,11 @@ using System.Windows.Forms;
 using System.Drawing;
 using SlingMD.Outlook.Models;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace SlingMD.Outlook.Forms
 {
-    public partial class SettingsForm : BaseForm
+    public partial class SettingsForm : Form
     {
         private readonly ObsidianSettings _settings;
         private ListBox lstPatterns;

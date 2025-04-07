@@ -247,9 +247,6 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Forms\BaseForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Forms\InputDialog.cs">
       <SubType>Form</SubType>
     </Compile>

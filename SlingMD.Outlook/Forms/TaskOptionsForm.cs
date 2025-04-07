@@ -1,10 +1,11 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Reflection;
 
 namespace SlingMD.Outlook.Forms
 {
-    public partial class TaskOptionsForm : BaseForm
+    public partial class TaskOptionsForm : Form
     {
         private const int formWidth = 550;
         private const int formHeight = 250;
@@ -29,6 +30,9 @@ namespace SlingMD.Outlook.Forms
         private Button btnOK;
         private Button btnCancel;
 
+        public DateTime DueDate { get; private set; }
+        public DateTime ReminderDate { get; private set; }
+
         public int DueDays => chkUseRelativeReminder.Checked ? (int)numDueDays.Value : (dtpDueDate.Value.Date - DateTime.Now.Date).Days;
         public int ReminderDays => chkUseRelativeReminder.Checked ? (int)numReminderDays.Value : (dtpReminderDate.Value.Date - DateTime.Now.Date).Days;
         public int ReminderHour => (int)numReminderHour.Value;
@@ -36,10 +40,33 @@ namespace SlingMD.Outlook.Forms
 
         public TaskOptionsForm(int defaultDueDays, int defaultReminderDays, int defaultReminderHour, bool useRelativeReminder = false)
         {
-            InitializeComponent(defaultDueDays, defaultReminderDays, defaultReminderHour, useRelativeReminder);
+            InitializeComponent();
+            DueDate = DateTime.Now.Date.AddDays(defaultDueDays);
+            ReminderDate = DateTime.Now.Date.AddDays(defaultReminderDays);
+            chkUseRelativeReminder.Checked = useRelativeReminder;
+            numDueDays.Value = defaultDueDays;
+            numReminderDays.Value = defaultReminderDays;
+            numReminderHour.Value = defaultReminderHour;
+            UpdateControlsVisibility();
+            UpdateHelpText();
         }
 
-        private void InitializeComponent(int defaultDueDays, int defaultReminderDays, int defaultReminderHour, bool useRelativeReminder)
+        public TaskOptionsForm(DateTime defaultDueDate, DateTime defaultReminderDate)
+        {
+            InitializeComponent();
+            DueDate = defaultDueDate;
+            ReminderDate = defaultReminderDate;
+            UpdateControlsVisibility();
+            UpdateHelpText();
+        }
+
+        private void InitializeControls()
+        {
+            UpdateControlsVisibility();
+            UpdateHelpText();
+        }
+
+        private void InitializeComponent()
         {
             this.Text = "Task Options";
             this.Size = new Size(formWidth, formHeight);
@@ -60,14 +87,14 @@ namespace SlingMD.Outlook.Forms
             this.numDueDays.Font = new Font("Segoe UI", 10F);
             this.numDueDays.Minimum = 0;
             this.numDueDays.Maximum = 365;
-            this.numDueDays.Value = defaultDueDays;
+            this.numDueDays.Value = DueDays;
 
             this.dtpDueDate = new DateTimePicker();
             this.dtpDueDate.Location = new Point(controlX, startY);
             this.dtpDueDate.Size = new Size(150, 25);
             this.dtpDueDate.Font = new Font("Segoe UI", 10F);
             this.dtpDueDate.Format = DateTimePickerFormat.Short;
-            this.dtpDueDate.Value = DateTime.Now.Date.AddDays(defaultDueDays);
+            this.dtpDueDate.Value = DueDate;
             this.dtpDueDate.MinDate = DateTime.Now.Date;
 
             this.lblDueDaysHelp = new Label();
@@ -79,7 +106,7 @@ namespace SlingMD.Outlook.Forms
             this.chkUseRelativeReminder.Text = "Use Relative Dates";
             this.chkUseRelativeReminder.Location = new Point(labelX, startY + lineHeight);
             this.chkUseRelativeReminder.Size = new Size(200, 25);
-            this.chkUseRelativeReminder.Checked = useRelativeReminder;
+            this.chkUseRelativeReminder.Checked = UseRelativeReminder;
             this.chkUseRelativeReminder.CheckedChanged += ChkUseRelativeReminder_CheckedChanged;
 
             // Reminder Days/Date
@@ -94,14 +121,14 @@ namespace SlingMD.Outlook.Forms
             this.numReminderDays.Font = new Font("Segoe UI", 10F);
             this.numReminderDays.Minimum = 0;
             this.numReminderDays.Maximum = 365;
-            this.numReminderDays.Value = defaultReminderDays;
+            this.numReminderDays.Value = ReminderDays;
 
             this.dtpReminderDate = new DateTimePicker();
             this.dtpReminderDate.Location = new Point(controlX, startY + lineHeight * 2);
             this.dtpReminderDate.Size = new Size(150, 25);
             this.dtpReminderDate.Font = new Font("Segoe UI", 10F);
             this.dtpReminderDate.Format = DateTimePickerFormat.Short;
-            this.dtpReminderDate.Value = DateTime.Now.Date.AddDays(defaultReminderDays);
+            this.dtpReminderDate.Value = ReminderDate;
             this.dtpReminderDate.MinDate = DateTime.Now.Date;
 
             this.lblReminderDaysHelp = new Label();
@@ -120,7 +147,7 @@ namespace SlingMD.Outlook.Forms
             this.numReminderHour.Font = new Font("Segoe UI", 10F);
             this.numReminderHour.Minimum = 0;
             this.numReminderHour.Maximum = 23;
-            this.numReminderHour.Value = defaultReminderHour;
+            this.numReminderHour.Value = ReminderHour;
 
             this.lblReminderHourHelp = new Label();
             this.lblReminderHourHelp.Text = "(24-hour format)";
