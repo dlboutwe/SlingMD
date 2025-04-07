@@ -15,6 +15,7 @@ namespace SlingMD.Outlook.Forms
         private TextBox txtVaultName;
         private TextBox txtVaultPath;
         private TextBox txtInboxFolder;
+        private TextBox txtContactsFolder;
         private CheckBox chkLaunchObsidian;
         private NumericUpDown numDelay;
         private CheckBox chkShowCountdown;
@@ -68,6 +69,7 @@ namespace SlingMD.Outlook.Forms
             txtVaultName.Text = _settings.VaultName;
             txtVaultPath.Text = _settings.VaultBasePath;
             txtInboxFolder.Text = _settings.InboxFolder;
+            txtContactsFolder.Text = _settings.ContactsFolder;
             chkLaunchObsidian.Checked = _settings.LaunchObsidian;
             numDelay.Value = _settings.ObsidianDelaySeconds;
             chkShowCountdown.Checked = _settings.ShowCountdown;
@@ -106,6 +108,7 @@ namespace SlingMD.Outlook.Forms
             _settings.VaultName = txtVaultName.Text;
             _settings.VaultBasePath = txtVaultPath.Text;
             _settings.InboxFolder = txtInboxFolder.Text;
+            _settings.ContactsFolder = txtContactsFolder.Text;
             _settings.LaunchObsidian = chkLaunchObsidian.Checked;
             _settings.ObsidianDelaySeconds = (int)numDelay.Value;
             _settings.ShowCountdown = chkShowCountdown.Checked;
