@@ -4,6 +4,7 @@ using Microsoft.Office.Interop.Outlook;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using SlingMD.Outlook.Models;
 
 namespace SlingMD.Outlook.Services
 {
@@ -104,12 +105,80 @@ namespace SlingMD.Outlook.Services
         // This will be expanded later for contact search/creation feature
         public bool ContactExists(string contactName)
         {
-            // TODO: Implement contact search
-            return false;
+            // Check if a note for this contact already exists
+            try
+            {
+                string cleanName = _fileService.CleanFileName(contactName);
+                
+                // First check the dedicated contacts folder
+                string contactsFolder = _settings.GetContactsPath();
+                string filePath = Path.Combine(contactsFolder, $"{cleanName}.md");
+                
+                if (File.Exists(filePath))
+                {
+                    return true;
+                }
+                
+                // If setting enabled, search the entire vault
+                if (_settings.SearchEntireVaultForContacts)
+                {
+                    string vaultPath = _settings.GetFullVaultPath();
+                    
+                    // Search for any markdown file with the contact's name in the title
+                    // or with a [[ContactName]] link pattern
+                    
+                    // Option 1: File name matches the contact name
+                    string[] matchingFiles = Directory.GetFiles(vaultPath, $"{cleanName}.md", SearchOption.AllDirectories);
+                    if (matchingFiles.Length > 0)
+                    {
+                        return true;
+                    }
+                    
+                    // Option 2: Search for markdown files with the contact name in wikilinks
+                    // This is more expensive but necessary for a complete search
+                    string[] allMarkdownFiles = Directory.GetFiles(vaultPath, "*.md", SearchOption.AllDirectories);
+                    
+                    // Prepare search patterns for the contact (exact match with brackets)
+                    string searchPattern = $"[[{contactName}]]";
+                    
+                    foreach (string mdFile in allMarkdownFiles)
+                    {
+                        try
+                        {
+                            string content = File.ReadAllText(mdFile);
+                            
+                            // If content contains a wikilink to this contact
+                            if (content.Contains(searchPattern))
+                            {
+                                return true;
+                            }
+                        }
+                        catch
+                        {
+                            // Skip files that can't be read
+                            continue;
+                        }
+                    }
+                }
+                
+                // If we get here, the contact doesn't exist
+                return false;
+            }
+            catch (Exception)
+            {
+                // In case of any error, return false which will just treat it as a new contact
+                return false;
+            }
         }
 
         public void CreateContactNote(string contactName)
         {
+            // Check if contact saving is enabled in settings
+            if (!_settings.EnableContactSaving)
+            {
+                return; // Skip contact note creation if disabled
+            }
+
             // Clean the contact name for file safety
             string cleanName = _fileService.CleanFileName(contactName);
             

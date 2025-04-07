@@ -6,112 +6,110 @@ namespace SlingMD.Outlook.Forms
 {
     public partial class ProgressForm : Form
     {
-        private Label lblMessage;
         private ProgressBar progressBar;
-        private Button btnClose;
-        private Timer autoCloseTimer;
+        private Label lblStatus;
 
-        public ProgressForm(string message = "Please wait...")
+        public ProgressForm()
         {
             InitializeComponent();
-            lblMessage.Text = message;
-
-            autoCloseTimer = new Timer
-            {
-                Interval = 3000 // 3 seconds
-            };
-            autoCloseTimer.Tick += (s, e) =>
-            {
-                autoCloseTimer.Stop();
-                this.Close();
-            };
         }
 
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProgressForm));
             this.SuspendLayout();
-            // 
-            // ProgressForm
-            // 
-            this.ClientSize = new System.Drawing.Size(284, 261);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "ProgressForm";
-            this.ResumeLayout(false);
 
+            // Create progress bar
+            this.progressBar = new ProgressBar();
+            this.progressBar.Minimum = 0;
+            this.progressBar.Maximum = 100;
+            this.progressBar.Step = 1;
+            this.progressBar.Location = new Point(12, 50);
+            this.progressBar.Size = new Size(350, 30);
+
+            // Create status label
+            this.lblStatus = new Label();
+            this.lblStatus.AutoSize = true;
+            this.lblStatus.Location = new Point(12, 20);
+            this.lblStatus.Size = new Size(350, 20);
+            this.lblStatus.Text = "Processing...";
+
+            // Configure form
+            this.ClientSize = new Size(374, 100);
+            this.Controls.Add(this.progressBar);
+            this.Controls.Add(this.lblStatus);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "ProgressForm";
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Text = "SlingMD";
+            this.TopMost = true;
+
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
         public void UpdateProgress(string message, int percentage)
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new Action(() => UpdateProgress(message, percentage)));
+                this.Invoke(new Action<string, int>(UpdateProgress), new object[] { message, percentage });
                 return;
             }
 
-            lblMessage.Text = message;
-            progressBar.Style = ProgressBarStyle.Continuous;
-            progressBar.Value = Math.Min(100, Math.Max(0, percentage));
-            this.Update();
+            this.lblStatus.Text = message;
+            this.progressBar.Value = Math.Max(0, Math.Min(100, percentage));
+            
+            // Auto-close if we reach 100%
+            if (percentage >= 100)
+            {
+                Timer closeTimer = new Timer();
+                closeTimer.Interval = 1000; // 1 second delay
+                closeTimer.Tick += (s, e) => 
+                {
+                    closeTimer.Stop();
+                    this.Close();
+                };
+                closeTimer.Start();
+            }
+            
+            this.Refresh();
         }
 
         public void ShowSuccess(string message, bool autoClose = true)
         {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new Action(() => ShowSuccess(message, autoClose)));
-                return;
-            }
-
-            lblMessage.Text = message;
-            progressBar.Style = ProgressBarStyle.Continuous;
-            progressBar.Value = 100;
+            UpdateProgress(message, 100);
+            this.BackColor = Color.FromArgb(220, 255, 220);
             
             if (autoClose)
             {
-                autoCloseTimer.Start();
-            }
-            else
-            {
-                btnClose.Visible = true;
+                Timer closeTimer = new Timer();
+                closeTimer.Interval = 2000; // 2 second delay
+                closeTimer.Tick += (s, e) => 
+                {
+                    closeTimer.Stop();
+                    this.Close();
+                };
+                closeTimer.Start();
             }
         }
 
         public void ShowError(string message, bool autoClose = false)
         {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new Action(() => ShowError(message, autoClose)));
-                return;
-            }
-
-            lblMessage.Text = message;
-            progressBar.Style = ProgressBarStyle.Continuous;
-            progressBar.Value = 0;
-            btnClose.Visible = true;
+            UpdateProgress(message, 100);
+            this.BackColor = Color.FromArgb(255, 220, 220);
             
             if (autoClose)
             {
-                autoCloseTimer.Start();
+                Timer closeTimer = new Timer();
+                closeTimer.Interval = 3000; // 3 second delay
+                closeTimer.Tick += (s, e) => 
+                {
+                    closeTimer.Stop();
+                    this.Close();
+                };
+                closeTimer.Start();
             }
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            autoCloseTimer.Stop();
-            base.OnFormClosing(e);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (lblMessage != null) lblMessage.Dispose();
-                if (progressBar != null) progressBar.Dispose();
-                if (btnClose != null) btnClose.Dispose();
-                if (autoCloseTimer != null) autoCloseTimer.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 } 

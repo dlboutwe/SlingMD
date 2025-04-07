@@ -34,9 +34,9 @@ namespace SlingMD.Outlook
 
         private ObsidianSettings LoadSettings()
         {
-            // For now, return default settings. In a real implementation,
-            // this would load from a config file or registry
-            return new ObsidianSettings();
+            var settings = new ObsidianSettings();
+            settings.Load(); // Load settings from file
+            return settings;
         }
 
         public async void ProcessSelectedEmail()
@@ -69,14 +69,21 @@ namespace SlingMD.Outlook
 
         public void ShowSettings()
         {
-            using (var form = new SettingsForm(_settings))
+            try
             {
-                if (form.ShowDialog() == DialogResult.OK)
+                using (var form = new SettingsForm(_settings))
                 {
-                    // Settings are automatically saved by the form
-                    // Recreate email processor with new settings
-                    _emailProcessor = new EmailProcessor(_settings);
+                    if (form.ShowDialog() == DialogResult.OK)
+                    {
+                        // Settings are automatically saved by the form
+                        // Recreate email processor with new settings
+                        _emailProcessor = new EmailProcessor(_settings);
+                    }
                 }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Error showing settings: {ex.Message}", "SlingMD", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

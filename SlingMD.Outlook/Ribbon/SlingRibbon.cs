@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Office = Microsoft.Office.Core;
+using System.Windows.Forms;
 
 namespace SlingMD.Outlook.Ribbon
 {
@@ -58,12 +59,26 @@ namespace SlingMD.Outlook.Ribbon
 
         public void OnSlingButtonClick(Office.IRibbonControl control)
         {
-            _addIn.ProcessSelectedEmail();
+            try
+            {
+                _addIn.ProcessSelectedEmail();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error processing email: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         public void OnSettingsButtonClick(Office.IRibbonControl control)
         {
-            _addIn.ShowSettings();
+            try
+            {
+                _addIn.ShowSettings();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error showing settings: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         public Bitmap GetSlingButtonImage(Office.IRibbonControl control)

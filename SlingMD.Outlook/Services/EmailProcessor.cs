@@ -74,6 +74,16 @@ namespace SlingMD.Outlook.Services
                     string senderClean = _contactService.GetShortName(mail.SenderName);
                     string fileDateTime = mail.ReceivedTime.ToString("yyyy-MM-dd-HHmm");
                     
+                    // Collect all contact names - will be used later for contact creation
+                    var contactNames = new List<string>();
+                    // Add sender
+                    contactNames.Add(mail.SenderName);
+                    // Add recipients
+                    foreach (Recipient recipient in mail.Recipients)
+                    {
+                        contactNames.Add(recipient.Name);
+                    }
+                    
                     status.UpdateProgress("Creating note file", 25);
 
                     // Build file name with date and time prepended
@@ -161,36 +171,79 @@ namespace SlingMD.Outlook.Services
                         status.UpdateProgress("Creating Outlook task", 80);
                         await _taskService.CreateOutlookTask(mail);
                     }
-
-                    status.UpdateProgress("Launching Obsidian", 90);
-
-                    // Launch Obsidian if enabled
-                    if (_settings.LaunchObsidian)
+                    
+                    status.UpdateProgress("Completing email processing", 100);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error processing email: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            
+            // Process contacts outside the StatusService block
+            // This ensures the progress window doesn't block the contact dialog
+            if (_settings.EnableContactSaving && contactNames.Count > 0)
+            {
+                try
+                {
+                    // Remove duplicates and sort
+                    contactNames = contactNames.Distinct().OrderBy(n => n).ToList();
+                    
+                    // Filter to only new contacts
+                    var newContacts = new List<string>();
+                    foreach (var contactName in contactNames)
                     {
-                        if (_settings.ObsidianDelaySeconds > 0)
+                        if (!_contactService.ContactExists(contactName))
                         {
-                            if (_settings.ShowCountdown)
+                            newContacts.Add(contactName);
+                        }
+                    }
+                    
+                    // Only show dialog if we have new contacts to create
+                    if (newContacts.Count > 0)
+                    {
+                        // Show contact confirmation dialog
+                        using (var dialog = new ContactConfirmationDialog(newContacts))
+                        {
+                            if (dialog.ShowDialog() == DialogResult.OK)
                             {
-                                for (int i = _settings.ObsidianDelaySeconds; i > 0; i--)
+                                foreach (var contactName in dialog.SelectedContacts)
                                 {
-                                    status.UpdateProgress($"Opening in Obsidian in {i} seconds...", 90);
-                                    await Task.Delay(1000);
+                                    // Create contact note for each selected contact
+                                    _contactService.CreateContactNote(contactName);
                                 }
                             }
-                            else
-                            {
-                                await Task.Delay(_settings.ObsidianDelaySeconds * 1000);
-                            }
                         }
-                        _fileService.LaunchObsidian(_settings.VaultName, fileName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error processing contacts: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            
+            // Launch Obsidian if enabled
+            if (_settings.LaunchObsidian)
+            {
+                try
+                {
+                    if (_settings.ShowCountdown && _settings.ObsidianDelaySeconds > 0)
+                    {
+                        using (var countdown = new CountdownForm(_settings.ObsidianDelaySeconds))
+                        {
+                            countdown.ShowDialog();
+                        }
+                    }
+                    else if (_settings.ObsidianDelaySeconds > 0)
+                    {
+                        await Task.Delay(_settings.ObsidianDelaySeconds * 1000);
                     }
 
-                    status.ShowSuccess("Email saved to Obsidian successfully!", true);
+                    _fileService.LaunchObsidian(_settings.VaultName, fileNameNoExt);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
-                    status.ShowError($"Error: {ex.Message}", false);
-                    throw;
+                    MessageBox.Show($"Error launching Obsidian: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

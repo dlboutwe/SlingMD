@@ -13,6 +13,8 @@ namespace SlingMD.Outlook.Models
         public string VaultBasePath { get; set; } = @"C:\Users\CalebBennett\Documents\Notes\";
         public string InboxFolder { get; set; } = "Inbox";
         public string ContactsFolder { get; set; } = "Contacts";
+        public bool EnableContactSaving { get; set; } = true;
+        public bool SearchEntireVaultForContacts { get; set; } = false;
         public bool LaunchObsidian { get; set; } = true;
         public int ObsidianDelaySeconds { get; set; } = 1;
         public bool ShowCountdown { get; set; } = true;
@@ -68,6 +70,9 @@ namespace SlingMD.Outlook.Models
                 { "VaultName", VaultName },
                 { "VaultBasePath", VaultBasePath },
                 { "InboxFolder", InboxFolder },
+                { "ContactsFolder", ContactsFolder },
+                { "EnableContactSaving", EnableContactSaving },
+                { "SearchEntireVaultForContacts", SearchEntireVaultForContacts },
                 { "LaunchObsidian", LaunchObsidian },
                 { "ObsidianDelaySeconds", ObsidianDelaySeconds },
                 { "ShowCountdown", ShowCountdown },
@@ -104,6 +109,18 @@ namespace SlingMD.Outlook.Models
                 if (settings.ContainsKey("InboxFolder"))
                 {
                     InboxFolder = settings["InboxFolder"].Value<string>();
+                }
+                if (settings.ContainsKey("ContactsFolder"))
+                {
+                    ContactsFolder = settings["ContactsFolder"].Value<string>();
+                }
+                if (settings.ContainsKey("EnableContactSaving"))
+                {
+                    EnableContactSaving = settings["EnableContactSaving"].Value<bool>();
+                }
+                if (settings.ContainsKey("SearchEntireVaultForContacts"))
+                {
+                    SearchEntireVaultForContacts = settings["SearchEntireVaultForContacts"].Value<bool>();
                 }
                 if (settings.ContainsKey("LaunchObsidian"))
                 {
