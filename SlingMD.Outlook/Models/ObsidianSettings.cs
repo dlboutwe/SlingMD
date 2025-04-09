@@ -35,17 +35,27 @@ namespace SlingMD.Outlook.Models
         public int DefaultReminderHour { get; set; } = 9;  // at 9am
         public bool AskForDates { get; set; } = false;
         public bool GroupEmailThreads { get; set; } = true;
+        public bool ShowThreadDebug { get; set; } = false;
 
         public List<string> SubjectCleanupPatterns { get; set; } = new List<string>
         {
-            @"^(?:Re|Fwd|FW|RE|FWD):\s*",   // Reply and forward prefixes
+            // Remove all variations of Re/Fwd prefixes, including multiple occurrences
+            @"^(?:(?:Re|Fwd|FW|RE|FWD)[:\s_-])*",  // Matches one or more prefixes at start
+            @"(?:(?:Re|Fwd|FW|RE|FWD)[:\s_-])+",   // Matches prefixes anywhere in string
+            // Common email tags
             @"\[EXTERNAL\]\s*",             // External email tags
             @"\[Internal\]\s*",             // Internal email tags
             @"\[Confidential\]\s*",         // Confidential tags
-            @"\[Secure\]\s*",                // Secure email tags
-            @"\[Sensitive\]\s*",             // Sensitive email tags
-            @"\[Private\]\s*",               // Private email tags
-            @"\[PHI\]\s*"                   // PHI email tags
+            @"\[Secure\]\s*",               // Secure email tags
+            @"\[Sensitive\]\s*",            // Sensitive email tags
+            @"\[Private\]\s*",              // Private email tags
+            @"\[PHI\]\s*",                  // PHI email tags
+            @"\[Encrypted\]\s*",            // Encrypted email tags
+            @"\[SPAM\]\s*",                 // Spam tags
+            // Cleanup
+            @"^\s+|\s+$",                   // Leading/trailing whitespace
+            @"[-_\s]{2,}",                  // Multiple separators into single hyphen
+            @"^-+|-+$"                      // Leading/trailing hyphens
         };
 
         public string GetFullVaultPath()
@@ -84,7 +94,8 @@ namespace SlingMD.Outlook.Models
                 { "DefaultReminderHour", DefaultReminderHour },
                 { "AskForDates", AskForDates },
                 { "SubjectCleanupPatterns", SubjectCleanupPatterns },
-                { "GroupEmailThreads", GroupEmailThreads }
+                { "GroupEmailThreads", GroupEmailThreads },
+                { "ShowThreadDebug", ShowThreadDebug }
             };
 
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
@@ -173,6 +184,10 @@ namespace SlingMD.Outlook.Models
                 if (settings.ContainsKey("GroupEmailThreads"))
                 {
                     GroupEmailThreads = settings["GroupEmailThreads"].Value<bool>();
+                }
+                if (settings.ContainsKey("ShowThreadDebug"))
+                {
+                    ShowThreadDebug = settings["ShowThreadDebug"].Value<bool>();
                 }
             }
         }

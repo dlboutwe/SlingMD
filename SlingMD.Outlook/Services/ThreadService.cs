@@ -7,6 +7,7 @@ using Microsoft.Office.Interop.Outlook;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SlingMD.Outlook.Models;
 
 namespace SlingMD.Outlook.Services
 {
@@ -14,11 +15,13 @@ namespace SlingMD.Outlook.Services
     {
         private readonly FileService _fileService;
         private readonly TemplateService _templateService;
+        private readonly ObsidianSettings _settings;
 
-        public ThreadService(FileService fileService, TemplateService templateService)
+        public ThreadService(FileService fileService, TemplateService templateService, ObsidianSettings settings)
         {
             _fileService = fileService;
             _templateService = templateService;
+            _settings = settings;
         }
 
         public string GetConversationId(MailItem mail)
@@ -65,12 +68,28 @@ namespace SlingMD.Outlook.Services
 
         public string GetThreadNoteName(MailItem mail, string cleanSubject, string firstSender, string firstRecipient)
         {
-            if (cleanSubject.Length > 50)
+            string threadSubject;
+            
+            // Use ConversationTopic if available as it's typically cleaner
+            threadSubject = !string.IsNullOrEmpty(mail.ConversationTopic) 
+                ? mail.ConversationTopic 
+                : mail.Subject;
+
+            // Clean the subject using FileService which uses the patterns from settings
+            threadSubject = _fileService.CleanFileName(threadSubject);
+
+            // Truncate if too long
+            if (threadSubject.Length > 50)
             {
-                cleanSubject = cleanSubject.Substring(0, 47) + "...";
+                threadSubject = threadSubject.Substring(0, 47) + "...";
             }
             
-            return $"{cleanSubject}-{firstSender}-{firstRecipient}";
+            // Clean sender and recipient names
+            firstSender = _fileService.CleanFileName(firstSender);
+            firstRecipient = _fileService.CleanFileName(firstRecipient);
+            
+            // Ensure no space after 0- and consistent separators
+            return $"0-{threadSubject.Trim()}-{firstSender}-{firstRecipient}".Replace("--", "-");
         }
 
         public async Task UpdateThreadNote(string threadFolderPath, string threadNotePath, string conversationId, string threadNoteName, MailItem mail)
@@ -78,9 +97,13 @@ namespace SlingMD.Outlook.Services
             var templateContent = _templateService.LoadTemplate("ThreadNoteTemplate.md") ?? 
                                 _templateService.GetDefaultThreadNoteTemplate();
 
+            // Clean the title using the same method as thread name
+            string threadTitle = mail.ConversationTopic ?? mail.Subject;
+            threadTitle = _fileService.CleanFileName(threadTitle);
+
             var replacements = new Dictionary<string, string>
             {
-                { "title", mail.ConversationTopic ?? mail.Subject },
+                { "title", threadTitle },
                 { "threadId", conversationId }
             };
 
@@ -91,6 +114,22 @@ namespace SlingMD.Outlook.Services
         public string MoveToThreadFolder(string emailPath, string threadFolderPath)
         {
             string fileName = Path.GetFileName(emailPath);
+            
+            // Extract date from the original filename (at the end)
+            var dateMatch = Regex.Match(fileName, @"-(\d{4}-\d{2}-\d{2}-\d{4})\.md$");
+            if (dateMatch.Success)
+            {
+                // Get the date part
+                string dateTime = dateMatch.Groups[1].Value;
+                
+                // Remove the date from the end and any potential double hyphens
+                string nameWithoutDate = Regex.Replace(fileName, @"-\d{4}-\d{2}-\d{2}-\d{4}\.md$", "");
+                nameWithoutDate = Regex.Replace(nameWithoutDate, @"--+", "-");
+                
+                // Create new filename with date at the front
+                fileName = $"{dateTime}-{nameWithoutDate}.md";
+            }
+            
             string threadPath = Path.Combine(threadFolderPath, fileName);
             
             _fileService.EnsureDirectoryExists(threadFolderPath);
@@ -183,7 +222,7 @@ namespace SlingMD.Outlook.Services
                 }
                 
                 // If we found any matches, show more details for debugging
-                if (emailCount > 0)
+                if (emailCount > 0 && _settings.ShowThreadDebug)
                 {
                     string filesList = string.Join("\n", matchingFiles);
                     System.Windows.Forms.MessageBox.Show(

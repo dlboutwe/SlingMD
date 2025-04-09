@@ -32,7 +32,7 @@ namespace SlingMD.Outlook.Services
             _settings = settings;
             _fileService = new FileService(settings);
             _templateService = new TemplateService(_fileService);
-            _threadService = new ThreadService(_fileService, _templateService);
+            _threadService = new ThreadService(_fileService, _templateService, settings);
             _taskService = new TaskService(settings);
             _contactService = new ContactService(_fileService, _templateService);
         }
@@ -111,11 +111,13 @@ namespace SlingMD.Outlook.Services
                     
                     // Debug info to check email count - note that emailCount is how many emails are ALREADY in the thread
                     // We're NOT counting the current email
-                    MessageBox.Show($"Thread ID: {conversationId}\nEmail count: {emailCount}\nExisting thread: {hasExistingThread}", "Thread Debug", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (_settings.ShowThreadDebug)
+                    {
+                        MessageBox.Show($"Thread ID: {conversationId}\nEmail count: {emailCount}\nExisting thread: {hasExistingThread}", "Thread Debug", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
 
-                    // Only group this email if there are at least 2 previous emails in the thread
-                    // Changed from emailCount >= 1 to emailCount >= 2
-                    bool shouldGroupThread = hasExistingThread && _settings.GroupEmailThreads && emailCount >= 2;
+                    // Only group this email if there is at least 1 previous email in the thread
+                    bool shouldGroupThread = hasExistingThread && _settings.GroupEmailThreads && emailCount >= 1;
                     
                     // If this is part of a thread with at least one previous email and thread grouping is enabled, update paths
                     if (shouldGroupThread)
@@ -131,6 +133,28 @@ namespace SlingMD.Outlook.Services
                         // Update Obsidian link path to include the thread folder
                         // Use the folder name with forward slashes for Obsidian URI compatibility
                         obsidianLinkPath = $"{threadNoteName}/{fileNameNoExt}";
+
+                        // Move any existing emails with the same threadId into the thread folder
+                        var files = Directory.GetFiles(_settings.GetInboxPath(), "*.md", SearchOption.TopDirectoryOnly);
+                        foreach (var file in files)
+                        {
+                            try
+                            {
+                                string emailContent = File.ReadAllText(file);
+                                var threadIdMatch = Regex.Match(emailContent, @"threadId: ""([^""]+)""");
+                                
+                                // If this file belongs to the conversation thread and is not already in a thread folder
+                                if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
+                                {
+                                    _threadService.MoveToThreadFolder(file, threadFolderPath);
+                                }
+                            }
+                            catch (System.Exception)
+                            {
+                                // Skip files that can't be read
+                                continue;
+                            }
+                        }
                     }
                     else
                     {
@@ -287,12 +311,27 @@ namespace SlingMD.Outlook.Services
             {
                 cleaned = Regex.Replace(cleaned, pattern, "", RegexOptions.IgnoreCase);
             }
+            
+            // Replace colons (with or without spaces) with underscores
+            cleaned = Regex.Replace(cleaned, @":\s*", "_", RegexOptions.IgnoreCase);
 
+            // Handle Re_ (Reply) prefixes
             // Remove redundant Re_ RE_ prefixes - keep only one "Re_"
             cleaned = Regex.Replace(cleaned, @"(?:Re_\s*)+(?:RE_\s*)+", "Re_", RegexOptions.IgnoreCase);
             cleaned = Regex.Replace(cleaned, @"(?:RE_\s*)+(?:Re_\s*)+", "Re_", RegexOptions.IgnoreCase);
             cleaned = Regex.Replace(cleaned, @"(?:Re_\s*){2,}", "Re_", RegexOptions.IgnoreCase);
             cleaned = Regex.Replace(cleaned, @"(?:RE_\s*){2,}", "Re_", RegexOptions.IgnoreCase);
+            
+            // Handle Fw_ (Forward) prefixes
+            // Remove redundant Fw_ FW_ prefixes - keep only one "Fw_"
+            cleaned = Regex.Replace(cleaned, @"(?:Fw_\s*)+(?:FW_\s*)+", "Fw_", RegexOptions.IgnoreCase);
+            cleaned = Regex.Replace(cleaned, @"(?:FW_\s*)+(?:Fw_\s*)+", "Fw_", RegexOptions.IgnoreCase);
+            cleaned = Regex.Replace(cleaned, @"(?:Fw_\s*){2,}", "Fw_", RegexOptions.IgnoreCase);
+            cleaned = Regex.Replace(cleaned, @"(?:FW_\s*){2,}", "Fw_", RegexOptions.IgnoreCase);
+            
+            // Ensure there are no spaces after prefixes
+            cleaned = Regex.Replace(cleaned, @"Re_\s+", "Re_", RegexOptions.IgnoreCase);
+            cleaned = Regex.Replace(cleaned, @"Fw_\s+", "Fw_", RegexOptions.IgnoreCase);
 
             return _fileService.CleanFileName(cleaned.Trim());
         }
