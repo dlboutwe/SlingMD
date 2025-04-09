@@ -58,7 +58,11 @@ namespace SlingMD.Outlook.Services
             {
                 if (item.Value == null) continue;
 
-                if (item.Value is string strValue)
+                if (item.Key == "tags")
+                {
+                    frontMatter.AppendLine($"{item.Key}: {item.Value}");
+                }
+                else if (item.Value is string strValue)
                 {
                     frontMatter.AppendLine($"{item.Key}: \"{strValue}\"");
                 }
@@ -68,10 +72,18 @@ namespace SlingMD.Outlook.Services
                 }
                 else if (item.Value is IEnumerable<string> listValue)
                 {
-                    frontMatter.AppendLine($"{item.Key}:");
-                    foreach (var value in listValue)
+                    if (listValue.Count() > 0)
                     {
-                        frontMatter.AppendLine($"  - \"{value}\"");
+                        frontMatter.AppendLine($"{item.Key}: ");
+                        foreach (var value in listValue)
+                        {
+                            frontMatter.AppendLine($"  - \"{value}\"");
+                        }
+                    }
+                    else
+                    {
+                        // If the list is empty, just use an empty value
+                        frontMatter.AppendLine($"{item.Key}: ");
                     }
                 }
                 else

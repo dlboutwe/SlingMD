@@ -57,304 +57,377 @@ namespace SlingMD.Outlook.Forms
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
-            
-            // Create form elements
-            this.txtVaultName = new TextBox();
-            this.txtVaultPath = new TextBox(); 
-            this.txtInboxFolder = new TextBox();
-            this.txtContactsFolder = new TextBox();
-            this.chkLaunchObsidian = new CheckBox();
-            this.chkEnableContactSaving = new CheckBox();
-            this.chkSearchEntireVaultForContacts = new CheckBox();
-            this.numDelay = new NumericUpDown();
-            this.chkShowCountdown = new CheckBox();
-            this.chkCreateObsidianTask = new CheckBox();
-            this.chkCreateOutlookTask = new CheckBox();
-            this.chkAskForDates = new CheckBox();
-            this.chkGroupEmailThreads = new CheckBox();
-            this.numDefaultDueDays = new NumericUpDown();
-            this.numDefaultReminderDays = new NumericUpDown();
-            this.numDefaultReminderHour = new NumericUpDown();
-            this.btnBrowse = new Button();
-            this.btnSave = new Button();
-            this.btnCancel = new Button();
-            this.lblVaultName = new Label();
-            this.lblVaultPath = new Label();
-            this.lblInboxFolder = new Label();
-            this.lblContactsFolder = new Label();
-            this.lblDelay = new Label();
-            this.lblFollowUpTasks = new Label();
-            this.lblDefaultDueDays = new Label();
-            this.lblDefaultReminderDays = new Label();
-            this.lblDefaultReminderHour = new Label();
-            this.lblDueDaysHelp = new Label();
-            this.lstPatterns = new ListBox();
-            this.btnAdd = new Button();
-            this.btnEdit = new Button();
-            this.btnRemove = new Button();
-            this.lblPatterns = new Label();
-
-            // Initialize numeric controls
+            this.txtVaultName = new System.Windows.Forms.TextBox();
+            this.txtVaultPath = new System.Windows.Forms.TextBox();
+            this.txtInboxFolder = new System.Windows.Forms.TextBox();
+            this.txtContactsFolder = new System.Windows.Forms.TextBox();
+            this.chkLaunchObsidian = new System.Windows.Forms.CheckBox();
+            this.chkEnableContactSaving = new System.Windows.Forms.CheckBox();
+            this.chkSearchEntireVaultForContacts = new System.Windows.Forms.CheckBox();
+            this.numDelay = new System.Windows.Forms.NumericUpDown();
+            this.chkShowCountdown = new System.Windows.Forms.CheckBox();
+            this.chkCreateObsidianTask = new System.Windows.Forms.CheckBox();
+            this.chkCreateOutlookTask = new System.Windows.Forms.CheckBox();
+            this.chkAskForDates = new System.Windows.Forms.CheckBox();
+            this.chkGroupEmailThreads = new System.Windows.Forms.CheckBox();
+            this.numDefaultDueDays = new System.Windows.Forms.NumericUpDown();
+            this.numDefaultReminderDays = new System.Windows.Forms.NumericUpDown();
+            this.numDefaultReminderHour = new System.Windows.Forms.NumericUpDown();
+            this.btnBrowse = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
+            this.lblVaultName = new System.Windows.Forms.Label();
+            this.lblVaultPath = new System.Windows.Forms.Label();
+            this.lblInboxFolder = new System.Windows.Forms.Label();
+            this.lblContactsFolder = new System.Windows.Forms.Label();
+            this.lblDelay = new System.Windows.Forms.Label();
+            this.lblFollowUpTasks = new System.Windows.Forms.Label();
+            this.lblDefaultDueDays = new System.Windows.Forms.Label();
+            this.lblDefaultReminderDays = new System.Windows.Forms.Label();
+            this.lblDefaultReminderHour = new System.Windows.Forms.Label();
+            this.lblDueDaysHelp = new System.Windows.Forms.Label();
+            this.lstPatterns = new System.Windows.Forms.ListBox();
+            this.btnAdd = new System.Windows.Forms.Button();
+            this.btnEdit = new System.Windows.Forms.Button();
+            this.btnRemove = new System.Windows.Forms.Button();
+            this.lblPatterns = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDefaultDueDays)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDefaultReminderDays)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDefaultReminderHour)).BeginInit();
-
             this.SuspendLayout();
-
-            // Configure Label: Vault Name
-            this.lblVaultName.AutoSize = true;
-            this.lblVaultName.Location = new System.Drawing.Point(12, 15);
-            this.lblVaultName.Name = "lblVaultName";
-            this.lblVaultName.Size = new System.Drawing.Size(72, 13);
-            this.lblVaultName.Text = "Vault Name:";
-
-            // Configure Textbox: Vault Name
+            // 
+            // txtVaultName
+            // 
             this.txtVaultName.Location = new System.Drawing.Point(184, 12);
             this.txtVaultName.Name = "txtVaultName";
-            this.txtVaultName.Size = new System.Drawing.Size(350, 20);
-
-            // Configure Label: Vault Path
-            this.lblVaultPath.AutoSize = true;
-            this.lblVaultPath.Location = new System.Drawing.Point(12, 45);
-            this.lblVaultPath.Name = "lblVaultPath";
-            this.lblVaultPath.Size = new System.Drawing.Size(82, 13);
-            this.lblVaultPath.Text = "Vault Base Path:";
-
-            // Configure Textbox: Vault Path
+            this.txtVaultName.Size = new System.Drawing.Size(350, 26);
+            this.txtVaultName.TabIndex = 1;
+            // 
+            // txtVaultPath
+            // 
             this.txtVaultPath.Location = new System.Drawing.Point(184, 42);
             this.txtVaultPath.Name = "txtVaultPath";
-            this.txtVaultPath.Size = new System.Drawing.Size(350, 20);
-
-            // Configure Button: Browse
-            this.btnBrowse.Location = new System.Drawing.Point(540, 42);
-            this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowse.Text = "Browse...";
-            this.btnBrowse.UseVisualStyleBackColor = true;
-            this.btnBrowse.Click += new EventHandler(this.btnBrowse_Click);
-
-            // Configure Label: Inbox Folder
-            this.lblInboxFolder.AutoSize = true;
-            this.lblInboxFolder.Location = new System.Drawing.Point(12, 75);
-            this.lblInboxFolder.Name = "lblInboxFolder";
-            this.lblInboxFolder.Size = new System.Drawing.Size(71, 13);
-            this.lblInboxFolder.Text = "Inbox Folder:";
-
-            // Configure Textbox: Inbox Folder
+            this.txtVaultPath.Size = new System.Drawing.Size(350, 26);
+            this.txtVaultPath.TabIndex = 3;
+            // 
+            // txtInboxFolder
+            // 
             this.txtInboxFolder.Location = new System.Drawing.Point(184, 72);
             this.txtInboxFolder.Name = "txtInboxFolder";
-            this.txtInboxFolder.Size = new System.Drawing.Size(350, 20);
-
-            // Configure Label: Contacts Folder
-            this.lblContactsFolder.AutoSize = true;
-            this.lblContactsFolder.Location = new System.Drawing.Point(12, 105);
-            this.lblContactsFolder.Name = "lblContactsFolder";
-            this.lblContactsFolder.Size = new System.Drawing.Size(84, 13);
-            this.lblContactsFolder.Text = "Contacts Folder:";
-
-            // Configure Textbox: Contacts Folder
+            this.txtInboxFolder.Size = new System.Drawing.Size(350, 26);
+            this.txtInboxFolder.TabIndex = 6;
+            // 
+            // txtContactsFolder
+            // 
             this.txtContactsFolder.Location = new System.Drawing.Point(184, 102);
             this.txtContactsFolder.Name = "txtContactsFolder";
-            this.txtContactsFolder.Size = new System.Drawing.Size(350, 20);
-
-            // Configure Checkbox: Enable Contact Saving
-            this.chkEnableContactSaving.AutoSize = true;
-            this.chkEnableContactSaving.Location = new System.Drawing.Point(184, 128);
-            this.chkEnableContactSaving.Name = "chkEnableContactSaving";
-            this.chkEnableContactSaving.Size = new System.Drawing.Size(140, 17);
-            this.chkEnableContactSaving.Text = "Enable Contact Saving";
-            this.chkEnableContactSaving.UseVisualStyleBackColor = true;
-            this.chkEnableContactSaving.CheckedChanged += new EventHandler(this.chkEnableContactSaving_CheckedChanged);
-
-            // Configure Checkbox: Search Entire Vault For Contacts
-            this.chkSearchEntireVaultForContacts = new CheckBox();
-            this.chkSearchEntireVaultForContacts.AutoSize = true;
-            this.chkSearchEntireVaultForContacts.Location = new System.Drawing.Point(340, 128);
-            this.chkSearchEntireVaultForContacts.Name = "chkSearchEntireVaultForContacts";
-            this.chkSearchEntireVaultForContacts.Size = new System.Drawing.Size(180, 17);
-            this.chkSearchEntireVaultForContacts.Text = "Search entire vault for contacts";
-            this.chkSearchEntireVaultForContacts.UseVisualStyleBackColor = true;
-
-            // Configure Checkbox: Launch Obsidian
+            this.txtContactsFolder.Size = new System.Drawing.Size(350, 26);
+            this.txtContactsFolder.TabIndex = 8;
+            // 
+            // chkLaunchObsidian
+            // 
             this.chkLaunchObsidian.AutoSize = true;
             this.chkLaunchObsidian.Location = new System.Drawing.Point(184, 151);
             this.chkLaunchObsidian.Name = "chkLaunchObsidian";
-            this.chkLaunchObsidian.Size = new System.Drawing.Size(140, 17);
+            this.chkLaunchObsidian.Size = new System.Drawing.Size(240, 24);
+            this.chkLaunchObsidian.TabIndex = 11;
             this.chkLaunchObsidian.Text = "Launch Obsidian after saving";
             this.chkLaunchObsidian.UseVisualStyleBackColor = true;
-
-            // Configure Label: Delay
-            this.lblDelay.AutoSize = true;
-            this.lblDelay.Location = new System.Drawing.Point(12, 177);
-            this.lblDelay.Name = "lblDelay";
-            this.lblDelay.Size = new System.Drawing.Size(87, 13);
-            this.lblDelay.Text = "Delay (seconds):";
-
-            // Configure NumericUpDown: Delay
+            // 
+            // chkEnableContactSaving
+            // 
+            this.chkEnableContactSaving.AutoSize = true;
+            this.chkEnableContactSaving.Location = new System.Drawing.Point(184, 128);
+            this.chkEnableContactSaving.Name = "chkEnableContactSaving";
+            this.chkEnableContactSaving.Size = new System.Drawing.Size(197, 24);
+            this.chkEnableContactSaving.TabIndex = 9;
+            this.chkEnableContactSaving.Text = "Enable Contact Saving";
+            this.chkEnableContactSaving.UseVisualStyleBackColor = true;
+            this.chkEnableContactSaving.CheckedChanged += new System.EventHandler(this.chkEnableContactSaving_CheckedChanged);
+            // 
+            // chkSearchEntireVaultForContacts
+            // 
+            this.chkSearchEntireVaultForContacts.AutoSize = true;
+            this.chkSearchEntireVaultForContacts.Location = new System.Drawing.Point(387, 128);
+            this.chkSearchEntireVaultForContacts.Name = "chkSearchEntireVaultForContacts";
+            this.chkSearchEntireVaultForContacts.Size = new System.Drawing.Size(255, 24);
+            this.chkSearchEntireVaultForContacts.TabIndex = 10;
+            this.chkSearchEntireVaultForContacts.Text = "Search entire vault for contacts";
+            this.chkSearchEntireVaultForContacts.UseVisualStyleBackColor = true;
+            // 
+            // numDelay
+            // 
             this.numDelay.Location = new System.Drawing.Point(184, 175);
+            this.numDelay.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
             this.numDelay.Name = "numDelay";
-            this.numDelay.Size = new System.Drawing.Size(60, 20);
-            this.numDelay.Minimum = 0;
-            this.numDelay.Maximum = 10;
-            
-            // Configure Checkbox: Show Countdown
+            this.numDelay.Size = new System.Drawing.Size(60, 26);
+            this.numDelay.TabIndex = 13;
+            // 
+            // chkShowCountdown
+            // 
             this.chkShowCountdown.AutoSize = true;
             this.chkShowCountdown.Location = new System.Drawing.Point(267, 176);
             this.chkShowCountdown.Name = "chkShowCountdown";
-            this.chkShowCountdown.Size = new System.Drawing.Size(109, 17);
+            this.chkShowCountdown.Size = new System.Drawing.Size(157, 24);
+            this.chkShowCountdown.TabIndex = 14;
             this.chkShowCountdown.Text = "Show countdown";
             this.chkShowCountdown.UseVisualStyleBackColor = true;
-
-            // Configure Label: Follow-up Tasks
-            this.lblFollowUpTasks.AutoSize = true;
-            this.lblFollowUpTasks.Location = new System.Drawing.Point(12, 205);
-            this.lblFollowUpTasks.Name = "lblFollowUpTasks";
-            this.lblFollowUpTasks.Size = new System.Drawing.Size(87, 13);
-            this.lblFollowUpTasks.Text = "Follow-up Tasks:";
-
-            // Configure Checkbox: Create Obsidian Task
+            // 
+            // chkCreateObsidianTask
+            // 
             this.chkCreateObsidianTask.AutoSize = true;
             this.chkCreateObsidianTask.Location = new System.Drawing.Point(184, 204);
             this.chkCreateObsidianTask.Name = "chkCreateObsidianTask";
-            this.chkCreateObsidianTask.Size = new System.Drawing.Size(156, 17);
+            this.chkCreateObsidianTask.Size = new System.Drawing.Size(235, 24);
+            this.chkCreateObsidianTask.TabIndex = 16;
             this.chkCreateObsidianTask.Text = "Create task in Obsidian note";
             this.chkCreateObsidianTask.UseVisualStyleBackColor = true;
-
-            // Configure Checkbox: Create Outlook Task
+            // 
+            // chkCreateOutlookTask
+            // 
             this.chkCreateOutlookTask.AutoSize = true;
             this.chkCreateOutlookTask.Location = new System.Drawing.Point(184, 227);
             this.chkCreateOutlookTask.Name = "chkCreateOutlookTask";
-            this.chkCreateOutlookTask.Size = new System.Drawing.Size(151, 17);
+            this.chkCreateOutlookTask.Size = new System.Drawing.Size(192, 24);
+            this.chkCreateOutlookTask.TabIndex = 17;
             this.chkCreateOutlookTask.Text = "Create task in Outlook";
             this.chkCreateOutlookTask.UseVisualStyleBackColor = true;
-
-            // Configure Label: Default Due Days
-            this.lblDefaultDueDays.AutoSize = true;
-            this.lblDefaultDueDays.Location = new System.Drawing.Point(12, 254);
-            this.lblDefaultDueDays.Name = "lblDefaultDueDays";
-            this.lblDefaultDueDays.Size = new System.Drawing.Size(70, 13);
-            this.lblDefaultDueDays.Text = "Due in Days:";
-
-            // Configure NumericUpDown: Default Due Days
-            this.numDefaultDueDays.Location = new System.Drawing.Point(184, 252);
-            this.numDefaultDueDays.Name = "numDefaultDueDays";
-            this.numDefaultDueDays.Size = new System.Drawing.Size(60, 20);
-            this.numDefaultDueDays.Minimum = 0;
-            this.numDefaultDueDays.Maximum = 30;
-
-            // Configure Label: Due Days Help
-            this.lblDueDaysHelp.AutoSize = true;
-            this.lblDueDaysHelp.Location = new System.Drawing.Point(267, 254);
-            this.lblDueDaysHelp.Name = "lblDueDaysHelp";
-            this.lblDueDaysHelp.Size = new System.Drawing.Size(187, 13);
-            this.lblDueDaysHelp.Text = "0 = Today, 1 = Tomorrow, etc.";
-
-            // Configure Label: Default Reminder Days
-            this.lblDefaultReminderDays.AutoSize = true;
-            this.lblDefaultReminderDays.Location = new System.Drawing.Point(12, 280);
-            this.lblDefaultReminderDays.Name = "lblDefaultReminderDays";
-            this.lblDefaultReminderDays.Size = new System.Drawing.Size(81, 13);
-            this.lblDefaultReminderDays.Text = "Reminder Days:";
-
-            // Configure NumericUpDown: Default Reminder Days
-            this.numDefaultReminderDays.Location = new System.Drawing.Point(184, 278);
-            this.numDefaultReminderDays.Name = "numDefaultReminderDays";
-            this.numDefaultReminderDays.Size = new System.Drawing.Size(60, 20);
-            this.numDefaultReminderDays.Minimum = 0;
-            this.numDefaultReminderDays.Maximum = 30;
-
-            // Configure Label: Default Reminder Hour
-            this.lblDefaultReminderHour.AutoSize = true;
-            this.lblDefaultReminderHour.Location = new System.Drawing.Point(12, 306);
-            this.lblDefaultReminderHour.Name = "lblDefaultReminderHour";
-            this.lblDefaultReminderHour.Size = new System.Drawing.Size(81, 13);
-            this.lblDefaultReminderHour.Text = "Reminder Hour:";
-
-            // Configure NumericUpDown: Default Reminder Hour
-            this.numDefaultReminderHour.Location = new System.Drawing.Point(184, 304);
-            this.numDefaultReminderHour.Name = "numDefaultReminderHour";
-            this.numDefaultReminderHour.Size = new System.Drawing.Size(60, 20);
-            this.numDefaultReminderHour.Minimum = 0;
-            this.numDefaultReminderHour.Maximum = 23;
-
-            // Configure Checkbox: Ask for Dates
+            // 
+            // chkAskForDates
+            // 
             this.chkAskForDates.AutoSize = true;
             this.chkAskForDates.Location = new System.Drawing.Point(267, 305);
             this.chkAskForDates.Name = "chkAskForDates";
-            this.chkAskForDates.Size = new System.Drawing.Size(153, 17);
+            this.chkAskForDates.Size = new System.Drawing.Size(275, 24);
+            this.chkAskForDates.TabIndex = 25;
             this.chkAskForDates.Text = "Ask for dates and times each time";
             this.chkAskForDates.UseVisualStyleBackColor = true;
-
-            // Configure Checkbox: Group Email Threads
+            // 
+            // chkGroupEmailThreads
+            // 
             this.chkGroupEmailThreads.AutoSize = true;
             this.chkGroupEmailThreads.Location = new System.Drawing.Point(267, 328);
             this.chkGroupEmailThreads.Name = "chkGroupEmailThreads";
-            this.chkGroupEmailThreads.Size = new System.Drawing.Size(124, 17);
+            this.chkGroupEmailThreads.Size = new System.Drawing.Size(179, 24);
+            this.chkGroupEmailThreads.TabIndex = 26;
             this.chkGroupEmailThreads.Text = "Group email threads";
             this.chkGroupEmailThreads.UseVisualStyleBackColor = true;
-
-            // Configure Label: Subject Cleanup Patterns
+            // 
+            // numDefaultDueDays
+            // 
+            this.numDefaultDueDays.Location = new System.Drawing.Point(184, 252);
+            this.numDefaultDueDays.Maximum = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            this.numDefaultDueDays.Name = "numDefaultDueDays";
+            this.numDefaultDueDays.Size = new System.Drawing.Size(60, 26);
+            this.numDefaultDueDays.TabIndex = 19;
+            // 
+            // numDefaultReminderDays
+            // 
+            this.numDefaultReminderDays.Location = new System.Drawing.Point(184, 278);
+            this.numDefaultReminderDays.Maximum = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            this.numDefaultReminderDays.Name = "numDefaultReminderDays";
+            this.numDefaultReminderDays.Size = new System.Drawing.Size(60, 26);
+            this.numDefaultReminderDays.TabIndex = 22;
+            // 
+            // numDefaultReminderHour
+            // 
+            this.numDefaultReminderHour.Location = new System.Drawing.Point(184, 304);
+            this.numDefaultReminderHour.Maximum = new decimal(new int[] {
+            23,
+            0,
+            0,
+            0});
+            this.numDefaultReminderHour.Name = "numDefaultReminderHour";
+            this.numDefaultReminderHour.Size = new System.Drawing.Size(60, 26);
+            this.numDefaultReminderHour.TabIndex = 24;
+            // 
+            // btnBrowse
+            // 
+            this.btnBrowse.Location = new System.Drawing.Point(540, 42);
+            this.btnBrowse.Name = "btnBrowse";
+            this.btnBrowse.Size = new System.Drawing.Size(75, 33);
+            this.btnBrowse.TabIndex = 4;
+            this.btnBrowse.Text = "Browse...";
+            this.btnBrowse.UseVisualStyleBackColor = true;
+            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
+            // 
+            // btnSave
+            // 
+            this.btnSave.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btnSave.Location = new System.Drawing.Point(447, 545);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(75, 40);
+            this.btnSave.TabIndex = 31;
+            this.btnSave.Text = "Save";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnCancel.Location = new System.Drawing.Point(540, 545);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 40);
+            this.btnCancel.TabIndex = 32;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            // 
+            // lblVaultName
+            // 
+            this.lblVaultName.AutoSize = true;
+            this.lblVaultName.Location = new System.Drawing.Point(12, 15);
+            this.lblVaultName.Name = "lblVaultName";
+            this.lblVaultName.Size = new System.Drawing.Size(96, 20);
+            this.lblVaultName.TabIndex = 0;
+            this.lblVaultName.Text = "Vault Name:";
+            // 
+            // lblVaultPath
+            // 
+            this.lblVaultPath.AutoSize = true;
+            this.lblVaultPath.Location = new System.Drawing.Point(12, 45);
+            this.lblVaultPath.Name = "lblVaultPath";
+            this.lblVaultPath.Size = new System.Drawing.Size(128, 20);
+            this.lblVaultPath.TabIndex = 2;
+            this.lblVaultPath.Text = "Vault Base Path:";
+            // 
+            // lblInboxFolder
+            // 
+            this.lblInboxFolder.AutoSize = true;
+            this.lblInboxFolder.Location = new System.Drawing.Point(12, 75);
+            this.lblInboxFolder.Name = "lblInboxFolder";
+            this.lblInboxFolder.Size = new System.Drawing.Size(101, 20);
+            this.lblInboxFolder.TabIndex = 5;
+            this.lblInboxFolder.Text = "Inbox Folder:";
+            // 
+            // lblContactsFolder
+            // 
+            this.lblContactsFolder.AutoSize = true;
+            this.lblContactsFolder.Location = new System.Drawing.Point(12, 105);
+            this.lblContactsFolder.Name = "lblContactsFolder";
+            this.lblContactsFolder.Size = new System.Drawing.Size(126, 20);
+            this.lblContactsFolder.TabIndex = 7;
+            this.lblContactsFolder.Text = "Contacts Folder:";
+            // 
+            // lblDelay
+            // 
+            this.lblDelay.AutoSize = true;
+            this.lblDelay.Location = new System.Drawing.Point(12, 177);
+            this.lblDelay.Name = "lblDelay";
+            this.lblDelay.Size = new System.Drawing.Size(127, 20);
+            this.lblDelay.TabIndex = 12;
+            this.lblDelay.Text = "Delay (seconds):";
+            // 
+            // lblFollowUpTasks
+            // 
+            this.lblFollowUpTasks.AutoSize = true;
+            this.lblFollowUpTasks.Location = new System.Drawing.Point(12, 205);
+            this.lblFollowUpTasks.Name = "lblFollowUpTasks";
+            this.lblFollowUpTasks.Size = new System.Drawing.Size(127, 20);
+            this.lblFollowUpTasks.TabIndex = 15;
+            this.lblFollowUpTasks.Text = "Follow-up Tasks:";
+            // 
+            // lblDefaultDueDays
+            // 
+            this.lblDefaultDueDays.AutoSize = true;
+            this.lblDefaultDueDays.Location = new System.Drawing.Point(12, 254);
+            this.lblDefaultDueDays.Name = "lblDefaultDueDays";
+            this.lblDefaultDueDays.Size = new System.Drawing.Size(99, 20);
+            this.lblDefaultDueDays.TabIndex = 18;
+            this.lblDefaultDueDays.Text = "Due in Days:";
+            // 
+            // lblDefaultReminderDays
+            // 
+            this.lblDefaultReminderDays.AutoSize = true;
+            this.lblDefaultReminderDays.Location = new System.Drawing.Point(12, 280);
+            this.lblDefaultReminderDays.Name = "lblDefaultReminderDays";
+            this.lblDefaultReminderDays.Size = new System.Drawing.Size(122, 20);
+            this.lblDefaultReminderDays.TabIndex = 21;
+            this.lblDefaultReminderDays.Text = "Reminder Days:";
+            // 
+            // lblDefaultReminderHour
+            // 
+            this.lblDefaultReminderHour.AutoSize = true;
+            this.lblDefaultReminderHour.Location = new System.Drawing.Point(12, 306);
+            this.lblDefaultReminderHour.Name = "lblDefaultReminderHour";
+            this.lblDefaultReminderHour.Size = new System.Drawing.Size(121, 20);
+            this.lblDefaultReminderHour.TabIndex = 23;
+            this.lblDefaultReminderHour.Text = "Reminder Hour:";
+            // 
+            // lblDueDaysHelp
+            // 
+            this.lblDueDaysHelp.AutoSize = true;
+            this.lblDueDaysHelp.Location = new System.Drawing.Point(267, 254);
+            this.lblDueDaysHelp.Name = "lblDueDaysHelp";
+            this.lblDueDaysHelp.Size = new System.Drawing.Size(216, 20);
+            this.lblDueDaysHelp.TabIndex = 20;
+            this.lblDueDaysHelp.Text = "0 = Today, 1 = Tomorrow, etc.";
+            // 
+            // lstPatterns
+            // 
+            this.lstPatterns.FormattingEnabled = true;
+            this.lstPatterns.ItemHeight = 20;
+            this.lstPatterns.Location = new System.Drawing.Point(12, 370);
+            this.lstPatterns.Name = "lstPatterns";
+            this.lstPatterns.Size = new System.Drawing.Size(522, 144);
+            this.lstPatterns.TabIndex = 0;
+            // 
+            // btnAdd
+            // 
+            this.btnAdd.Location = new System.Drawing.Point(540, 370);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(92, 39);
+            this.btnAdd.TabIndex = 28;
+            this.btnAdd.Text = "Add";
+            this.btnAdd.UseVisualStyleBackColor = true;
+            this.btnAdd.Click += new System.EventHandler(this.BtnAdd_Click);
+            // 
+            // btnEdit
+            // 
+            this.btnEdit.Location = new System.Drawing.Point(540, 415);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(92, 37);
+            this.btnEdit.TabIndex = 29;
+            this.btnEdit.Text = "Edit";
+            this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.BtnEdit_Click);
+            // 
+            // btnRemove
+            // 
+            this.btnRemove.Location = new System.Drawing.Point(540, 458);
+            this.btnRemove.Name = "btnRemove";
+            this.btnRemove.Size = new System.Drawing.Size(92, 37);
+            this.btnRemove.TabIndex = 30;
+            this.btnRemove.Text = "Remove";
+            this.btnRemove.UseVisualStyleBackColor = true;
+            this.btnRemove.Click += new System.EventHandler(this.BtnRemove_Click);
+            // 
+            // lblPatterns
+            // 
             this.lblPatterns.AutoSize = true;
             this.lblPatterns.Location = new System.Drawing.Point(12, 350);
             this.lblPatterns.Name = "lblPatterns";
-            this.lblPatterns.Size = new System.Drawing.Size(124, 13);
+            this.lblPatterns.Size = new System.Drawing.Size(194, 20);
+            this.lblPatterns.TabIndex = 27;
             this.lblPatterns.Text = "Subject Cleanup Patterns:";
-
-            // Configure ListBox: Patterns
-            this.lstPatterns.FormattingEnabled = true;
-            this.lstPatterns.Location = new System.Drawing.Point(12, 370);
-            this.lstPatterns.Name = "lstPatterns";
-            this.lstPatterns.Size = new System.Drawing.Size(522, 160);
-            this.lstPatterns.TabIndex = 0;
-
-            // Configure Button: Add Pattern
-            this.btnAdd.Location = new System.Drawing.Point(540, 370);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(75, 23);
-            this.btnAdd.Text = "Add";
-            this.btnAdd.UseVisualStyleBackColor = true;
-            this.btnAdd.Click += new EventHandler(this.BtnAdd_Click);
-
-            // Configure Button: Edit Pattern
-            this.btnEdit.Location = new System.Drawing.Point(540, 399);
-            this.btnEdit.Name = "btnEdit";
-            this.btnEdit.Size = new System.Drawing.Size(75, 23);
-            this.btnEdit.Text = "Edit";
-            this.btnEdit.UseVisualStyleBackColor = true;
-            this.btnEdit.Click += new EventHandler(this.BtnEdit_Click);
-
-            // Configure Button: Remove Pattern
-            this.btnRemove.Location = new System.Drawing.Point(540, 428);
-            this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(75, 23);
-            this.btnRemove.Text = "Remove";
-            this.btnRemove.UseVisualStyleBackColor = true;
-            this.btnRemove.Click += new EventHandler(this.BtnRemove_Click);
-
-            // Configure Button: Save
-            this.btnSave.DialogResult = DialogResult.OK;
-            this.btnSave.Location = new System.Drawing.Point(447, 545);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.Text = "Save";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new EventHandler(this.btnSave_Click);
-
-            // Configure Button: Cancel
-            this.btnCancel.DialogResult = DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(540, 545);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.Text = "Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-
-            // Form configuration
+            // 
+            // SettingsForm
+            // 
             this.AcceptButton = this.btnSave;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(635, 580);
-            
-            // Add all controls to the form
+            this.ClientSize = new System.Drawing.Size(648, 597);
             this.Controls.Add(this.lblVaultName);
             this.Controls.Add(this.txtVaultName);
             this.Controls.Add(this.lblVaultPath);
@@ -389,22 +462,20 @@ namespace SlingMD.Outlook.Forms
             this.Controls.Add(this.btnRemove);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnCancel);
-            
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Text = "Obsidian Settings";
-            this.Name = "SettingsForm";
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            
-            // End initialization
+            this.Name = "SettingsForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Obsidian Settings";
             ((System.ComponentModel.ISupportInitialize)(this.numDelay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDefaultDueDays)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDefaultReminderDays)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDefaultReminderHour)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         private void LoadSettings()

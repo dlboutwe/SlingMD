@@ -60,20 +60,20 @@ namespace SlingMD.Outlook.Services
             }
         }
 
-        public string BuildLinkedNames(Recipients recipients, OlMailRecipientType type)
+        public List<string> BuildLinkedNames(Recipients recipients, OlMailRecipientType type)
         {
             var names = new List<string>();
             foreach (Recipient recipient in recipients)
             {
                 if (recipient.Type == (int)type)
                 {
-                    names.Add($"  - \"[[{recipient.Name}]]\"");
+                    names.Add($"[[{recipient.Name}]]");
                 }
             }
-            return $"\n{string.Join("\n", names)}";
+            return names;
         }
 
-        public string BuildEmailList(Recipients recipients, OlMailRecipientType type)
+        public List<string> BuildEmailList(Recipients recipients, OlMailRecipientType type)
         {
             var emails = new List<string>();
             foreach (Recipient recipient in recipients)
@@ -86,7 +86,7 @@ namespace SlingMD.Outlook.Services
                         string email = recipient.PropertyAccessor.GetProperty(PR_SMTP_ADDRESS);
                         if (!string.IsNullOrEmpty(email))
                         {
-                            emails.Add($"  - \"{email}\"");
+                            emails.Add(email);
                         }
                     }
                     catch
@@ -94,12 +94,12 @@ namespace SlingMD.Outlook.Services
                         // Fallback to Address property
                         if (!string.IsNullOrEmpty(recipient.Address))
                         {
-                            emails.Add($"  - \"{recipient.Address}\"");
+                            emails.Add(recipient.Address);
                         }
                     }
                 }
             }
-            return $"\n{string.Join("\n", emails)}";
+            return emails;
         }
 
         // This will be expanded later for contact search/creation feature
@@ -164,7 +164,7 @@ namespace SlingMD.Outlook.Services
                 // If we get here, the contact doesn't exist
                 return false;
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 // In case of any error, return false which will just treat it as a new contact
                 return false;
@@ -195,7 +195,7 @@ namespace SlingMD.Outlook.Services
                 { "title", contactName },
                 { "type", "contact" },
                 { "created", DateTime.Now.ToString("yyyy-MM-dd HH:mm") },
-                { "tags", "[contact]" }
+                { "tags", "contact" }
             };
 
             var content = new StringBuilder();

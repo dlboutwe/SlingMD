@@ -104,58 +104,102 @@ namespace SlingMD.Outlook.Services
             return threadPath;
         }
 
-        public (bool hasExistingThread, string earliestEmailThreadName, DateTime? earliestEmailDate) 
+        public (bool hasExistingThread, string earliestEmailThreadName, DateTime? earliestEmailDate, int emailCount) 
             FindExistingThread(string conversationId, string inboxPath)
         {
             bool hasExistingThread = false;
             DateTime? earliestEmailDate = null;
             string earliestEmailThreadName = null;
+            int emailCount = 0;
+            List<string> matchingFiles = new List<string>(); // Track matching files for debugging
 
-            var files = Directory.GetFiles(inboxPath, "*.md", SearchOption.AllDirectories);
-            foreach (var file in files)
+            try 
             {
-                string emailContent = File.ReadAllText(file);
-                var threadIdMatch = Regex.Match(emailContent, @"threadId: ""([^""]+)""");
-                if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
+                // Get all markdown files from the inbox and subfolders
+                var files = Directory.GetFiles(inboxPath, "*.md", SearchOption.AllDirectories);
+                
+                // Search through each file for the thread ID
+                foreach (var file in files)
                 {
-                    hasExistingThread = true;
-
-                    var dateMatch = Regex.Match(emailContent, @"date: (\d{4}-\d{2}-\d{2} \d{2}:\d{2})");
-                    if (dateMatch.Success)
+                    try
                     {
-                        var emailDate = DateTime.ParseExact(dateMatch.Groups[1].Value, "yyyy-MM-dd HH:mm", null);
-                        if (!earliestEmailDate.HasValue || emailDate < earliestEmailDate.Value)
+                        string emailContent = File.ReadAllText(file);
+                        var threadIdMatch = Regex.Match(emailContent, @"threadId: ""([^""]+)""");
+                        
+                        // If this file belongs to the conversation thread
+                        if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
                         {
-                            earliestEmailDate = emailDate;
-                            string directory = Path.GetDirectoryName(file);
-                            if (directory != inboxPath)
+                            hasExistingThread = true;
+                            emailCount++; // Increment email count for each matching email
+                            matchingFiles.Add(file); // Add to our debugging list
+                            
+                            // Parse the date to find the earliest email
+                            var dateMatch = Regex.Match(emailContent, @"date: (\d{4}-\d{2}-\d{2} \d{2}:\d{2})");
+                            if (dateMatch.Success)
                             {
-                                earliestEmailThreadName = Path.GetFileName(directory);
-                            }
-                            else
-                            {
-                                var subjectMatch = Regex.Match(emailContent, @"title: ""([^""]+)""");
-                                var fromMatch = Regex.Match(emailContent, @"from: ""[^""]*\[\[([^""]+)\]\]""");
-                                var toMatch = Regex.Match(emailContent, @"to:.*?\n\s*- ""[^""]*\[\[([^""]+)\]\]""", RegexOptions.Singleline);
-                                
-                                if (subjectMatch.Success && fromMatch.Success && toMatch.Success)
+                                DateTime emailDate;
+                                if (DateTime.TryParseExact(dateMatch.Groups[1].Value, "yyyy-MM-dd HH:mm", null, 
+                                                         System.Globalization.DateTimeStyles.None, out emailDate))
                                 {
-                                    string subject = _fileService.CleanFileName(subjectMatch.Groups[1].Value);
-                                    if (subject.Length > 50)
+                                    if (!earliestEmailDate.HasValue || emailDate < earliestEmailDate.Value)
                                     {
-                                        subject = subject.Substring(0, 47) + "...";
+                                        earliestEmailDate = emailDate;
+                                        
+                                        // Check if this email is in a thread folder
+                                        string directory = Path.GetDirectoryName(file);
+                                        if (directory != inboxPath)
+                                        {
+                                            earliestEmailThreadName = Path.GetFileName(directory);
+                                        }
+                                        else
+                                        {
+                                            // Try to extract thread name components from frontmatter
+                                            var subjectMatch = Regex.Match(emailContent, @"title: ""([^""]+)""");
+                                            var fromMatch = Regex.Match(emailContent, @"from: ""[^""]*\[\[([^""]+)\]\]""");
+                                            var toMatch = Regex.Match(emailContent, @"to:.*?\n\s*- ""[^""]*\[\[([^""]+)\]\]""", RegexOptions.Singleline);
+                                            
+                                            if (subjectMatch.Success && fromMatch.Success && toMatch.Success)
+                                            {
+                                                string subject = _fileService.CleanFileName(subjectMatch.Groups[1].Value);
+                                                if (subject.Length > 50)
+                                                {
+                                                    subject = subject.Substring(0, 47) + "...";
+                                                }
+                                                string sender = fromMatch.Groups[1].Value;
+                                                string recipient = toMatch.Groups[1].Value;
+                                                earliestEmailThreadName = $"{subject}-{sender}-{recipient}";
+                                            }
+                                        }
                                     }
-                                    string sender = fromMatch.Groups[1].Value;
-                                    string recipient = toMatch.Groups[1].Value;
-                                    earliestEmailThreadName = $"{subject}-{sender}-{recipient}";
                                 }
                             }
                         }
                     }
+                    catch (System.Exception)
+                    {
+                        // Skip files that can't be read
+                        continue;
+                    }
+                }
+                
+                // If we found any matches, show more details for debugging
+                if (emailCount > 0)
+                {
+                    string filesList = string.Join("\n", matchingFiles);
+                    System.Windows.Forms.MessageBox.Show(
+                        $"Found {emailCount} existing emails with thread ID: {conversationId}\n\nFiles:\n{filesList}",
+                        "Thread Match Details",
+                        System.Windows.Forms.MessageBoxButtons.OK,
+                        System.Windows.Forms.MessageBoxIcon.Information);
                 }
             }
+            catch (System.Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show($"Error searching for thread: {ex.Message}", "Thread Search Error", 
+                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Warning);
+            }
 
-            return (hasExistingThread, earliestEmailThreadName, earliestEmailDate);
+            return (hasExistingThread, earliestEmailThreadName, earliestEmailDate, emailCount);
         }
     }
 } 

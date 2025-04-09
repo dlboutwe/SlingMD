@@ -59,7 +59,17 @@ namespace SlingMD.Outlook.Services
         {
             try
             {
-                string obsidianUrl = $"obsidian://open?vault={Uri.EscapeDataString(vaultName)}&file={Uri.EscapeDataString(filePath)}";
+                // Replace backslashes with forward slashes for Obsidian URLs
+                string normalizedPath = filePath.Replace('\\', '/');
+                
+                // Remove file extension if present
+                if (normalizedPath.EndsWith(".md"))
+                {
+                    normalizedPath = normalizedPath.Substring(0, normalizedPath.Length - 3);
+                }
+                
+                // Create and launch the Obsidian URL
+                string obsidianUrl = $"obsidian://open?vault={Uri.EscapeDataString(vaultName)}&file={Uri.EscapeDataString(normalizedPath)}";
                 System.Diagnostics.Process.Start(obsidianUrl);
             }
             catch (Exception ex)
