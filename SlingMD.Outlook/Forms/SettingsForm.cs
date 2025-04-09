@@ -46,6 +46,9 @@ namespace SlingMD.Outlook.Forms
         private Button btnEdit;
         private Button btnRemove;
         private Label lblPatterns;
+        private GroupBox grpDevelopment;
+        private CheckBox chkShowDevelopmentSettings;
+        private CheckBox chkShowThreadDebug;
 
         public SettingsForm(ObsidianSettings settings)
         {
@@ -91,6 +94,9 @@ namespace SlingMD.Outlook.Forms
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
             this.lblPatterns = new System.Windows.Forms.Label();
+            this.grpDevelopment = new System.Windows.Forms.GroupBox();
+            this.chkShowDevelopmentSettings = new System.Windows.Forms.CheckBox();
+            this.chkShowThreadDebug = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDefaultDueDays)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDefaultReminderDays)).BeginInit();
@@ -267,7 +273,7 @@ namespace SlingMD.Outlook.Forms
             // btnSave
             // 
             this.btnSave.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnSave.Location = new System.Drawing.Point(447, 545);
+            this.btnSave.Location = new System.Drawing.Point(447, 600);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 40);
             this.btnSave.TabIndex = 31;
@@ -278,7 +284,7 @@ namespace SlingMD.Outlook.Forms
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(540, 545);
+            this.btnCancel.Location = new System.Drawing.Point(540, 600);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 40);
             this.btnCancel.TabIndex = 32;
@@ -423,11 +429,44 @@ namespace SlingMD.Outlook.Forms
             this.lblPatterns.TabIndex = 27;
             this.lblPatterns.Text = "Subject Cleanup Patterns:";
             // 
+            // grpDevelopment
+            // 
+            this.grpDevelopment.Controls.Add(this.chkShowThreadDebug);
+            this.grpDevelopment.Location = new System.Drawing.Point(12, 550);
+            this.grpDevelopment.Name = "grpDevelopment";
+            this.grpDevelopment.Size = new System.Drawing.Size(522, 45);
+            this.grpDevelopment.TabIndex = 34;
+            this.grpDevelopment.TabStop = false;
+            this.grpDevelopment.Text = "Development Settings";
+            this.grpDevelopment.Visible = false;
+            // 
+            // chkShowDevelopmentSettings
+            // 
+            this.chkShowDevelopmentSettings.AutoSize = true;
+            this.chkShowDevelopmentSettings.Location = new System.Drawing.Point(12, 520);
+            this.chkShowDevelopmentSettings.Name = "chkShowDevelopmentSettings";
+            this.chkShowDevelopmentSettings.Size = new System.Drawing.Size(180, 24);
+            this.chkShowDevelopmentSettings.TabIndex = 33;
+            this.chkShowDevelopmentSettings.Text = "Show development settings";
+            this.chkShowDevelopmentSettings.UseVisualStyleBackColor = true;
+            this.chkShowDevelopmentSettings.CheckedChanged += new System.EventHandler(this.chkShowDevelopmentSettings_CheckedChanged);
+            // 
+            // chkShowThreadDebug
+            // 
+            this.chkShowThreadDebug.AutoSize = true;
+            this.chkShowThreadDebug.Location = new System.Drawing.Point(20, 20);
+            this.chkShowThreadDebug.Name = "chkShowThreadDebug";
+            this.chkShowThreadDebug.Size = new System.Drawing.Size(180, 24);
+            this.chkShowThreadDebug.TabIndex = 1;
+            this.chkShowThreadDebug.Text = "Show thread debug";
+            this.chkShowThreadDebug.UseVisualStyleBackColor = true;
+            this.chkShowThreadDebug.Visible = true;
+            // 
             // SettingsForm
             // 
             this.AcceptButton = this.btnSave;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(648, 597);
+            this.ClientSize = new System.Drawing.Size(648, 650);
             this.Controls.Add(this.lblVaultName);
             this.Controls.Add(this.txtVaultName);
             this.Controls.Add(this.lblVaultPath);
@@ -462,6 +501,8 @@ namespace SlingMD.Outlook.Forms
             this.Controls.Add(this.btnRemove);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.chkShowDevelopmentSettings);
+            this.Controls.Add(this.grpDevelopment);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -497,6 +538,12 @@ namespace SlingMD.Outlook.Forms
             numDefaultDueDays.Value = _settings.DefaultDueDays;
             numDefaultReminderDays.Value = _settings.DefaultReminderDays;
             numDefaultReminderHour.Value = _settings.DefaultReminderHour;
+            chkShowDevelopmentSettings.Checked = _settings.ShowDevelopmentSettings;
+            chkShowThreadDebug.Checked = _settings.ShowThreadDebug;
+
+            // Initialize development settings visibility
+            grpDevelopment.Visible = _settings.ShowDevelopmentSettings;
+            chkShowThreadDebug.Visible = _settings.ShowDevelopmentSettings;
 
             // Load patterns
             lstPatterns.Items.Clear();
@@ -538,6 +585,8 @@ namespace SlingMD.Outlook.Forms
             _settings.DefaultDueDays = (int)numDefaultDueDays.Value;
             _settings.DefaultReminderDays = (int)numDefaultReminderDays.Value;
             _settings.DefaultReminderHour = (int)numDefaultReminderHour.Value;
+            _settings.ShowDevelopmentSettings = chkShowDevelopmentSettings.Checked;
+            _settings.ShowThreadDebug = chkShowThreadDebug.Checked;
 
             // Save patterns
             _settings.SubjectCleanupPatterns.Clear();
@@ -586,6 +635,12 @@ namespace SlingMD.Outlook.Forms
         private void chkEnableContactSaving_CheckedChanged(object sender, EventArgs e)
         {
             txtContactsFolder.Enabled = chkEnableContactSaving.Checked;
+        }
+
+        private void chkShowDevelopmentSettings_CheckedChanged(object sender, EventArgs e)
+        {
+            grpDevelopment.Visible = chkShowDevelopmentSettings.Checked;
+            chkShowThreadDebug.Visible = chkShowDevelopmentSettings.Checked;
         }
     }
 } 

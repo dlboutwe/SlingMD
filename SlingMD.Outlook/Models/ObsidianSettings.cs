@@ -35,6 +35,7 @@ namespace SlingMD.Outlook.Models
         public int DefaultReminderHour { get; set; } = 9;  // at 9am
         public bool AskForDates { get; set; } = false;
         public bool GroupEmailThreads { get; set; } = true;
+        public bool ShowDevelopmentSettings { get; set; } = false;
         public bool ShowThreadDebug { get; set; } = false;
 
         public List<string> SubjectCleanupPatterns { get; set; } = new List<string>
@@ -95,6 +96,7 @@ namespace SlingMD.Outlook.Models
                 { "AskForDates", AskForDates },
                 { "SubjectCleanupPatterns", SubjectCleanupPatterns },
                 { "GroupEmailThreads", GroupEmailThreads },
+                { "ShowDevelopmentSettings", ShowDevelopmentSettings },
                 { "ShowThreadDebug", ShowThreadDebug }
             };
 
@@ -184,6 +186,10 @@ namespace SlingMD.Outlook.Models
                 if (settings.ContainsKey("GroupEmailThreads"))
                 {
                     GroupEmailThreads = settings["GroupEmailThreads"].Value<bool>();
+                }
+                if (settings.ContainsKey("ShowDevelopmentSettings"))
+                {
+                    ShowDevelopmentSettings = settings["ShowDevelopmentSettings"].Value<bool>();
                 }
                 if (settings.ContainsKey("ShowThreadDebug"))
                 {
