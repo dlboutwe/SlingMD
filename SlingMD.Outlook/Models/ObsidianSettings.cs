@@ -57,6 +57,7 @@ namespace SlingMD.Outlook.Models
         /// Whether to include the date in the note title.
         /// </summary>
         public bool NoteTitleIncludeDate { get; set; } = true;
+        public bool MoveDateToFrontInThread { get; set; } = true;
 
         public List<string> SubjectCleanupPatterns { get; set; } = new List<string>
         {
@@ -122,7 +123,8 @@ namespace SlingMD.Outlook.Models
                 { "DefaultTaskTags", DefaultTaskTags },
                 { "NoteTitleFormat", NoteTitleFormat },
                 { "NoteTitleMaxLength", NoteTitleMaxLength },
-                { "NoteTitleIncludeDate", NoteTitleIncludeDate }
+                { "NoteTitleIncludeDate", NoteTitleIncludeDate },
+                { "MoveDateToFrontInThread", MoveDateToFrontInThread }
             };
 
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
@@ -256,6 +258,10 @@ namespace SlingMD.Outlook.Models
                 if (settings.ContainsKey("NoteTitleIncludeDate"))
                 {
                     NoteTitleIncludeDate = settings["NoteTitleIncludeDate"].Value<bool>();
+                }
+                if (settings.ContainsKey("MoveDateToFrontInThread"))
+                {
+                    MoveDateToFrontInThread = settings["MoveDateToFrontInThread"].Value<bool>();
                 }
             }
         }

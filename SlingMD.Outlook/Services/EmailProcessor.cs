@@ -185,6 +185,44 @@ namespace SlingMD.Outlook.Services
                     // If this is part of a thread and thread grouping is enabled
                     if (shouldGroupThread)
                     {
+                        // Move all existing emails for this thread to the thread folder
+                        var mdFiles = Directory.GetFiles(_settings.GetInboxPath(), "*.md", SearchOption.TopDirectoryOnly);
+                        foreach (var file in mdFiles)
+                        {
+                            // Read front matter to get threadId
+                            bool inFrontMatter = false;
+                            string foundThreadId = null;
+                            foreach (var line in File.ReadLines(file))
+                            {
+                                if (line.Trim() == "---")
+                                {
+                                    if (!inFrontMatter)
+                                    {
+                                        inFrontMatter = true;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        // End of frontmatter
+                                        break;
+                                    }
+                                }
+                                if (inFrontMatter && line.Trim().StartsWith("threadId:", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    foundThreadId = line.Trim().Substring("threadId:".Length).Trim().Trim('"');
+                                    break;
+                                }
+                            }
+                            if (!string.IsNullOrWhiteSpace(foundThreadId) && foundThreadId == conversationId)
+                            {
+                                // Only move if not already in the thread folder
+                                if (Path.GetDirectoryName(file) != threadFolderPath)
+                                {
+                                    _threadService.MoveToThreadFolder(file, threadFolderPath);
+                                }
+                            }
+                        }
+
                         await _threadService.UpdateThreadNote(threadFolderPath, threadNotePath, conversationId, threadNoteName, mail);
                     }
 
@@ -357,19 +395,41 @@ namespace SlingMD.Outlook.Services
             int emailCount = threadInfo.emailCount;
             bool shouldGroupThread = hasExistingThread && _settings.GroupEmailThreads && emailCount >= 1;
             string fileName, filePath, obsidianLinkPath, fileNameNoExtResult;
+            bool includeDate = _settings.NoteTitleIncludeDate;
             if (shouldGroupThread)
             {
                 threadNoteName = earliestEmailThreadName ?? threadNoteName;
                 threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
                 threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
-                fileName = $"{fileDateTime}-{subjectClean}-{senderClean}.md";
+                if (includeDate)
+                {
+                    if (_settings.MoveDateToFrontInThread)
+                    {
+                        fileName = $"{fileDateTime}-{subjectClean}-{senderClean}.md";
+                    }
+                    else
+                    {
+                        fileName = $"{subjectClean}-{senderClean}-{fileDateTime}.md";
+                    }
+                }
+                else
+                {
+                    fileName = $"{subjectClean}-{senderClean}.md";
+                }
                 filePath = Path.Combine(threadFolderPath, fileName);
                 fileNameNoExtResult = Path.GetFileNameWithoutExtension(fileName);
                 obsidianLinkPath = $"{threadNoteName}/{fileNameNoExtResult}";
             }
             else
             {
-                fileName = $"{subjectClean}-{senderClean}-{fileDateTime}.md";
+                if (includeDate)
+                {
+                    fileName = $"{subjectClean}-{senderClean}-{fileDateTime}.md";
+                }
+                else
+                {
+                    fileName = $"{subjectClean}-{senderClean}.md";
+                }
                 filePath = Path.Combine(_settings.GetInboxPath(), fileName);
                 fileNameNoExtResult = Path.GetFileNameWithoutExtension(fileName);
                 obsidianLinkPath = fileNameNoExtResult;

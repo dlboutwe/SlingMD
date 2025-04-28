@@ -114,31 +114,28 @@ namespace SlingMD.Outlook.Services
         public string MoveToThreadFolder(string emailPath, string threadFolderPath)
         {
             string fileName = Path.GetFileName(emailPath);
-            
-            // Extract date from the original filename (at the end)
-            var dateMatch = Regex.Match(fileName, @"-(\d{4}-\d{2}-\d{2}-\d{4})\.md$");
-            if (dateMatch.Success)
+            string newFileName = fileName;
+            if (_settings.MoveDateToFrontInThread)
             {
-                // Get the date part
-                string dateTime = dateMatch.Groups[1].Value;
-                
-                // Remove the date from the end and any potential double hyphens
-                string nameWithoutDate = Regex.Replace(fileName, @"-\d{4}-\d{2}-\d{2}-\d{4}\.md$", "");
-                nameWithoutDate = Regex.Replace(nameWithoutDate, @"--+", "-");
-                
-                // Create new filename with date at the front
-                fileName = $"{dateTime}-{nameWithoutDate}.md";
+                // Extract date from the original filename (at the end)
+                var dateMatch = Regex.Match(fileName, @"-(\d{4}-\d{2}-\d{2}-\d{4})\.md$");
+                if (dateMatch.Success)
+                {
+                    // Get the date part
+                    string dateTime = dateMatch.Groups[1].Value;
+                    // Remove the date from the end and any potential double hyphens
+                    string nameWithoutDate = Regex.Replace(fileName, @"-\d{4}-\d{2}-\d{2}-\d{4}\.md$", "");
+                    nameWithoutDate = Regex.Replace(nameWithoutDate, @"--+", "-");
+                    // Create new filename with date at the front
+                    newFileName = $"{dateTime}-{nameWithoutDate}.md";
+                }
             }
-            
-            string threadPath = Path.Combine(threadFolderPath, fileName);
-            
+            string threadPath = Path.Combine(threadFolderPath, newFileName);
             _fileService.EnsureDirectoryExists(threadFolderPath);
-
             if (File.Exists(threadPath))
             {
                 File.Delete(threadPath);
             }
-
             File.Move(emailPath, threadPath);
             return threadPath;
         }

@@ -65,6 +65,7 @@ namespace SlingMD.Outlook.Forms
         private ToolTip toolTip;
         // Refactored layout containers
         private TableLayoutPanel mainLayout;
+        private CheckBox chkMoveDateToFrontInThread;
 
         public SettingsForm(ObsidianSettings settings)
         {
@@ -200,10 +201,26 @@ namespace SlingMD.Outlook.Forms
             this.numNoteTitleMaxLength = new NumericUpDown { Minimum = 10, Maximum = 200, Anchor = AnchorStyles.Left };
             noteTagLayout.Controls.Add(this.lblNoteTitleMaxLength, 0, 3);
             noteTagLayout.Controls.Add(this.numNoteTitleMaxLength, 1, 3);
-            this.lblNoteTitleIncludeDate = new Label { Text = "Include Date in Title:", Anchor = AnchorStyles.Left };
+            // Add Note Title Include Date and Move Date checkboxes in a horizontal layout for alignment
+            var dateOptionsLayout = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Anchor = AnchorStyles.Left };
             this.chkNoteTitleIncludeDate = new CheckBox { Anchor = AnchorStyles.Left };
-            noteTagLayout.Controls.Add(this.lblNoteTitleIncludeDate, 0, 4);
-            noteTagLayout.Controls.Add(this.chkNoteTitleIncludeDate, 1, 4);
+            this.lblNoteTitleIncludeDate = new Label { Text = "Include Date in Title:", Anchor = AnchorStyles.Left, AutoSize = true, TextAlign = ContentAlignment.MiddleLeft };
+            dateOptionsLayout.Controls.Add(this.lblNoteTitleIncludeDate);
+            dateOptionsLayout.Controls.Add(this.chkNoteTitleIncludeDate);
+            this.chkMoveDateToFrontInThread = new CheckBox { Text = "Move date to front of filename when grouping threads", Anchor = AnchorStyles.Left, AutoSize = true };
+            dateOptionsLayout.Controls.Add(this.chkMoveDateToFrontInThread);
+            noteTagLayout.Controls.Add(dateOptionsLayout, 1, 4);
+
+            // Add event handler for enabling/disabling move date checkbox
+            this.chkNoteTitleIncludeDate.CheckedChanged += (s, e) => {
+                if (!chkNoteTitleIncludeDate.Checked) {
+                    chkMoveDateToFrontInThread.Checked = false;
+                    chkMoveDateToFrontInThread.Enabled = false;
+                } else {
+                    chkMoveDateToFrontInThread.Enabled = true;
+                }
+            };
+
             this.grpNoteCustomization.Controls.Add(noteTagLayout);
             this.mainLayout.Controls.Add(this.grpNoteCustomization);
 
@@ -223,6 +240,7 @@ namespace SlingMD.Outlook.Forms
             // Save/Cancel buttons
             var btnLayout = new FlowLayoutPanel { FlowDirection = FlowDirection.RightToLeft, Dock = DockStyle.Bottom, AutoSize = true };
             this.btnSave = new Button { Text = "Save", DialogResult = DialogResult.OK };
+            this.btnSave.Click += btnSave_Click;
             this.btnCancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel };
             btnLayout.Controls.Add(this.btnSave);
             btnLayout.Controls.Add(this.btnCancel);
@@ -259,6 +277,8 @@ namespace SlingMD.Outlook.Forms
             numDefaultReminderHour.Value = _settings.DefaultReminderHour;
             chkShowDevelopmentSettings.Checked = _settings.ShowDevelopmentSettings;
             chkShowThreadDebug.Checked = _settings.ShowThreadDebug;
+            chkMoveDateToFrontInThread.Checked = _settings.MoveDateToFrontInThread;
+            chkMoveDateToFrontInThread.Enabled = chkNoteTitleIncludeDate.Checked;
 
             // Initialize development settings visibility
             grpDevelopment.Visible = _settings.ShowDevelopmentSettings;
@@ -276,6 +296,8 @@ namespace SlingMD.Outlook.Forms
             txtNoteTitleFormat.Text = _settings.NoteTitleFormat ?? "{Subject} - {Date}";
             numNoteTitleMaxLength.Value = _settings.NoteTitleMaxLength > 0 ? _settings.NoteTitleMaxLength : 50;
             chkNoteTitleIncludeDate.Checked = _settings.NoteTitleIncludeDate;
+            chkMoveDateToFrontInThread.Checked = _settings.MoveDateToFrontInThread;
+            chkMoveDateToFrontInThread.Enabled = chkNoteTitleIncludeDate.Checked;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -312,6 +334,7 @@ namespace SlingMD.Outlook.Forms
             _settings.DefaultReminderHour = (int)numDefaultReminderHour.Value;
             _settings.ShowDevelopmentSettings = chkShowDevelopmentSettings.Checked;
             _settings.ShowThreadDebug = chkShowThreadDebug.Checked;
+            _settings.MoveDateToFrontInThread = chkMoveDateToFrontInThread.Checked;
 
             // Save patterns
             _settings.SubjectCleanupPatterns.Clear();
