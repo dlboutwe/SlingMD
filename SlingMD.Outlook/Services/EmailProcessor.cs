@@ -190,7 +190,7 @@ namespace SlingMD.Outlook.Services
                         { "threadId", conversationId },
                         { "date", mail.ReceivedTime },
                         { "dailyNoteLink", $"[[{mail.ReceivedTime:yyyy-MM-dd}]]" },
-                        { "tags", (_settings.DefaultNoteTags != null && _settings.DefaultNoteTags.Count > 0) ? _settings.DefaultNoteTags : new List<string> { "FollowUp" } }
+                        { "tags", (_settings.DefaultNoteTags != null && _settings.DefaultNoteTags.Count > 0) ? new List<string>(_settings.DefaultNoteTags) : new List<string> { "FollowUp" } }
                     };
 
                     // Add CC if present

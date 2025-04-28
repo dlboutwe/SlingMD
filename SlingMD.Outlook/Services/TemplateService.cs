@@ -58,9 +58,21 @@ namespace SlingMD.Outlook.Services
             {
                 if (item.Value == null) continue;
 
-                if (item.Key == "tags")
+                // Always render 'tags' as a YAML list if it's a list/enumerable
+                if (item.Key == "tags" && item.Value is IEnumerable<string> tagList)
                 {
-                    frontMatter.AppendLine($"{item.Key}: {item.Value}");
+                    if (tagList.Any())
+                    {
+                        frontMatter.AppendLine($"{item.Key}: ");
+                        foreach (var value in tagList)
+                        {
+                            frontMatter.AppendLine($"  - \"{value}\"");
+                        }
+                    }
+                    else
+                    {
+                        frontMatter.AppendLine($"{item.Key}: []");
+                    }
                 }
                 else if (item.Value is string strValue)
                 {
@@ -82,8 +94,7 @@ namespace SlingMD.Outlook.Services
                     }
                     else
                     {
-                        // If the list is empty, just use an empty value
-                        frontMatter.AppendLine($"{item.Key}: ");
+                        frontMatter.AppendLine($"{item.Key}: []");
                     }
                 }
                 else
