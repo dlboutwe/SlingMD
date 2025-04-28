@@ -132,7 +132,7 @@ namespace SlingMD.Outlook.Services
                         { "to", _contactService.BuildLinkedNames(mail.Recipients, OlMailRecipientType.olTo) },
                         { "toEmail", _contactService.BuildEmailList(mail.Recipients, OlMailRecipientType.olTo) },
                         { "threadId", conversationId },
-                        { "date", mail.ReceivedTime },
+                        { "date", mail.ReceivedTime.ToString("yyyy-MM-dd HH:mm:ss") },
                         { "dailyNoteLink", $"[[{mail.ReceivedTime:yyyy-MM-dd}]]" },
                         { "internetMessageId", realInternetMessageId },
                         { "entryId", realEntryId },
@@ -221,6 +221,39 @@ namespace SlingMD.Outlook.Services
                                     _threadService.MoveToThreadFolder(file, threadFolderPath);
                                 }
                             }
+                        }
+                        // Resuffix all notes in the thread folder (except thread summary)
+                        string baseName = $"{subjectClean}-{senderClean}";
+                        _threadService.ResuffixThreadNotes(threadFolderPath, baseName);
+                        // Find the new filename for the current email after resuffixing
+                        string newFileName = null;
+                        var resuffixedFiles = Directory.GetFiles(threadFolderPath, baseName + "*.md", SearchOption.TopDirectoryOnly)
+                            .Where(f => !Path.GetFileName(f).StartsWith("0-"));
+                        foreach (var file in resuffixedFiles)
+                        {
+                            bool inFrontMatter = false;
+                            foreach (var line in File.ReadLines(file))
+                            {
+                                if (line.Trim() == "---")
+                                {
+                                    if (!inFrontMatter) { inFrontMatter = true; continue; }
+                                    else break;
+                                }
+                                if (inFrontMatter && line.Trim().StartsWith("date:", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    var value = line.Trim().Substring("date:".Length).Trim().Trim('"');
+                                    if (value == mail.ReceivedTime.ToString("yyyy-MM-dd HH:mm:ss"))
+                                    {
+                                        newFileName = Path.GetFileNameWithoutExtension(file);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (newFileName != null) break;
+                        }
+                        if (newFileName != null)
+                        {
+                            obsidianLinkPath = $"{threadNoteName}/{newFileName}";
                         }
 
                         await _threadService.UpdateThreadNote(threadFolderPath, threadNotePath, conversationId, threadNoteName, mail);
@@ -414,7 +447,57 @@ namespace SlingMD.Outlook.Services
                 }
                 else
                 {
-                    fileName = $"{subjectClean}-{senderClean}.md";
+                    // Suffix logic: gather all files, parse dates, sort, assign suffixes
+                    string baseName = $"{subjectClean}-{senderClean}";
+                    var files = Directory.Exists(threadFolderPath)
+                        ? Directory.GetFiles(threadFolderPath, baseName + "*.md", SearchOption.TopDirectoryOnly)
+                        : new string[0];
+                    // List of (filename, date) pairs
+                    var fileDates = new List<(string file, DateTime date, bool isCurrent)>();
+                    DateTime thisDate = mail.ReceivedTime;
+                    foreach (var file in files)
+                    {
+                        DateTime? date = null;
+                        bool inFrontMatter = false;
+                        foreach (var line in File.ReadLines(file))
+                        {
+                            if (line.Trim() == "---")
+                            {
+                                if (!inFrontMatter) { inFrontMatter = true; continue; }
+                                else break;
+                            }
+                            if (inFrontMatter && line.Trim().StartsWith("date:", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var value = line.Trim().Substring("date:".Length).Trim().Trim('"');
+                                if (DateTime.TryParseExact(value, "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out var parsed))
+                                    date = parsed;
+                                else if (DateTime.TryParse(value, out var fallback))
+                                    date = fallback;
+                                break;
+                            }
+                        }
+                        if (date.HasValue)
+                        {
+                            fileDates.Add((file, date.Value, false));
+                        }
+                    }
+                    // Add the current email
+                    fileDates.Add((null, thisDate, true));
+                    // Sort by date
+                    fileDates = fileDates.OrderBy(fd => fd.date).ToList();
+                    // Assign suffixes
+                    int idx = 1;
+                    string suffix = null;
+                    foreach (var fd in fileDates)
+                    {
+                        if (fd.isCurrent)
+                        {
+                            suffix = $"-{idx:D3}";
+                            break;
+                        }
+                        idx++;
+                    }
+                    fileName = $"{baseName}{suffix}.md";
                 }
                 filePath = Path.Combine(threadFolderPath, fileName);
                 fileNameNoExtResult = Path.GetFileNameWithoutExtension(fileName);

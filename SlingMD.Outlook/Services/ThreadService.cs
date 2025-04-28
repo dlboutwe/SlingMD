@@ -237,5 +237,57 @@ namespace SlingMD.Outlook.Services
 
             return (hasExistingThread, earliestEmailThreadName, earliestEmailDate, emailCount);
         }
+
+        /// <summary>
+        /// Renames all thread notes in the given thread folder with an incrementing suffix based on their date in front matter.
+        /// Skips the thread summary note (0-...).
+        /// </summary>
+        public void ResuffixThreadNotes(string threadFolderPath, string baseName)
+        {
+            if (!Directory.Exists(threadFolderPath)) return;
+            var files = Directory.GetFiles(threadFolderPath, baseName + "*.md", SearchOption.TopDirectoryOnly)
+                .Where(f => !Path.GetFileName(f).StartsWith("0-"))
+                .ToList();
+            var fileDates = new List<(string file, DateTime date)>();
+            foreach (var file in files)
+            {
+                DateTime? date = null;
+                bool inFrontMatter = false;
+                foreach (var line in File.ReadLines(file))
+                {
+                    if (line.Trim() == "---")
+                    {
+                        if (!inFrontMatter) { inFrontMatter = true; continue; }
+                        else break;
+                    }
+                    if (inFrontMatter && line.Trim().StartsWith("date:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var value = line.Trim().Substring("date:".Length).Trim().Trim('"');
+                        if (DateTime.TryParseExact(value, "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out var parsed))
+                            date = parsed;
+                        else if (DateTime.TryParse(value, out var fallback))
+                            date = fallback;
+                        break;
+                    }
+                }
+                if (date.HasValue)
+                {
+                    fileDates.Add((file, date.Value));
+                }
+            }
+            fileDates = fileDates.OrderBy(fd => fd.date).ToList();
+            int idx = 1;
+            foreach (var fd in fileDates)
+            {
+                string newName = $"{baseName}-{idx:D3}.md";
+                string newPath = Path.Combine(threadFolderPath, newName);
+                if (!fd.file.Equals(newPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (File.Exists(newPath)) File.Delete(newPath);
+                    File.Move(fd.file, newPath);
+                }
+                idx++;
+            }
+        }
     }
 } 
