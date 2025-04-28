@@ -115,20 +115,33 @@ namespace SlingMD.Outlook.Services
         {
             string fileName = Path.GetFileName(emailPath);
             string newFileName = fileName;
-            if (_settings.MoveDateToFrontInThread)
+            // Add email id as a temporary suffix to avoid overwriting
+            string emailId = null;
+            bool inFrontMatter = false;
+            foreach (var line in File.ReadLines(emailPath))
             {
-                // Extract date from the original filename (at the end)
-                var dateMatch = Regex.Match(fileName, @"-(\d{4}-\d{2}-\d{2}-\d{4})\.md$");
-                if (dateMatch.Success)
+                if (line.Trim() == "---")
                 {
-                    // Get the date part
-                    string dateTime = dateMatch.Groups[1].Value;
-                    // Remove the date from the end and any potential double hyphens
-                    string nameWithoutDate = Regex.Replace(fileName, @"-\d{4}-\d{2}-\d{2}-\d{4}\.md$", "");
-                    nameWithoutDate = Regex.Replace(nameWithoutDate, @"--+", "-");
-                    // Create new filename with date at the front
-                    newFileName = $"{dateTime}-{nameWithoutDate}.md";
+                    if (!inFrontMatter) { inFrontMatter = true; continue; }
+                    else break;
                 }
+                if (inFrontMatter && line.Trim().StartsWith("internetMessageId:", StringComparison.OrdinalIgnoreCase))
+                {
+                    emailId = line.Trim().Substring("internetMessageId:".Length).Trim().Trim('"');
+                    break;
+                }
+                if (inFrontMatter && line.Trim().StartsWith("entryId:", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(emailId))
+                {
+                    emailId = line.Trim().Substring("entryId:".Length).Trim().Trim('"');
+                }
+            }
+            if (!string.IsNullOrEmpty(emailId))
+            {
+                // Sanitize emailId for filename (alphanumeric only)
+                string safeId = new string(emailId.Where(char.IsLetterOrDigit).ToArray());
+                string nameNoExt = Path.GetFileNameWithoutExtension(fileName);
+                string ext = Path.GetExtension(fileName);
+                newFileName = $"{nameNoExt}-eid{safeId}{ext}";
             }
             string threadPath = Path.Combine(threadFolderPath, newFileName);
             _fileService.EnsureDirectoryExists(threadFolderPath);
@@ -241,6 +254,7 @@ namespace SlingMD.Outlook.Services
         /// <summary>
         /// Renames all thread notes in the given thread folder with an incrementing suffix based on their date in front matter.
         /// Skips the thread summary note (0-...).
+        /// Removes any email id suffix before applying the chronological suffix.
         /// </summary>
         public void ResuffixThreadNotes(string threadFolderPath, string baseName)
         {
@@ -279,7 +293,12 @@ namespace SlingMD.Outlook.Services
             int idx = 1;
             foreach (var fd in fileDates)
             {
-                string newName = $"{baseName}-{idx:D3}.md";
+                // Remove any email id suffix before applying the new suffix
+                string nameNoExt = Path.GetFileNameWithoutExtension(fd.file);
+                string ext = Path.GetExtension(fd.file);
+                // Remove trailing -eid{id} if present (id is alphanumeric, usually long)
+                nameNoExt = System.Text.RegularExpressions.Regex.Replace(nameNoExt, "-eid[a-zA-Z0-9]+$", "");
+                string newName = $"{baseName}-{idx:D3}{ext}";
                 string newPath = Path.Combine(threadFolderPath, newName);
                 if (!fd.file.Equals(newPath, StringComparison.OrdinalIgnoreCase))
                 {

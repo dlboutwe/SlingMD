@@ -44,7 +44,7 @@ namespace SlingMD.Outlook.Services
             string fileName = string.Empty;
             string fileNameNoExt = string.Empty;
             string filePath = string.Empty;
-            string obsidianLinkPath = string.Empty;  // Added to store the path to use for Obsidian launch
+            string obsidianLinkPath = string.Empty;  // Added to store the path to use for Obsidian
             string conversationId = string.Empty;
             string threadNoteName = string.Empty;
             string threadFolderPath = string.Empty;
@@ -116,6 +116,12 @@ namespace SlingMD.Outlook.Services
                     if (shouldGroupThread)
                     {
                         status.UpdateProgress($"Email thread found: {threadNoteName}", 48);
+                        // Remove 0- prefix from threadFolderPath if present
+                        if (threadFolderPath.Contains($"0-{threadNoteName}"))
+                        {
+                            threadFolderPath = threadFolderPath.Replace($"0-{threadNoteName}", threadNoteName);
+                            threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
+                        }
                     }
 
                     status.UpdateProgress("Processing email metadata", 50);
@@ -179,12 +185,20 @@ namespace SlingMD.Outlook.Services
                         return;
                     }
 
-                    // Write the file
-                    _fileService.WriteUtf8File(filePath, content.ToString());
-
-                    // If this is part of a thread and thread grouping is enabled
                     if (shouldGroupThread)
                     {
+                        // Write the new note for the current email to the thread folder with -eid{id} suffix
+                        string emailId = !string.IsNullOrEmpty(realInternetMessageId) ? realInternetMessageId : realEntryId;
+                        string safeId = new string(emailId.Where(char.IsLetterOrDigit).ToArray());
+                        string baseName = $"{subjectClean}-{senderClean}";
+                        string tempFileName = $"{baseName}-eid{safeId}.md";
+                        string tempFilePath = Path.Combine(threadFolderPath, tempFileName);
+                        _fileService.EnsureDirectoryExists(threadFolderPath);
+                        _fileService.WriteUtf8File(tempFilePath, content.ToString());
+                        filePath = tempFilePath;
+                        fileName = tempFileName;
+                        fileNameNoExt = Path.GetFileNameWithoutExtension(tempFileName);
+
                         // Move all existing emails for this thread to the thread folder
                         var mdFiles = Directory.GetFiles(_settings.GetInboxPath(), "*.md", SearchOption.TopDirectoryOnly);
                         foreach (var file in mdFiles)
@@ -223,10 +237,11 @@ namespace SlingMD.Outlook.Services
                             }
                         }
                         // Resuffix all notes in the thread folder (except thread summary)
-                        string baseName = $"{subjectClean}-{senderClean}";
                         _threadService.ResuffixThreadNotes(threadFolderPath, baseName);
                         // Find the new filename for the current email after resuffixing
                         string newFileName = null;
+                        string newFilePath = null;
+                        string newFileNameNoExt = null;
                         var resuffixedFiles = Directory.GetFiles(threadFolderPath, baseName + "*.md", SearchOption.TopDirectoryOnly)
                             .Where(f => !Path.GetFileName(f).StartsWith("0-"));
                         foreach (var file in resuffixedFiles)
@@ -244,7 +259,9 @@ namespace SlingMD.Outlook.Services
                                     var value = line.Trim().Substring("date:".Length).Trim().Trim('"');
                                     if (value == mail.ReceivedTime.ToString("yyyy-MM-dd HH:mm:ss"))
                                     {
-                                        newFileName = Path.GetFileNameWithoutExtension(file);
+                                        newFileName = Path.GetFileName(file);
+                                        newFilePath = file;
+                                        newFileNameNoExt = Path.GetFileNameWithoutExtension(file);
                                         break;
                                     }
                                 }
@@ -253,10 +270,16 @@ namespace SlingMD.Outlook.Services
                         }
                         if (newFileName != null)
                         {
-                            obsidianLinkPath = $"{threadNoteName}/{newFileName}";
+                            fileName = newFileName;
+                            filePath = newFilePath;
+                            fileNameNoExt = newFileNameNoExt;
+                            obsidianLinkPath = $"{threadNoteName}/{newFileNameNoExt}";
                         }
-
-                        await _threadService.UpdateThreadNote(threadFolderPath, threadNotePath, conversationId, threadNoteName, mail);
+                    }
+                    else
+                    {
+                        // Write the note as usual to the inbox
+                        _fileService.WriteUtf8File(filePath, content.ToString());
                     }
 
                     // Create Outlook task if enabled
@@ -321,6 +344,7 @@ namespace SlingMD.Outlook.Services
             {
                 try
                 {
+                    // Ensure delay happens after all file operations
                     if (_settings.ShowCountdown && _settings.ObsidianDelaySeconds > 0)
                     {
                         using (var countdown = new CountdownForm(_settings.ObsidianDelaySeconds))
@@ -333,6 +357,7 @@ namespace SlingMD.Outlook.Services
                         await Task.Delay(_settings.ObsidianDelaySeconds * 1000);
                     }
 
+                    // Always use the latest obsidianLinkPath (updated after resuffixing)
                     _fileService.LaunchObsidian(_settings.VaultName, obsidianLinkPath);
                 }
                 catch (System.Exception ex)
