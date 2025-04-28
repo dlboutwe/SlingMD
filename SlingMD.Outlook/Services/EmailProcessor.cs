@@ -238,6 +238,8 @@ namespace SlingMD.Outlook.Services
                         }
                         // Resuffix all notes in the thread folder (except thread summary)
                         _threadService.ResuffixThreadNotes(threadFolderPath, baseName);
+                        // Wait for file system to settle after moving and renaming (only in thread processor)
+                        await Task.Delay(200);
                         // Find the new filename for the current email after resuffixing
                         string newFileName = null;
                         string newFilePath = null;

@@ -255,10 +255,11 @@ namespace SlingMD.Outlook.Services
         /// Renames all thread notes in the given thread folder with an incrementing suffix based on their date in front matter.
         /// Skips the thread summary note (0-...).
         /// Removes any email id suffix before applying the chronological suffix.
+        /// If currentEmailPath is provided, returns the new path for that note after renaming.
         /// </summary>
-        public void ResuffixThreadNotes(string threadFolderPath, string baseName)
+        public string ResuffixThreadNotes(string threadFolderPath, string baseName, string currentEmailPath = null)
         {
-            if (!Directory.Exists(threadFolderPath)) return;
+            if (!Directory.Exists(threadFolderPath)) return null;
             var files = Directory.GetFiles(threadFolderPath, baseName + "*.md", SearchOption.TopDirectoryOnly)
                 .Where(f => !Path.GetFileName(f).StartsWith("0-"))
                 .ToList();
@@ -291,6 +292,7 @@ namespace SlingMD.Outlook.Services
             }
             fileDates = fileDates.OrderBy(fd => fd.date).ToList();
             int idx = 1;
+            string newCurrentPath = null;
             foreach (var fd in fileDates)
             {
                 // Remove any email id suffix before applying the new suffix
@@ -305,8 +307,13 @@ namespace SlingMD.Outlook.Services
                     if (File.Exists(newPath)) File.Delete(newPath);
                     File.Move(fd.file, newPath);
                 }
+                if (currentEmailPath != null && fd.file.Equals(currentEmailPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    newCurrentPath = newPath;
+                }
                 idx++;
             }
+            return newCurrentPath;
         }
     }
 } 
