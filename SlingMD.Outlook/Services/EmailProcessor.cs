@@ -45,6 +45,11 @@ namespace SlingMD.Outlook.Services
             string fileNameNoExt = string.Empty;
             string filePath = string.Empty;
             string obsidianLinkPath = string.Empty;  // Added to store the path to use for Obsidian launch
+            string conversationId = string.Empty;
+            string threadNoteName = string.Empty;
+            string threadFolderPath = string.Empty;
+            string threadNotePath = string.Empty;
+            bool shouldGroupThread = false;
 
             // Get task options first if needed
             if ((_settings.CreateOutlookTask || _settings.CreateObsidianTask) && _settings.AskForDates)
@@ -105,79 +110,18 @@ namespace SlingMD.Outlook.Services
                         formattedTitle = formattedTitle.Substring(0, maxLength - 3) + "...";
                     noteTitle = formattedTitle;
 
-                    // Build file name
-                    fileName = $"{noteTitle}-{senderClean}-{fileDateTime}.md";
-                    filePath = Path.Combine(_settings.GetInboxPath(), fileName);
-                    fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
-                    obsidianLinkPath = fileNameNoExt;
-
-                    // Get thread info
-                    string conversationId = _threadService.GetConversationId(mail);
-                    string threadNoteName = _threadService.GetThreadNoteName(mail, subjectClean, senderClean, 
-                        _contactService.GetShortName(GetFirstRecipient(mail)));
-                    string threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
-                    string threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
-
-                    // Check for existing thread and count emails with same thread ID
-                    var threadInfo = _threadService.FindExistingThread(conversationId, _settings.GetInboxPath());
-                    bool hasExistingThread = threadInfo.hasExistingThread;
-                    string earliestEmailThreadName = threadInfo.earliestEmailThreadName;
-                    int emailCount = threadInfo.emailCount;
-                    
-                    // Debug info to check email count - note that emailCount is how many emails are ALREADY in the thread
-                    // We're NOT counting the current email
-                    if (_settings.ShowThreadDebug)
-                    {
-                        MessageBox.Show($"Thread ID: {conversationId}\nEmail count: {emailCount}\nExisting thread: {hasExistingThread}", "Thread Debug", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-
-                    // Only group this email if there is at least 1 previous email in the thread
-                    bool shouldGroupThread = hasExistingThread && _settings.GroupEmailThreads && emailCount >= 1;
-                    
-                    // If this is part of a thread with at least one previous email and thread grouping is enabled, update paths
+                    // Email threading logic moved to its own method
+                    (conversationId, threadNoteName, threadFolderPath, threadNotePath, shouldGroupThread, obsidianLinkPath, fileName, filePath, fileNameNoExt) =
+                        GetThreadingInfo(mail, subjectClean, senderClean, fileDateTime, "");
                     if (shouldGroupThread)
                     {
-                        threadNoteName = earliestEmailThreadName ?? threadNoteName;
-                        threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
-                        threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
-                        
-                        // For thread files, date goes at the front of the filename
-                        fileName = $"{fileDateTime}-{subjectClean}-{senderClean}.md";
-                        filePath = Path.Combine(threadFolderPath, fileName);
-                        
-                        // Update Obsidian link path to include the thread folder
-                        // Use the folder name with forward slashes for Obsidian URI compatibility
-                        obsidianLinkPath = $"{threadNoteName}/{fileNameNoExt}";
-
-                        // Move any existing emails with the same threadId into the thread folder
-                        var files = Directory.GetFiles(_settings.GetInboxPath(), "*.md", SearchOption.TopDirectoryOnly);
-                        foreach (var file in files)
-                        {
-                            try
-                            {
-                                string emailContent = File.ReadAllText(file);
-                                var threadIdMatch = Regex.Match(emailContent, @"threadId: ""([^""]+)""");
-                                
-                                // If this file belongs to the conversation thread and is not already in a thread folder
-                                if (threadIdMatch.Success && threadIdMatch.Groups[1].Value == conversationId)
-                                {
-                                    _threadService.MoveToThreadFolder(file, threadFolderPath);
-                                }
-                            }
-                            catch (System.Exception)
-                            {
-                                // Skip files that can't be read
-                                continue;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Not grouping in a thread folder - use just the file name
-                        obsidianLinkPath = fileNameNoExt;
+                        status.UpdateProgress($"Email thread found: {threadNoteName}", 48);
                     }
 
                     status.UpdateProgress("Processing email metadata", 50);
+
+                    // Extract real email IDs
+                    var (realInternetMessageId, realEntryId) = ExtractEmailUniqueIds(mail);
 
                     // Build metadata for frontmatter
                     var metadata = new Dictionary<string, object>
@@ -190,6 +134,8 @@ namespace SlingMD.Outlook.Services
                         { "threadId", conversationId },
                         { "date", mail.ReceivedTime },
                         { "dailyNoteLink", $"[[{mail.ReceivedTime:yyyy-MM-dd}]]" },
+                        { "internetMessageId", realInternetMessageId },
+                        { "entryId", realEntryId },
                         { "tags", (_settings.DefaultNoteTags != null && _settings.DefaultNoteTags.Count > 0) ? new List<string>(_settings.DefaultNoteTags) : new List<string> { "FollowUp" } }
                     };
 
@@ -225,6 +171,13 @@ namespace SlingMD.Outlook.Services
                     content.Append(mail.Body);
 
                     status.UpdateProgress("Writing note file", 75);
+
+                    // Check for duplicate email before writing the note
+                    if (IsDuplicateEmail(_settings.GetInboxPath(), realInternetMessageId, realEntryId))
+                    {
+                        status.UpdateProgress("Duplicate email detected. Skipping note creation.", 100);
+                        return;
+                    }
 
                     // Write the file
                     _fileService.WriteUtf8File(filePath, content.ToString());
@@ -365,6 +318,111 @@ namespace SlingMD.Outlook.Services
                 }
             }
             return "Unknown";
+        }
+
+        /// <summary>
+        /// Extracts the InternetMessageID and EntryID from a MailItem.
+        /// Returns (internetMessageId, entryId).
+        /// </summary>
+        private (string internetMessageId, string entryId) ExtractEmailUniqueIds(MailItem mail)
+        {
+            string entryId = mail.EntryID;
+            string internetMessageId = null;
+            try
+            {
+                // Try to get InternetMessageID via PropertyAccessor (works for most accounts)
+                internetMessageId = mail.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x1035001E") as string;
+            }
+            catch { /* ignore if not available */ }
+            // Fallback to property if available
+            if (string.IsNullOrEmpty(internetMessageId))
+            {
+                try { internetMessageId = mail.GetType().GetProperty("InternetMessageID")?.GetValue(mail) as string; } catch { }
+            }
+            return (internetMessageId, entryId);
+        }
+
+        /// <summary>
+        /// Returns thread-related info for an email, including paths and names.
+        /// </summary>
+        private (string conversationId, string threadNoteName, string threadFolderPath, string threadNotePath, bool shouldGroupThread, string obsidianLinkPath, string fileName, string filePath, string fileNameNoExt) GetThreadingInfo(MailItem mail, string subjectClean, string senderClean, string fileDateTime, string fileNameNoExt)
+        {
+            string conversationId = _threadService.GetConversationId(mail);
+            string threadNoteName = _threadService.GetThreadNoteName(mail, subjectClean, senderClean, _contactService.GetShortName(GetFirstRecipient(mail)));
+            string threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+            string threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
+            var threadInfo = _threadService.FindExistingThread(conversationId, _settings.GetInboxPath());
+            bool hasExistingThread = threadInfo.hasExistingThread;
+            string earliestEmailThreadName = threadInfo.earliestEmailThreadName;
+            int emailCount = threadInfo.emailCount;
+            bool shouldGroupThread = hasExistingThread && _settings.GroupEmailThreads && emailCount >= 1;
+            string fileName, filePath, obsidianLinkPath, fileNameNoExtResult;
+            if (shouldGroupThread)
+            {
+                threadNoteName = earliestEmailThreadName ?? threadNoteName;
+                threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+                threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
+                fileName = $"{fileDateTime}-{subjectClean}-{senderClean}.md";
+                filePath = Path.Combine(threadFolderPath, fileName);
+                fileNameNoExtResult = Path.GetFileNameWithoutExtension(fileName);
+                obsidianLinkPath = $"{threadNoteName}/{fileNameNoExtResult}";
+            }
+            else
+            {
+                fileName = $"{subjectClean}-{senderClean}-{fileDateTime}.md";
+                filePath = Path.Combine(_settings.GetInboxPath(), fileName);
+                fileNameNoExtResult = Path.GetFileNameWithoutExtension(fileName);
+                obsidianLinkPath = fileNameNoExtResult;
+            }
+            return (conversationId, threadNoteName, threadFolderPath, threadNotePath, shouldGroupThread, obsidianLinkPath, fileName, filePath, fileNameNoExtResult);
+        }
+
+        /// <summary>
+        /// Checks if an email with the given InternetMessageID or EntryID already exists in the inbox folder or any subfolder.
+        /// Only reads the frontmatter block (from first '---' to the next '---').
+        /// Returns true if a duplicate is found.
+        /// </summary>
+        private bool IsDuplicateEmail(string inboxPath, string internetMessageId, string entryId)
+        {
+            var mdFiles = Directory.GetFiles(inboxPath, "*.md", SearchOption.AllDirectories);
+            foreach (var file in mdFiles)
+            {
+                bool inFrontMatter = false;
+                foreach (var line in File.ReadLines(file))
+                {
+                    if (line.Trim() == "---")
+                    {
+                        if (!inFrontMatter)
+                        {
+                            inFrontMatter = true;
+                            continue;
+                        }
+                        else
+                        {
+                            // End of frontmatter
+                            break;
+                        }
+                    }
+                    if (inFrontMatter)
+                    {
+                        // Match key: value (with or without quotes, with or without whitespace)
+                        var trimmed = line.Trim();
+                        if (trimmed.StartsWith("internetMessageId:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var value = trimmed.Substring("internetMessageId:".Length).Trim().Trim('"');
+                            if (!string.IsNullOrWhiteSpace(internetMessageId) && value == internetMessageId)
+                                return true;
+                        }
+                        if (trimmed.StartsWith("entryId:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var value = trimmed.Substring("entryId:".Length).Trim().Trim('"');
+                            if (!string.IsNullOrWhiteSpace(entryId) && value == entryId)
+                                return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }
