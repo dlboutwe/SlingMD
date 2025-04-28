@@ -49,7 +49,7 @@ namespace SlingMD.Outlook.Services
             return result;
         }
 
-        public string BuildFrontMatter(Dictionary<string, object> metadata)
+        public virtual string BuildFrontMatter(Dictionary<string, object> metadata)
         {
             var frontMatter = new StringBuilder();
             frontMatter.AppendLine("---");

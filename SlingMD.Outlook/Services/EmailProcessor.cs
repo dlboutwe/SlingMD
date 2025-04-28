@@ -79,22 +79,37 @@ namespace SlingMD.Outlook.Services
                 {
                     status.UpdateProgress("Processing email...", 0);
 
-                    // Clean and prepare file name components
-                    string subjectClean = CleanSubject(mail.Subject);
-                    if (subjectClean.Length > 50)  // Limit subject length
-                    {
-                        subjectClean = subjectClean.Substring(0, 47) + "...";
-                    }
+                    // Build note title using settings
+                    string noteTitle = mail.Subject;
                     string senderClean = _contactService.GetShortName(mail.SenderName);
                     string fileDateTime = mail.ReceivedTime.ToString("yyyy-MM-dd-HHmm");
-                    
-                    status.UpdateProgress("Creating note file", 25);
+                    string dateStr = mail.ReceivedTime.ToString("yyyy-MM-dd");
+                    string subjectClean = CleanSubject(mail.Subject);
 
-                    // Build file name - when not in a thread, date is at the end
-                    fileName = $"{subjectClean}-{senderClean}-{fileDateTime}.md";
+                    // Use settings for title format
+                    string titleFormat = _settings.NoteTitleFormat ?? "{Subject} - {Date}";
+                    bool includeDate = _settings.NoteTitleIncludeDate;
+                    int maxLength = _settings.NoteTitleMaxLength > 0 ? _settings.NoteTitleMaxLength : 50;
+
+                    // Prepare replacements
+                    string formattedTitle = titleFormat
+                        .Replace("{Subject}", subjectClean)
+                        .Replace("{Sender}", senderClean)
+                        .Replace("{Date}", includeDate ? dateStr : "");
+                    // Remove double spaces and trim
+                    formattedTitle = Regex.Replace(formattedTitle, @"\s+", " ").Trim();
+                    // Remove trailing dash if date is omitted
+                    formattedTitle = Regex.Replace(formattedTitle, @"[-\s]+$", "").Trim();
+                    // Trim to max length
+                    if (formattedTitle.Length > maxLength)
+                        formattedTitle = formattedTitle.Substring(0, maxLength - 3) + "...";
+                    noteTitle = formattedTitle;
+
+                    // Build file name
+                    fileName = $"{noteTitle}-{senderClean}-{fileDateTime}.md";
                     filePath = Path.Combine(_settings.GetInboxPath(), fileName);
                     fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
-                    obsidianLinkPath = fileNameNoExt;  // Default to the regular file name for Obsidian link
+                    obsidianLinkPath = fileNameNoExt;
 
                     // Get thread info
                     string conversationId = _threadService.GetConversationId(mail);
@@ -167,7 +182,7 @@ namespace SlingMD.Outlook.Services
                     // Build metadata for frontmatter
                     var metadata = new Dictionary<string, object>
                     {
-                        { "title", mail.Subject },
+                        { "title", noteTitle },
                         { "from", $"[[{mail.SenderName}]]" },
                         { "fromEmail", _contactService.GetSenderEmail(mail) },
                         { "to", _contactService.BuildLinkedNames(mail.Recipients, OlMailRecipientType.olTo) },
@@ -175,7 +190,7 @@ namespace SlingMD.Outlook.Services
                         { "threadId", conversationId },
                         { "date", mail.ReceivedTime },
                         { "dailyNoteLink", $"[[{mail.ReceivedTime:yyyy-MM-dd}]]" },
-                        { "tags", "email" }
+                        { "tags", (_settings.DefaultNoteTags != null && _settings.DefaultNoteTags.Count > 0) ? _settings.DefaultNoteTags : new List<string> { "FollowUp" } }
                     };
 
                     // Add CC if present
@@ -197,10 +212,14 @@ namespace SlingMD.Outlook.Services
                     var content = new System.Text.StringBuilder();
                     content.Append(_templateService.BuildFrontMatter(metadata));
 
-                    // Add Obsidian task if enabled
+                    // Add Obsidian task if enabled, using DefaultTaskTags
                     if (_settings.CreateObsidianTask && _taskService.ShouldCreateTasks)
                     {
-                        content.Append(_taskService.GenerateObsidianTask(fileNameNoExt));
+                        var taskTags = (_settings.DefaultTaskTags != null && _settings.DefaultTaskTags.Count > 0)
+                            ? _settings.DefaultTaskTags
+                            : new List<string> { "FollowUp" };
+                        content.Append(_taskService.GenerateObsidianTask(fileNameNoExt, taskTags));
+                        content.Append("\n\n");
                     }
 
                     content.Append(mail.Body);

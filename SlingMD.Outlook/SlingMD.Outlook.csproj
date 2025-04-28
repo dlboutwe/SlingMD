@@ -34,7 +34,7 @@
     <PublishUrl>publish\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.76</ApplicationVersion>
+    <ApplicationVersion>1.0.0.85</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -273,6 +273,9 @@
     <Compile Include="Services\ContactService.cs" />
     <Compile Include="Services\EmailProcessor.cs" />
     <Compile Include="Ribbon\SlingRibbon.cs" />
+    <EmbeddedResource Include="Forms\CountdownForm.resx">
+      <DependentUpon>CountdownForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\InputDialog.resx">
       <DependentUpon>InputDialog.cs</DependentUpon>
     </EmbeddedResource>

@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.Outlook;
 using SlingMD.Outlook.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SlingMD.Outlook.Services
 {
@@ -36,7 +38,13 @@ namespace SlingMD.Outlook.Services
             _createTasks = false;
         }
 
-        public string GenerateObsidianTask(string fileName)
+        /// <summary>
+        /// Generates a single-line Obsidian task with tags and dates.
+        /// </summary>
+        /// <param name="fileName">The note file name (without extension).</param>
+        /// <param name="taskTags">A list of tags to include in the task line (e.g., ["FollowUp", "ActionItem"]).</param>
+        /// <returns>The full Obsidian task line, including tags and dates, on a single line.</returns>
+        public string GenerateObsidianTask(string fileName, List<string> taskTags = null)
         {
             if (!_createTasks) return string.Empty;
 
@@ -56,8 +64,14 @@ namespace SlingMD.Outlook.Services
                 reminderDateTime = DateTime.Now.Date.AddDays(_taskReminderDays.Value);
             }
             string reminderDate = reminderDateTime.ToString("yyyy-MM-dd");
-            
-            return $"- [ ] [[{fileName}]] #FollowUp ➕ {currentDate} 🛫 {reminderDate} 📅 {dueDate}\n\n";
+
+            // Format tags as #tag
+            string tagsPart = (taskTags != null && taskTags.Count > 0)
+                ? string.Join(" ", taskTags.Select(t => t.StartsWith("#") ? t : "#" + t))
+                : "#FollowUp";
+
+            // All on one line
+            return $"- [ ] [[{fileName}]] {tagsPart} ➕ {currentDate} 🛫 {reminderDate} 📅 {dueDate}";
         }
 
         public async Task CreateOutlookTask(MailItem mail)

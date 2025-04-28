@@ -15,12 +15,12 @@ namespace SlingMD.Outlook.Services
             _settings = settings;
         }
 
-        public ObsidianSettings GetSettings()
+        public virtual ObsidianSettings GetSettings()
         {
             return _settings;
         }
 
-        public void WriteUtf8File(string filePath, string content)
+        public virtual void WriteUtf8File(string filePath, string content)
         {
             // Ensure directory exists
             string directory = Path.GetDirectoryName(filePath);
@@ -36,7 +36,7 @@ namespace SlingMD.Outlook.Services
             }
         }
 
-        public string CleanFileName(string input)
+        public virtual string CleanFileName(string input)
         {
             if (string.IsNullOrEmpty(input))
                 return string.Empty;
@@ -97,7 +97,7 @@ namespace SlingMD.Outlook.Services
             }
         }
 
-        public bool EnsureDirectoryExists(string path)
+        public virtual bool EnsureDirectoryExists(string path)
         {
             try
             {
@@ -113,6 +113,6 @@ namespace SlingMD.Outlook.Services
             }
         }
 
-        public string GetInboxPath() => _settings.GetInboxPath();
+        public virtual string GetInboxPath() => _settings.GetInboxPath();
     }
 } 

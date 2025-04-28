@@ -29,7 +29,11 @@ namespace SlingMD.Outlook
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
-            // Cleanup if needed
+            // Save settings when Outlook is closing
+            if (_settings != null)
+            {
+                _settings.Save();
+            }
         }
 
         private ObsidianSettings LoadSettings()

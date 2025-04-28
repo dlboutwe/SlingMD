@@ -37,6 +37,26 @@ namespace SlingMD.Outlook.Models
         public bool GroupEmailThreads { get; set; } = true;
         public bool ShowDevelopmentSettings { get; set; } = false;
         public bool ShowThreadDebug { get; set; } = false;
+        /// <summary>
+        /// Default tags to apply to the note's frontmatter.
+        /// </summary>
+        public List<string> DefaultNoteTags { get; set; } = new List<string> { "FollowUp" };
+        /// <summary>
+        /// Default tags to apply to the Obsidian task (in the note body).
+        /// </summary>
+        public List<string> DefaultTaskTags { get; set; } = new List<string> { "FollowUp" };
+        /// <summary>
+        /// Format for the note title. Use placeholders: {Subject}, {Sender}, {Date}.
+        /// </summary>
+        public string NoteTitleFormat { get; set; } = "{Subject} - {Date}";
+        /// <summary>
+        /// Maximum length for the note title. Titles longer than this will be trimmed with ellipsis.
+        /// </summary>
+        public int NoteTitleMaxLength { get; set; } = 50;
+        /// <summary>
+        /// Whether to include the date in the note title.
+        /// </summary>
+        public bool NoteTitleIncludeDate { get; set; } = true;
 
         public List<string> SubjectCleanupPatterns { get; set; } = new List<string>
         {
@@ -97,11 +117,25 @@ namespace SlingMD.Outlook.Models
                 { "SubjectCleanupPatterns", SubjectCleanupPatterns },
                 { "GroupEmailThreads", GroupEmailThreads },
                 { "ShowDevelopmentSettings", ShowDevelopmentSettings },
-                { "ShowThreadDebug", ShowThreadDebug }
+                { "ShowThreadDebug", ShowThreadDebug },
+                { "DefaultNoteTags", DefaultNoteTags },
+                { "DefaultTaskTags", DefaultTaskTags },
+                { "NoteTitleFormat", NoteTitleFormat },
+                { "NoteTitleMaxLength", NoteTitleMaxLength },
+                { "NoteTitleIncludeDate", NoteTitleIncludeDate }
             };
 
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-            File.WriteAllText(GetSettingsPath(), json);
+            
+            // Ensure settings directory exists before saving
+            string settingsPath = GetSettingsPath();
+            string settingsDir = Path.GetDirectoryName(settingsPath);
+            if (!Directory.Exists(settingsDir))
+            {
+                Directory.CreateDirectory(settingsDir);
+            }
+            
+            File.WriteAllText(settingsPath, json);
         }
 
         public void Load()
@@ -195,10 +229,38 @@ namespace SlingMD.Outlook.Models
                 {
                     ShowThreadDebug = settings["ShowThreadDebug"].Value<bool>();
                 }
+                if (settings.ContainsKey("DefaultNoteTags"))
+                {
+                    var tags = settings["DefaultNoteTags"].ToObject<List<string>>();
+                    if (tags != null && tags.Count > 0)
+                    {
+                        DefaultNoteTags = tags;
+                    }
+                }
+                if (settings.ContainsKey("DefaultTaskTags"))
+                {
+                    var tags = settings["DefaultTaskTags"].ToObject<List<string>>();
+                    if (tags != null && tags.Count > 0)
+                    {
+                        DefaultTaskTags = tags;
+                    }
+                }
+                if (settings.ContainsKey("NoteTitleFormat"))
+                {
+                    NoteTitleFormat = settings["NoteTitleFormat"].Value<string>();
+                }
+                if (settings.ContainsKey("NoteTitleMaxLength"))
+                {
+                    NoteTitleMaxLength = settings["NoteTitleMaxLength"].Value<int>();
+                }
+                if (settings.ContainsKey("NoteTitleIncludeDate"))
+                {
+                    NoteTitleIncludeDate = settings["NoteTitleIncludeDate"].Value<bool>();
+                }
             }
         }
 
-        private string GetSettingsPath()
+        protected virtual string GetSettingsPath()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SlingMD.Outlook", "ObsidianSettings.json");
         }
