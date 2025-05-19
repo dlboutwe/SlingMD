@@ -88,8 +88,8 @@ namespace SlingMD.Outlook.Services
             firstSender = _fileService.CleanFileName(firstSender);
             firstRecipient = _fileService.CleanFileName(firstRecipient);
             
-            // Ensure no space after 0- and consistent separators
-            return $"0-{threadSubject.Trim()}-{firstSender}-{firstRecipient}".Replace("--", "-");
+            // Build folder-friendly base name without the leading 0-
+            return $"{threadSubject.Trim()}-{firstSender}-{firstRecipient}".Replace("--", "-");
         }
 
         public async Task UpdateThreadNote(string threadFolderPath, string threadNotePath, string conversationId, string threadNoteName, MailItem mail)
@@ -260,7 +260,8 @@ namespace SlingMD.Outlook.Services
         public string ResuffixThreadNotes(string threadFolderPath, string baseName, string currentEmailPath = null)
         {
             if (!Directory.Exists(threadFolderPath)) return null;
-            var files = Directory.GetFiles(threadFolderPath, baseName + "*.md", SearchOption.TopDirectoryOnly)
+            // Allow for any prefix (e.g., date) in front of the base name
+            var files = Directory.GetFiles(threadFolderPath, $"*{baseName}*.md", SearchOption.TopDirectoryOnly)
                 .Where(f => !Path.GetFileName(f).StartsWith("0-"))
                 .ToList();
             var fileDates = new List<(string file, DateTime date)>();
@@ -290,28 +291,33 @@ namespace SlingMD.Outlook.Services
                     fileDates.Add((file, date.Value));
                 }
             }
+            // Order oldest first so lexicographical date prefix sorts correctly
             fileDates = fileDates.OrderBy(fd => fd.date).ToList();
-            int idx = 1;
+
             string newCurrentPath = null;
             foreach (var fd in fileDates)
             {
-                // Remove any email id suffix before applying the new suffix
+                // Build new filename with date prefix (yyyy-MM-dd_) followed by base name
                 string nameNoExt = Path.GetFileNameWithoutExtension(fd.file);
                 string ext = Path.GetExtension(fd.file);
-                // Remove trailing -eid{id} if present (id is alphanumeric, usually long)
-                nameNoExt = System.Text.RegularExpressions.Regex.Replace(nameNoExt, "-eid[a-zA-Z0-9]+$", "");
-                string newName = $"{baseName}-{idx:D3}{ext}";
+                // Remove any email id suffix ( -eid{ID} ) or old numeric suffix ( -001 )
+                nameNoExt = Regex.Replace(nameNoExt, "-eid[0-9A-Za-z]+$", "");
+                nameNoExt = Regex.Replace(nameNoExt, "-\\d{3}$", "");
+
+                string datePrefix = fd.date.ToString("yyyy-MM-dd");
+                string newName = $"{datePrefix}_{baseName}{ext}";
                 string newPath = Path.Combine(threadFolderPath, newName);
+
                 if (!fd.file.Equals(newPath, StringComparison.OrdinalIgnoreCase))
                 {
                     if (File.Exists(newPath)) File.Delete(newPath);
                     File.Move(fd.file, newPath);
                 }
+
                 if (currentEmailPath != null && fd.file.Equals(currentEmailPath, StringComparison.OrdinalIgnoreCase))
                 {
                     newCurrentPath = newPath;
                 }
-                idx++;
             }
             return newCurrentPath;
         }

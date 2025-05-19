@@ -237,46 +237,19 @@ namespace SlingMD.Outlook.Services
                             }
                         }
                         // Resuffix all notes in the thread folder (except thread summary)
-                        _threadService.ResuffixThreadNotes(threadFolderPath, baseName);
-                        // Wait for file system to settle after moving and renaming (only in thread processor)
+                        var updatedCurrentPath = _threadService.ResuffixThreadNotes(threadFolderPath, baseName, tempFilePath);
+                        // Wait briefly for file system operations
                         await Task.Delay(200);
-                        // Find the new filename for the current email after resuffixing
-                        string newFileName = null;
-                        string newFilePath = null;
-                        string newFileNameNoExt = null;
-                        var resuffixedFiles = Directory.GetFiles(threadFolderPath, baseName + "*.md", SearchOption.TopDirectoryOnly)
-                            .Where(f => !Path.GetFileName(f).StartsWith("0-"));
-                        foreach (var file in resuffixedFiles)
+                        if (!string.IsNullOrWhiteSpace(updatedCurrentPath))
                         {
-                            bool inFrontMatter = false;
-                            foreach (var line in File.ReadLines(file))
-                            {
-                                if (line.Trim() == "---")
-                                {
-                                    if (!inFrontMatter) { inFrontMatter = true; continue; }
-                                    else break;
-                                }
-                                if (inFrontMatter && line.Trim().StartsWith("date:", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    var value = line.Trim().Substring("date:".Length).Trim().Trim('"');
-                                    if (value == mail.ReceivedTime.ToString("yyyy-MM-dd HH:mm:ss"))
-                                    {
-                                        newFileName = Path.GetFileName(file);
-                                        newFilePath = file;
-                                        newFileNameNoExt = Path.GetFileNameWithoutExtension(file);
-                                        break;
-                                    }
-                                }
-                            }
-                            if (newFileName != null) break;
+                            filePath = updatedCurrentPath;
+                            fileName = Path.GetFileName(updatedCurrentPath);
+                            fileNameNoExt = Path.GetFileNameWithoutExtension(updatedCurrentPath);
+                            obsidianLinkPath = $"{threadNoteName}/{fileNameNoExt}";
                         }
-                        if (newFileName != null)
-                        {
-                            fileName = newFileName;
-                            filePath = newFilePath;
-                            fileNameNoExt = newFileNameNoExt;
-                            obsidianLinkPath = $"{threadNoteName}/{newFileNameNoExt}";
-                        }
+
+                        // Create or update the thread summary note
+                        await _threadService.UpdateThreadNote(threadFolderPath, threadNotePath, conversationId, threadNoteName, mail);
                     }
                     else
                     {
