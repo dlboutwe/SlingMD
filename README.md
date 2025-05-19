@@ -18,11 +18,19 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 - Support for attachments and email threading
 - Automatic email thread organization
 - Thread summary pages with timeline views
+- Automatic contact note creation with communication-history Dataview tables
+- Customisable note title formatting (placeholders for {Subject}, {Sender}, {Date}) with max-length trimming
+- Advanced subject clean-up engine using user-defined regex patterns
+- Configurable default tags for notes and tasks
+- Relative vs. absolute reminder modes with optional per-task prompt
+- Development/debug mode to surface internal thread-matching diagnostics
+- Duplicate-email protection and safe file-naming, including chronological prefixes for threads
+- User-overrideable markdown templates for both email and thread notes
 
 ## Installation
 
 1. Go to the [Releases](./Releases) folder in this repository
-2. Download the latest version (currently `SlingMD.Outlook_1_0_0_8.zip`)
+2. Download the latest version (currently `SlingMD.Outlook_1_0_0_44.zip`)
 3. **Important Security Step - Unblock the ZIP File**:
    - Right-click the downloaded ZIP file
    - Click "Properties"
@@ -82,6 +90,14 @@ Before using SlingMD, you'll need to configure your Obsidian vault settings:
    - **Ask for dates**: Toggle whether to prompt for dates each time (shows the Task Options form)
    - **Group Email Threads**: Toggle whether to automatically organize related emails into thread folders
    - **Subject Cleanup Patterns**: Configure patterns for cleaning up email subjects (e.g., removing "Re:", "[EXTERNAL]", etc.)
+   - **Contacts Folder**: Where new contact notes will be stored (default: "Contacts")
+   - **Enable Contact Saving**: Toggle automatic creation of contact notes
+   - **Search Entire Vault For Contacts**: When enabled, SlingMD will look outside the contacts folder before creating a new contact note
+   - **Note Title Format / Max Length / Include Date**: Fine-tune how note titles are constructed
+   - **Move Date To Front In Thread**: When grouping emails, place the date at the beginning of the filename
+   - **Default Note Tags / Task Tags**: Tags automatically assigned to new notes or tasks
+   - **Show Development Settings**: Reveals additional debug options in the settings dialog
+   - **Show Thread Debug**: Pops up a diagnostic window listing every file that matches a conversationId
 
 3. Click "Save" to apply your settings
 
@@ -188,6 +204,6 @@ The author is not responsible for any data loss, corruption, or other issues tha
 
 ---
 
-☕ Like what I’m building? Help fuel my next project (or my next coffee)!  
+☕ Like what I'm building? Help fuel my next project (or my next coffee)!  
 Support me on [Buy Me a Coffee](https://buymeacoffee.com/plainsprepper) 💻🧵🔥
 

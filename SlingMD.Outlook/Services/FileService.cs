@@ -6,6 +6,11 @@ using System.Text.RegularExpressions;
 
 namespace SlingMD.Outlook.Services
 {
+    /// <summary>
+    /// Utility wrapper around the .NET <see cref="System.IO"/> APIs that applies the user selected
+    /// <see cref="ObsidianSettings"/> when interacting with the file-system.  All routines are kept
+    /// <c>virtual</c> to facilitate mocking in unit tests.
+    /// </summary>
     public class FileService
     {
         private readonly ObsidianSettings _settings;
@@ -20,6 +25,12 @@ namespace SlingMD.Outlook.Services
             return _settings;
         }
 
+        /// <summary>
+        /// Writes the supplied string to <paramref name="filePath"/> using UTF-8 *without* emitting a BOM.  
+        /// The directory hierarchy is created on-the-fly when it does not yet exist.
+        /// </summary>
+        /// <param name="filePath">Absolute path of the file that should be created or overwritten.</param>
+        /// <param name="content">String content that will become the file body.</param>
         public virtual void WriteUtf8File(string filePath, string content)
         {
             // Ensure directory exists
@@ -36,6 +47,13 @@ namespace SlingMD.Outlook.Services
             }
         }
 
+        /// <summary>
+        /// Sanitises a string so that it can safely be used as part of a Windows filename.  
+        /// Besides removing invalid characters, the method also applies the user configured
+        /// <see cref="ObsidianSettings.SubjectCleanupPatterns"/>.
+        /// </summary>
+        /// <param name="input">Any raw subject or name string.</param>
+        /// <returns>A cleaned filename segment with problematic characters replaced by underscores.</returns>
         public virtual string CleanFileName(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -73,6 +91,13 @@ namespace SlingMD.Outlook.Services
             return cleaned;
         }
 
+        /// <summary>
+        /// Launches (or brings to front) Obsidian using its custom URI protocol so that the specified
+        /// markdown file is opened.  Path components are URI-escaped and the <c>.md</c> extension is
+        /// omitted per Obsidian requirements.
+        /// </summary>
+        /// <param name="vaultName">Target vault name as defined inside Obsidian.</param>
+        /// <param name="filePath">Absolute path to the markdown file inside the vault.</param>
         public void LaunchObsidian(string vaultName, string filePath)
         {
             try
@@ -97,6 +122,12 @@ namespace SlingMD.Outlook.Services
             }
         }
 
+        /// <summary>
+        /// Ensures that <paramref name="path"/> exists on disk.  When necessary, all missing intermediate
+        /// directories are created.
+        /// </summary>
+        /// <param name="path">Directory path to check.</param>
+        /// <returns><c>true</c> when the directory either already existed or could be created.</returns>
         public virtual bool EnsureDirectoryExists(string path)
         {
             try

@@ -11,6 +11,11 @@ using SlingMD.Outlook.Models;
 
 namespace SlingMD.Outlook.Services
 {
+    /// <summary>
+    /// Provides helper routines for detecting email conversation threads, generating folder/note names, 
+    /// manipulating files that belong to a thread and updating the thread summary note.  
+    /// All publicly exposed members are safe for unit-testing and are free of any Outlook UI dependencies.
+    /// </summary>
     public class ThreadService
     {
         private readonly FileService _fileService;
@@ -24,6 +29,13 @@ namespace SlingMD.Outlook.Services
             _settings = settings;
         }
 
+        /// <summary>
+        /// Derives a stable 16-character hash that uniquely identifies an Outlook conversation.  
+        /// The method tries several strategies (ConversationTopic, PR_CONVERSATION_INDEX, normalised subject) 
+        /// and falls back to a random GUID segment if everything else fails.
+        /// </summary>
+        /// <param name="mail">The <see cref="MailItem"/> for which to obtain the conversation id.</param>
+        /// <returns>A 16-character hexadecimal string suitable for use as an identifier inside vault front-matter.</returns>
         public string GetConversationId(MailItem mail)
         {
             try
@@ -66,6 +78,14 @@ namespace SlingMD.Outlook.Services
             }
         }
 
+        /// <summary>
+        /// Creates a human-readable base name for a thread folder/note.
+        /// </summary>
+        /// <param name="mail">The email that belongs to the thread.</param>
+        /// <param name="cleanSubject">A sanitised subject line, typically produced by <see cref="FileService.CleanFileName(string)"/>.</param>
+        /// <param name="firstSender">Short name of the first sender in the thread.</param>
+        /// <param name="firstRecipient">Short name of the first recipient ("To") in the thread.</param>
+        /// <returns>The folder-friendly name without any leading "0-" prefix.</returns>
         public string GetThreadNoteName(MailItem mail, string cleanSubject, string firstSender, string firstRecipient)
         {
             string threadSubject;
@@ -92,6 +112,14 @@ namespace SlingMD.Outlook.Services
             return $"{threadSubject.Trim()}-{firstSender}-{firstRecipient}".Replace("--", "-");
         }
 
+        /// <summary>
+        /// Generates or refreshes the <c>0-threadnote.md</c> summary file that lives inside a thread folder.
+        /// </summary>
+        /// <param name="threadFolderPath">Full path to the thread folder inside the vault inbox.</param>
+        /// <param name="threadNotePath">Full path to the summary note file.</param>
+        /// <param name="conversationId">Identifier created by <see cref="GetConversationId"/>.</param>
+        /// <param name="threadNoteName">Base name (without <c>0-</c> prefix) for the summary file.</param>
+        /// <param name="mail">The current email being processed – used only for the title.</param>
         public async Task UpdateThreadNote(string threadFolderPath, string threadNotePath, string conversationId, string threadNoteName, MailItem mail)
         {
             var templateContent = _templateService.LoadTemplate("ThreadNoteTemplate.md") ?? 
@@ -111,6 +139,15 @@ namespace SlingMD.Outlook.Services
             _fileService.WriteUtf8File(threadNotePath, content);
         }
 
+        /// <summary>
+        /// Moves an email note that was originally written to the inbox into the designated thread folder.  
+        /// Any existing file with the same name will be overwritten.  
+        /// The method also appends a deterministic suffix based on the <c>internetMessageId</c> or <c>entryId</c> 
+        /// found in the note front-matter to avoid collisions between messages that share the same timestamp.
+        /// </summary>
+        /// <param name="emailPath">Absolute path of the markdown file to move.</param>
+        /// <param name="threadFolderPath">Destination folder for the thread.</param>
+        /// <returns>The absolute path of the moved file in its new location.</returns>
         public string MoveToThreadFolder(string emailPath, string threadFolderPath)
         {
             string fileName = Path.GetFileName(emailPath);
@@ -153,6 +190,15 @@ namespace SlingMD.Outlook.Services
             return threadPath;
         }
 
+        /// <summary>
+        /// Scans the inbox (and any existing thread folders) for notes that belong to the supplied conversation id.  
+        /// Returns information that helps the caller decide whether the current email should be grouped into 
+        /// an existing thread.
+        /// </summary>
+        /// <param name="conversationId">Identifier created by <see cref="GetConversationId"/>.</param>
+        /// <param name="inboxPath">Absolute path to the vault inbox folder.</param>
+        /// <returns>Tuple containing: <c>hasExistingThread</c>, the original thread name (if found), 
+        /// the earliest email date in the thread and a count of matching messages.</returns>
         public (bool hasExistingThread, string earliestEmailThreadName, DateTime? earliestEmailDate, int emailCount) 
             FindExistingThread(string conversationId, string inboxPath)
         {
@@ -252,11 +298,15 @@ namespace SlingMD.Outlook.Services
         }
 
         /// <summary>
-        /// Renames all thread notes in the given thread folder with an incrementing suffix based on their date in front matter.
-        /// Skips the thread summary note (0-...).
-        /// Removes any email id suffix before applying the chronological suffix.
-        /// If currentEmailPath is provided, returns the new path for that note after renaming.
+        /// Renames every email note in a thread folder so that they receive a chronological <c>yyyy-MM-dd_</c> 
+        /// prefix.  This guarantees a predictable sort order inside Obsidian.  
+        /// Any temporary <c>-eid*</c> suffixes or outdated numeric suffixes are stripped before the new name 
+        /// is applied.
         /// </summary>
+        /// <param name="threadFolderPath">Full path to the thread folder.</param>
+        /// <param name="baseName">Base part of the filename (subject-sender) used for matching.</param>
+        /// <param name="currentEmailPath">If supplied, returns the new path for the file that corresponds to the current email.</param>
+        /// <returns>The new path for <c>currentEmailPath</c> if it was provided; otherwise <c>null</c>.</returns>
         public string ResuffixThreadNotes(string threadFolderPath, string baseName, string currentEmailPath = null)
         {
             if (!Directory.Exists(threadFolderPath)) return null;

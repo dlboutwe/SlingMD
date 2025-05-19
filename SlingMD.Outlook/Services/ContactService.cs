@@ -8,6 +8,11 @@ using SlingMD.Outlook.Models;
 
 namespace SlingMD.Outlook.Services
 {
+    /// <summary>
+    /// Handles contact-related features like generating concise display names, creating/looking up
+    /// contact notes inside the vault and building wiki-links for email addresses.  All heavy file
+    /// operations are delegated to <see cref="FileService"/> to keep the class testable.
+    /// </summary>
     public class ContactService
     {
         private readonly FileService _fileService;
@@ -21,6 +26,12 @@ namespace SlingMD.Outlook.Services
             _settings = fileService.GetSettings();
         }
 
+        /// <summary>
+        /// Returns a shortened version of <paramref name="fullName"/> that is better suited for filenames
+        /// and note titles. Parenthesised suffixes are removed and first/last-name initials are applied.
+        /// </summary>
+        /// <param name="fullName">The display name coming from Outlook.</param>
+        /// <returns>A condensed name, maximum 11 characters long.</returns>
         public string GetShortName(string fullName)
         {
             // Clean the name first
@@ -45,6 +56,12 @@ namespace SlingMD.Outlook.Services
             return $"{firstName}{lastInitial}";
         }
 
+        /// <summary>
+        /// Attempts to resolve the SMTP address for the sender of <paramref name="mail"/>.
+        /// Falls back to <see cref="MailItem.SenderEmailAddress"/> when the property accessor fails.
+        /// </summary>
+        /// <param name="mail">Mail item being processed.</param>
+        /// <returns>The best guess SMTP email address.</returns>
         public string GetSenderEmail(MailItem mail)
         {
             try
@@ -60,6 +77,12 @@ namespace SlingMD.Outlook.Services
             }
         }
 
+        /// <summary>
+        /// Builds a list of Obsidian wiki-links (e.g. <c>[[Jane Doe]]</c>) for the chosen recipient type.
+        /// </summary>
+        /// <param name="recipients">The full recipients collection.</param>
+        /// <param name="type">Recipient classification (<c>To</c>, <c>Cc</c>, etc.).</param>
+        /// <returns>A list which can directly be serialised into YAML front-matter.</returns>
         public List<string> BuildLinkedNames(Recipients recipients, OlMailRecipientType type)
         {
             var names = new List<string>();
@@ -73,6 +96,9 @@ namespace SlingMD.Outlook.Services
             return names;
         }
 
+        /// <summary>
+        /// Collects plain email addresses for recipients of the specified <paramref name="type"/>.
+        /// </summary>
         public List<string> BuildEmailList(Recipients recipients, OlMailRecipientType type)
         {
             var emails = new List<string>();
@@ -102,7 +128,12 @@ namespace SlingMD.Outlook.Services
             return emails;
         }
 
-        // This will be expanded later for contact search/creation feature
+        /// <summary>
+        /// Quick existence check for a contact note. Depending on user preference the entire vault may be
+        /// searched in addition to the dedicated contacts folder.
+        /// </summary>
+        /// <param name="contactName">Display name of the contact.</param>
+        /// <returns><c>true</c> when a note already exists.</returns>
         public bool ContactExists(string contactName)
         {
             // Check if a note for this contact already exists
@@ -171,6 +202,10 @@ namespace SlingMD.Outlook.Services
             }
         }
 
+        /// <summary>
+        /// Creates a stub markdown note for <paramref name="contactName"/> inside the configured contacts
+        /// folder and populates it with a dataview script that lists every email mentioning the contact.
+        /// </summary>
         public void CreateContactNote(string contactName)
         {
             // Check if contact saving is enabled in settings

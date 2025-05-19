@@ -6,6 +6,11 @@ using System.Linq;
 
 namespace SlingMD.Outlook.Services
 {
+    /// <summary>
+    /// Handles loading, rendering and construction of markdown templates. The service tries multiple
+    /// probe paths to locate a named template allowing users and developers to override built-in
+    /// placeholders with custom files.
+    /// </summary>
     public class TemplateService
     {
         private readonly FileService _fileService;
@@ -15,6 +20,12 @@ namespace SlingMD.Outlook.Services
             _fileService = fileService;
         }
 
+        /// <summary>
+        /// Attempts to locate <paramref name="templateName"/> in a range of common folders (deployment
+        /// directory, executing assembly location, current working directory). The first hit is returned
+        /// as raw text.
+        /// </summary>
+        /// <returns>Template contents or <c>null</c> when the file could not be found.</returns>
         public string LoadTemplate(string templateName)
         {
             // Try multiple locations for the template file
@@ -37,6 +48,10 @@ namespace SlingMD.Outlook.Services
             return null;
         }
 
+        /// <summary>
+        /// Naïve string replacement renderer that swaps out <c>{{key}}</c> placeholders with the values
+        /// supplied in <paramref name="replacements"/>.
+        /// </summary>
         public string ProcessTemplate(string templateContent, Dictionary<string, string> replacements)
         {
             if (string.IsNullOrEmpty(templateContent)) return string.Empty;
@@ -49,6 +64,11 @@ namespace SlingMD.Outlook.Services
             return result;
         }
 
+        /// <summary>
+        /// Produces a YAML front-matter block from the supplied dictionary. Lists are automatically
+        /// serialised as YAML arrays and <see cref="DateTime"/> values use the <c>yyyy-MM-dd HH:mm</c>
+        /// format.
+        /// </summary>
         public virtual string BuildFrontMatter(Dictionary<string, object> metadata)
         {
             var frontMatter = new StringBuilder();
@@ -109,6 +129,10 @@ namespace SlingMD.Outlook.Services
             return frontMatter.ToString();
         }
 
+        /// <summary>
+        /// Fallback template for thread summary notes when the user has not provided their own version.
+        /// Contains a DataviewJS script that summarises all emails sharing the same <c>threadId</c>.
+        /// </summary>
         public string GetDefaultThreadNoteTemplate()
         {
             return @"---

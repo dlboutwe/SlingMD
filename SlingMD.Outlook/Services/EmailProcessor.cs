@@ -13,6 +13,11 @@ using SlingMD.Outlook.Helpers;
 
 namespace SlingMD.Outlook.Services
 {
+    /// <summary>
+    /// Orchestrates the full life-cycle of turning an <see cref="MailItem"/> into a properly formatted
+    /// markdown note inside the user's Obsidian vault. The processor coordinates the various helper
+    /// services (file-, thread-, task- and contact-services) and honours all user settings.
+    /// </summary>
     public class EmailProcessor
     {
         private readonly ObsidianSettings _settings;
@@ -37,6 +42,13 @@ namespace SlingMD.Outlook.Services
             _contactService = new ContactService(_fileService, _templateService);
         }
 
+        /// <summary>
+        /// Converts the supplied <paramref name="mail"/> into a markdown note, creates the optional follow-up
+        /// tasks and opens the resulting file in Obsidian (depending on settings). The method is asynchronous
+        /// because it performs a number of I/O heavy operations (file moves, Outlook task creation, countdown
+        /// dialog) that would otherwise block the Outlook UI thread.
+        /// </summary>
+        /// <param name="mail">The email that should be exported.</param>
         public async Task ProcessEmail(MailItem mail)
         {
             // Declare variables at method level so they're accessible throughout the method
