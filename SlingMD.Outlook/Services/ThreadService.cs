@@ -79,7 +79,30 @@ namespace SlingMD.Outlook.Services
         }
 
         /// <summary>
-        /// Creates a human-readable base name for a thread folder/note.
+        /// Returns a folder-friendly thread name (no timestamp)
+        /// </summary>
+        /// <param name="mail">The email that belongs to the thread.</param>
+        /// <param name="cleanSubject">A sanitised subject line, typically produced by <see cref="FileService.CleanFileName(string)"/>.</param>
+        /// <param name="firstSender">Short name of the first sender in the thread.</param>
+        /// <param name="firstRecipient">Short name of the first recipient ("To") in the thread.</param>
+        /// <returns>The folder-friendly name without any leading "0-" prefix.</returns>
+        public string GetThreadFolderName(MailItem mail, string cleanSubject, string firstSender, string firstRecipient)
+        {
+            string threadSubject = !string.IsNullOrEmpty(mail.ConversationTopic)
+                ? mail.ConversationTopic
+                : mail.Subject;
+            threadSubject = _fileService.CleanFileName(threadSubject);
+            if (threadSubject.Length > 50)
+            {
+                threadSubject = threadSubject.Substring(0, 47) + "...";
+            }
+            firstSender = _fileService.CleanFileName(firstSender);
+            firstRecipient = _fileService.CleanFileName(firstRecipient);
+            return $"{threadSubject.Trim()}-{firstSender}-{firstRecipient}".Replace("--", "-");
+        }
+
+        /// <summary>
+        /// Returns a note-friendly thread name (with timestamp)
         /// </summary>
         /// <param name="mail">The email that belongs to the thread.</param>
         /// <param name="cleanSubject">A sanitised subject line, typically produced by <see cref="FileService.CleanFileName(string)"/>.</param>
@@ -88,28 +111,18 @@ namespace SlingMD.Outlook.Services
         /// <returns>The folder-friendly name without any leading "0-" prefix.</returns>
         public string GetThreadNoteName(MailItem mail, string cleanSubject, string firstSender, string firstRecipient)
         {
-            string threadSubject;
-            
-            // Use ConversationTopic if available as it's typically cleaner
-            threadSubject = !string.IsNullOrEmpty(mail.ConversationTopic) 
-                ? mail.ConversationTopic 
+            string threadSubject = !string.IsNullOrEmpty(mail.ConversationTopic)
+                ? mail.ConversationTopic
                 : mail.Subject;
-
-            // Clean the subject using FileService which uses the patterns from settings
             threadSubject = _fileService.CleanFileName(threadSubject);
-
-            // Truncate if too long
             if (threadSubject.Length > 50)
             {
                 threadSubject = threadSubject.Substring(0, 47) + "...";
             }
-            
-            // Clean sender and recipient names
             firstSender = _fileService.CleanFileName(firstSender);
             firstRecipient = _fileService.CleanFileName(firstRecipient);
-            
-            // Build folder-friendly base name without the leading 0-
-            return $"{threadSubject.Trim()}-{firstSender}-{firstRecipient}".Replace("--", "-");
+            string timestamp = mail.ReceivedTime.ToString("yyyy-MM-dd HHmm");
+            return $"{timestamp}-{threadSubject.Trim()}-{firstSender}-{firstRecipient}".Replace("--", "-");
         }
 
         /// <summary>
@@ -354,7 +367,7 @@ namespace SlingMD.Outlook.Services
                 nameNoExt = Regex.Replace(nameNoExt, "-eid[0-9A-Za-z]+$", "");
                 nameNoExt = Regex.Replace(nameNoExt, "-\\d{3}$", "");
 
-                string datePrefix = fd.date.ToString("yyyy-MM-dd");
+                string datePrefix = fd.date.ToString("yyyy-MM-dd_HHmm");
                 string newName = $"{datePrefix}_{baseName}{ext}";
                 string newPath = Path.Combine(threadFolderPath, newName);
 

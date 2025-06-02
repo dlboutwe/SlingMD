@@ -431,8 +431,9 @@ namespace SlingMD.Outlook.Services
         private (string conversationId, string threadNoteName, string threadFolderPath, string threadNotePath, bool shouldGroupThread, string obsidianLinkPath, string fileName, string filePath, string fileNameNoExt) GetThreadingInfo(MailItem mail, string subjectClean, string senderClean, string fileDateTime, string fileNameNoExt)
         {
             string conversationId = _threadService.GetConversationId(mail);
+            string threadFolderName = _threadService.GetThreadFolderName(mail, subjectClean, senderClean, _contactService.GetShortName(GetFirstRecipient(mail)));
             string threadNoteName = _threadService.GetThreadNoteName(mail, subjectClean, senderClean, _contactService.GetShortName(GetFirstRecipient(mail)));
-            string threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
+            string threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadFolderName);
             string threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
             var threadInfo = _threadService.FindExistingThread(conversationId, _settings.GetInboxPath());
             bool hasExistingThread = threadInfo.hasExistingThread;
@@ -443,7 +444,7 @@ namespace SlingMD.Outlook.Services
             bool includeDate = _settings.NoteTitleIncludeDate;
             if (shouldGroupThread)
             {
-                threadNoteName = earliestEmailThreadName ?? threadNoteName;
+                threadNoteName = earliestEmailThreadName ?? threadFolderName;
                 threadFolderPath = Path.Combine(_settings.GetInboxPath(), threadNoteName);
                 threadNotePath = Path.Combine(threadFolderPath, $"0-{threadNoteName}.md");
                 if (includeDate)
