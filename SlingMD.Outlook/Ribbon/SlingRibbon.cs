@@ -61,7 +61,7 @@ namespace SlingMD.Outlook.Ribbon
         {
             try
             {
-                _addIn.ProcessSelectedEmail();
+                _addIn.ProcessSelection();
             }
             catch (Exception ex)
             {

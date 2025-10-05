@@ -250,6 +250,12 @@
     <Compile Include="Forms\InputDialog.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\NewSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\NewSettingsForm.Designer.cs">
+      <DependentUpon>NewSettingsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\ProgressForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -270,6 +276,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\ObsidianSettings.cs" />
+    <Compile Include="Services\AppointmentProcessor.cs" />
     <Compile Include="Services\ContactService.cs" />
     <Compile Include="Services\EmailProcessor.cs" />
     <Compile Include="Ribbon\SlingRibbon.cs" />
@@ -278,6 +285,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\InputDialog.resx">
       <DependentUpon>InputDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\NewSettingsForm.resx">
+      <DependentUpon>NewSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ProgressForm.resx">
       <DependentUpon>ProgressForm.cs</DependentUpon>
@@ -303,6 +313,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
     <None Include="packages.config" />
@@ -336,6 +347,9 @@
     <None Update="Templates\ThreadNoteTemplate.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\folder-open-regular-full.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

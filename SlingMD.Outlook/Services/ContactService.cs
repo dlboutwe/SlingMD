@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using SlingMD.Outlook.Models;
+using System.Linq;
 
 namespace SlingMD.Outlook.Services
 {
@@ -78,6 +79,21 @@ namespace SlingMD.Outlook.Services
         }
 
         /// <summary>
+        /// Builds a list of Obsidian wiki-links (e.g. <c>[[Jane Doe]]</c>) for all recipients in a list.
+        /// </summary>
+        /// <param name="recipients">The full recipients collection.</param>
+        /// <returns>A list which can directly be serialised into YAML front-matter.</returns>
+        public List<string> BuildLinkedNames(Recipients recipients)
+        {
+            var names = new List<string>();
+            foreach (Recipient recipient in recipients)
+            {
+                names.Add($"[[{recipient.Name}]]");
+            }
+            return names;
+        }
+
+        /// <summary>
         /// Builds a list of Obsidian wiki-links (e.g. <c>[[Jane Doe]]</c>) for the chosen recipient type.
         /// </summary>
         /// <param name="recipients">The full recipients collection.</param>
@@ -96,6 +112,126 @@ namespace SlingMD.Outlook.Services
             return names;
         }
 
+        /// <summary>
+        /// Builds a list of Obsidian wiki-links (e.g. <c>[[Jane Doe]]</c>) for the chosen recipient type.
+        /// </summary>
+        /// <param name="recipients">The full recipients collection.</param>
+        /// <param name="types">Recipient classification array (Required, Optional, Resource, Organizer).</param>
+        /// <returns>A list which can directly be serialised into YAML front-matter.</returns>
+        public List<string> BuildLinkedNames(Recipients recipients, OlMeetingRecipientType[] types)
+        {
+            var names = new List<string>();
+            var typeList = types.ToList();
+            foreach (Recipient recipient in recipients)
+            {
+                if (typeList.Any(t=>(int)t == recipient.Type))
+                {
+                    names.Add($"[[{recipient.Name}]]");
+                }
+            }
+            return names;
+        }
+
+        /// <summary>
+        /// Builds a list of Obsidian wiki-links (e.g. <c>[[Jane Doe]]</c>) for the chosen recipient type.
+        /// </summary>
+        /// <param name="recipients">The full recipients collection.</param>
+        /// <param name="types">Recipient classification array (Required, Optional, Resource, Organizer).</param>
+        /// <returns>A list which can directly be serialised into YAML front-matter.</returns>
+        public List<string> GetMeetingResourceData(Recipients recipients)
+        {
+            var resources = new List<string>();
+
+            foreach (Recipient recipient in recipients)
+            {
+                if (recipient.Type == (int)OlMeetingRecipientType.olResource)
+                {
+                    resources.Add($"[[{recipient.Name}]]");
+                }
+            }
+            return resources;
+        }
+
+        /// <summary>
+        /// Builds a list of Obsidian wiki-links (e.g. <c>[[Jane Doe]]</c>) for the chosen recipient type.
+        /// </summary>
+        /// <param name="recipients">The full recipients collection.</param>
+        /// <param name="types">Recipient classification list (Required, Optional, Resource, Organizer).</param>
+        /// <returns>A list which can directly be serialised into YAML front-matter.</returns>
+        public List<string> BuildLinkedNames(Recipients recipients, List<OlMeetingRecipientType> types)
+        {
+            var names = new List<string>();
+            
+            foreach (Recipient recipient in recipients)
+            {
+                if (types.Any(t=>(int)t == recipient.Type))
+                {
+                    names.Add($"[[{recipient.Name}]]");
+                }
+            }
+            return names;
+        }
+
+        /// <summary>
+        /// Collects plain email addresses for all recipients/>.
+        /// </summary>
+        public List<string> BuildEmailList(Recipients recipients)
+        {
+            var emails = new List<string>();
+            foreach (Recipient recipient in recipients)
+            {
+                try
+                {
+                    const string PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
+                    string email = recipient.PropertyAccessor.GetProperty(PR_SMTP_ADDRESS);
+                    if (!string.IsNullOrEmpty(email))
+                    {
+                        emails.Add(email);
+                    }
+                }
+                catch
+                {
+                    // Fallback to Address property
+                    if (!string.IsNullOrEmpty(recipient.Address))
+                    {
+                        emails.Add(recipient.Address);
+                    }
+                }
+            }
+            return emails;
+        }
+        /// <summary>
+        /// Collects plain email addresses for recipients of the specified <paramref name="types"/>.
+        /// </summary>
+        public List<string> BuildEmailList(Recipients recipients, IEnumerable<OlMeetingRecipientType> types)
+        {
+            var emails = new List<string>();
+            foreach (Recipient recipient in recipients)
+            {
+                if (types.Any(t=>(int)t == recipient.Type))
+                {
+                    try
+                    {
+                        const string PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
+                        string email = recipient.PropertyAccessor.GetProperty(PR_SMTP_ADDRESS);
+                        if (!string.IsNullOrEmpty(email))
+                        {
+                            emails.Add(email);
+                        }
+                    }
+                    catch
+                    {
+                        // Fallback to Address property
+                        if (!string.IsNullOrEmpty(recipient.Address))
+                        {
+                            emails.Add(recipient.Address);
+                        }
+                    }
+                }
+            }
+            return emails;
+        }
+        
         /// <summary>
         /// Collects plain email addresses for recipients of the specified <paramref name="type"/>.
         /// </summary>

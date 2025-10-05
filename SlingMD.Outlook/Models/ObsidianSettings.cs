@@ -13,6 +13,7 @@ namespace SlingMD.Outlook.Models
         public string VaultBasePath { get; set; } = @"C:\Users\CalebBennett\Documents\Notes\";
         public string InboxFolder { get; set; } = "Inbox";
         public string ContactsFolder { get; set; } = "Contacts";
+        public string MeetingsFolder { get; set; } = "Meetings";
         public bool EnableContactSaving { get; set; } = true;
         public bool SearchEntireVaultForContacts { get; set; } = false;
         public bool LaunchObsidian { get; set; } = true;
@@ -59,6 +60,27 @@ namespace SlingMD.Outlook.Models
         public bool NoteTitleIncludeDate { get; set; } = true;
         public bool MoveDateToFrontInThread { get; set; } = true;
 
+        /// <summary>
+        /// Format for the meeting title. Use placeholders: {Subject}, {Sender}, {Date}.
+        /// </summary>
+        public string MeetingNoteTitleFormat { get; set; } = "{Date} - {Subject}";
+
+        /// <summary>
+        /// Maximum length for the meeting notes title. Titles longer than this will be trimmed with ellipsis.
+        /// </summary>
+        public int MeetingNoteTitleMaxLength { get; set; } = 50;
+        /// <summary>
+        /// Default tags to apply to the meeting note's frontmatter.
+        /// </summary>
+        public List<string> MeetingDefaultNoteTags { get; set; } = new List<string> { "meeting" };
+        /// <summary>
+        /// Whether the processor saves any attachments to the vault. If true, this will create a folder 
+        /// under the meetings directory to package the note and attachments.
+        /// </summary>
+        public bool MeetingSaveAttachments { get; set; } = true;
+
+
+
         public List<string> SubjectCleanupPatterns { get; set; } = new List<string>
         {
             // Remove all variations of Re/Fwd prefixes, including multiple occurrences
@@ -95,6 +117,11 @@ namespace SlingMD.Outlook.Models
             return Path.Combine(GetFullVaultPath(), ContactsFolder);
         }
 
+        public string GetMeetingsPath()
+        {
+            return Path.Combine(GetFullVaultPath(), MeetingsFolder);
+        }
+
         public void Save()
         {
             var settings = new Dictionary<string, object>
@@ -102,7 +129,7 @@ namespace SlingMD.Outlook.Models
                 { "VaultName", VaultName },
                 { "VaultBasePath", VaultBasePath },
                 { "InboxFolder", InboxFolder },
-                { "ContactsFolder", ContactsFolder },
+                { "ContactsFolder", ContactsFolder },                
                 { "EnableContactSaving", EnableContactSaving },
                 { "SearchEntireVaultForContacts", SearchEntireVaultForContacts },
                 { "LaunchObsidian", LaunchObsidian },
@@ -124,7 +151,12 @@ namespace SlingMD.Outlook.Models
                 { "NoteTitleFormat", NoteTitleFormat },
                 { "NoteTitleMaxLength", NoteTitleMaxLength },
                 { "NoteTitleIncludeDate", NoteTitleIncludeDate },
-                { "MoveDateToFrontInThread", MoveDateToFrontInThread }
+                { "MoveDateToFrontInThread", MoveDateToFrontInThread },
+                { "MeetingsFolder", MeetingsFolder },
+                { "MeetingNoteTitleFormat", MeetingNoteTitleFormat },
+                {"MeetingNoteTitleMaxLength",MeetingNoteTitleMaxLength },
+                {"MeetingDefaultNoteTags",MeetingDefaultNoteTags },
+                {"MeetingSaveAttachments", MeetingSaveAttachments }
             };
 
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
@@ -262,6 +294,31 @@ namespace SlingMD.Outlook.Models
                 if (settings.ContainsKey("MoveDateToFrontInThread"))
                 {
                     MoveDateToFrontInThread = settings["MoveDateToFrontInThread"].Value<bool>();
+                }
+
+                if (settings.ContainsKey("MeetingsFolder"))
+                {
+                    MeetingsFolder = settings["MeetingsFolder"].Value<string>();
+                }
+                if (settings.ContainsKey("MeetingNoteTitleFormat"))
+                {
+                    MeetingNoteTitleFormat = settings["MeetingNoteTitleFormat"].Value<string>();
+                }
+                if (settings.ContainsKey("MeetingNoteTitleMaxLength"))
+                {
+                    MeetingNoteTitleMaxLength = settings["MeetingNoteTitleMaxLength"].Value<int>();
+                }
+                if (settings.ContainsKey("MeetingDefaultNoteTags"))
+                {
+                    var tags = settings["MeetingDefaultNoteTags"].ToObject<List<string>>();
+                    if (tags != null && tags.Count > 0)
+                    {
+                        MeetingDefaultNoteTags = tags;
+                    }
+                }
+                if (settings.ContainsKey("MeetingSaveAttachments"))
+                {
+                    MeetingSaveAttachments = settings["MeetingSaveAttachments"].Value<bool>();
                 }
             }
         }

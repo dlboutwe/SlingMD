@@ -13,7 +13,9 @@ namespace SlingMD.Outlook
     {
         private ObsidianSettings _settings;
         private EmailProcessor _emailProcessor;
+        private AppointmentProcessor _appointmentProcessor;
         private SlingRibbon _ribbon;
+        
 
         protected override Microsoft.Office.Core.IRibbonExtensibility CreateRibbonExtensibilityObject()
         {
@@ -25,6 +27,7 @@ namespace SlingMD.Outlook
         {
             _settings = LoadSettings();
             _emailProcessor = new EmailProcessor(_settings);
+            _appointmentProcessor = new AppointmentProcessor(_settings);
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
@@ -43,7 +46,7 @@ namespace SlingMD.Outlook
             return settings;
         }
 
-        public async void ProcessSelectedEmail()
+        public async void ProcessSelection()
         {
             try
             {
@@ -51,19 +54,31 @@ namespace SlingMD.Outlook
                 var explorer = Application.ActiveExplorer();
                 if (explorer.Selection.Count == 0)
                 {
-                    MessageBox.Show("Please select an email first.", "SlingMD", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Please select an email or calendar appointment first.", "SlingMD", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
+                
                 var mail = explorer.Selection[1] as MailItem;
-                if (mail == null)
+                var appt = explorer.Selection[1] as AppointmentItem;
+                if (mail == null && appt == null)
                 {
-                    MessageBox.Show("Selected item is not an email.", "SlingMD", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Selected item is not an email or calendar appointment.", "SlingMD", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
-                // Process the email
-                await _emailProcessor.ProcessEmail(mail);
+                if(mail != null)
+                {
+                    // Process the email
+                    await _emailProcessor.ProcessEmail(mail);
+                }
+
+                if(appt != null)
+                {
+                    await _appointmentProcessor.ProcessAppointment(appt);
+                }
+
+                
             }
             catch (System.Exception ex)
             {
@@ -82,6 +97,8 @@ namespace SlingMD.Outlook
                         // Settings are automatically saved by the form
                         // Recreate email processor with new settings
                         _emailProcessor = new EmailProcessor(_settings);
+                        // Recreate appointment processor with new settings
+                        _appointmentProcessor = new AppointmentProcessor(_settings);
                     }
                 }
             }
