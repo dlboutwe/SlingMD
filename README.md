@@ -101,6 +101,7 @@ Before using SlingMD, you'll need to configure your Obsidian vault settings:
      - **Create task in Outlook**: Toggle whether to create a follow-up task in Outlook
      - **Create task in Obsidian note**: Toggle whether to create a follow-up task in the Obsidian note
      - **Ask for dates**: Toggle whether to prompt for dates each time (shows the Task Options form)
+     - **Default Task Tags**: Tags automatically assigned to new tasks
    - **Development Settings Tab** (depreceated)
      - **Show Development Settings**: Reveals additional debug options in the settings dialog
      - **Show Thread Debug**: Pops up a diagnostic window listing every file that matches a conversationId
