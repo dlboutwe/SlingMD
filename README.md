@@ -72,8 +72,8 @@ Before using SlingMD, you'll need to configure your Obsidian vault settings:
    - **Vault Settings**
      - **Vault Name**: Enter the name of your Obsidian vault
      - **Vault Base Path**: Set the path to your Obsidian vault folder (e.g., C:\Users\YourName\Documents\Notes)
-     - **Inbox Folder**: Specify the folder within your vault where emails should be saved (default: "Inbox")
-     - **Contacts Folder**: Where new contact notes will be stored (default: "Contacts")
+     - **Inbox Folder Path**: Specify the folder within your vault where emails should be saved (default: "Inbox")
+     - **Contacts Folder Path**: Where new contact notes will be stored (default: "Contacts")
      - **Appointments Folder Path**: Specify the path to the folder withing your vault where emails shoudl be saved (ex: "Journal\Meeting Notes")
    - **General Settings**
      - **Enable Contact Saving**: Toggle automatic creation of contact notes
