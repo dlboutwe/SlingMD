@@ -70,41 +70,40 @@ Before using SlingMD, you'll need to configure your Obsidian vault settings:
 1. Click the "Settings" button in the Sling Ribbon
 2. Configure the following options:
    - **Vault Settings**
-   -    **Vault Name**: Enter the name of your Obsidian vault
-   -    **Vault Base Path**: Set the path to your Obsidian vault folder (e.g., C:\Users\YourName\Documents\Notes)
-   -    **Inbox Folder**: Specify the folder within your vault where emails should be saved (default: "Inbox")
-   -    **Contacts Folder**: Where new contact notes will be stored (default: "Contacts")
-   -    **Appointments Folder Path**: Specify the path to the folder withing your vault where emails shoudl be saved (ex: "Journal\Meeting Notes")
+     - **Vault Name**: Enter the name of your Obsidian vault
+     - **Vault Base Path**: Set the path to your Obsidian vault folder (e.g., C:\Users\YourName\Documents\Notes)
+     - **Inbox Folder**: Specify the folder within your vault where emails should be saved (default: "Inbox")
+     - **Contacts Folder**: Where new contact notes will be stored (default: "Contacts")
+     - **Appointments Folder Path**: Specify the path to the folder withing your vault where emails shoudl be saved (ex: "Journal\Meeting Notes")
    - **General Settings**
-   -    **Enable Contact Saving**: Toggle automatic creation of contact notes
-   -    **Search Entire Vault For Contacts**: When enabled, SlingMD will look outside the contacts folder before creating a new contact note
-   -    **Show countdown**: Toggle whether to show a countdown before launching Obsidian
-   -    **Launch Obsidian**: Toggle whether Obsidian should automatically open after saving an email
+     - **Enable Contact Saving**: Toggle automatic creation of contact notes
+     - **Search Entire Vault For Contacts**: When enabled, SlingMD will look outside the contacts folder before creating a new contact note
+     - **Show countdown**: Toggle whether to show a countdown before launching Obsidian
+     - **Launch Obsidian**: Toggle whether Obsidian should automatically open after saving an email
    - **Timing Settings**
-   -    **Delay (seconds)**: Set how long to wait before launching Obsidian (default: 1 second)
-   -    **Due in Days**: Set the default number of days until tasks are due (0 = today, 1 = tomorrow, etc.)
-   -    **Reminder Days**: Set the default reminder timing:
-   -       - In relative mode: How many days before the due date
-   -       - In absolute mode: How many days from today
-   -    **Reminder Hour**: Set the default hour for task reminders (24-hour format)
+     - **Delay (seconds)**: Set how long to wait before launching Obsidian (default: 1 second)
+     - **Due in Days**: Set the default number of days until tasks are due (0 = today, 1 = tomorrow, etc.)
+     - **Reminder Days**: Set the default reminder timing:
+       - In relative mode: How many days before the due date
+       - In absolute mode: How many days from today
+     - **Reminder Hour**: Set the default hour for task reminders (24-hour format)
    - **Subject Cleanup Patterns**: Configure patterns for cleaning up email subjects (e.g., removing "Re:", "[EXTERNAL]", etc.)
    - **Email Settings Tab**
-   -    **Group Email Threads**: Toggle whether to automatically organize related emails into thread folders
-   -    **Note Title Format / Max Length / Include Date**: Fine-tune how note titles are constructed
-   -    **Move Date To Front In Thread**: When grouping emails, place the date at the beginning of the filename
-   -    **Default Note Tags**: Tags automatically assigned to new email notes
+     - **Group Email Threads**: Toggle whether to automatically organize related emails into thread folders
+     - **Note Title Format / Max Length / Include Date**: Fine-tune how note titles are constructed
+     - **Move Date To Front In Thread**: When grouping emails, place the date at the beginning of the filename
+     - **Default Note Tags**: Tags automatically assigned to new email notes
    - **Appointment Settings Tab**
-   -    **Note Title Format / Max Length**: Fine-tune how note titles are constructed
-   -    **Save Attachments**: Toggle whether to save attachments. If attachments are present, this will create a folder with the same name as the markdown file and save all attachments to that folder. Links will be added into the note to launch the files.
-   -    **Default Appointment Tags**: Tags automatically assigned to new appointment notes
+     - **Note Title Format / Max Length**: Fine-tune how note titles are constructed
+     - **Save Attachments**: Toggle whether to save attachments. If attachments are present, this will create a folder with the same name as the markdown file and save all attachments to that folder. Links will be added into the note to launch the files.
+     - **Default Appointment Tags**: Tags automatically assigned to new appointment notes
    - **Task Settings Tab**
-   -    **Create task in Outlook**: Toggle whether to create a follow-up task in Outlook
-   -    **Create task in Obsidian note**: Toggle whether to create a follow-up task in the Obsidian note
-   -    **Ask for dates**: Toggle whether to prompt for dates each time (shows the Task Options form)
+     - **Create task in Outlook**: Toggle whether to create a follow-up task in Outlook
+     - **Create task in Obsidian note**: Toggle whether to create a follow-up task in the Obsidian note
+     - **Ask for dates**: Toggle whether to prompt for dates each time (shows the Task Options form)
    - **Development Settings Tab** (depreceated)
-   -    **Show Development Settings**: Reveals additional debug options in the settings dialog
-   -    **Show Thread Debug**: Pops up a diagnostic window listing every file that matches a conversationId
-
+     - **Show Development Settings**: Reveals additional debug options in the settings dialog
+     - **Show Thread Debug**: Pops up a diagnostic window listing every file that matches a conversationId
 
 4. Click "Save" to apply your settings
 
