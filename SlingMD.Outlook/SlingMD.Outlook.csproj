@@ -280,6 +280,9 @@
     <Compile Include="Services\ContactService.cs" />
     <Compile Include="Services\EmailProcessor.cs" />
     <Compile Include="Ribbon\SlingRibbon.cs" />
+    <EmbeddedResource Include="Forms\ContactConfirmationDialog.resx">
+      <DependentUpon>ContactConfirmationDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\CountdownForm.resx">
       <DependentUpon>CountdownForm.cs</DependentUpon>
     </EmbeddedResource>

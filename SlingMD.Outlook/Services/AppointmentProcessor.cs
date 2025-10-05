@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Microsoft.Office.Interop.Outlook;
 using SlingMD.Outlook.Forms;
 using SlingMD.Outlook.Models;
+using Attachment = Microsoft.Office.Interop.Outlook.Attachment;
 
 namespace SlingMD.Outlook.Services
 {
@@ -32,17 +33,13 @@ namespace SlingMD.Outlook.Services
             _contactService = new ContactService(_fileService, _templateService);
         }
 
-        public async Task ProcessAppointment(AppointmentItem appointment)
+        public async Task ProcessAppointment(AppointmentItem appointment, bool disableLaunchObsidian = false)
         {
             List<string> contactNames = new List<string>();
             string fileName = string.Empty;
             string fileNameNoExt = string.Empty;
             string filePath = string.Empty;
             string obsidianLinkPath = string.Empty;  // Added to store the path to use for Obsidian
-            string conversationId = string.Empty;
-            string threadNoteName = string.Empty;
-            string threadFolderPath = string.Empty;
-            string threadNotePath = string.Empty;
             bool shouldGroupThread = false;
 
             contactNames.Add(appointment.GetOrganizer().Name);
@@ -66,8 +63,8 @@ namespace SlingMD.Outlook.Services
                     string subjectClean = CleanSubject(appointment.Subject);
 
                     // Use settings for title format
-                    string titleFormat = _settings.MeetingNoteTitleFormat ?? "{Date} - {Subject}";
-                    int maxLength = _settings.MeetingNoteTitleMaxLength > 0 ? _settings.MeetingNoteTitleMaxLength : 50;
+                    string titleFormat = _settings.AppointmentNoteTitleFormat ?? "{Date} - {Subject}";
+                    int maxLength = _settings.AppointmentNoteTitleMaxLength > 0 ? _settings.AppointmentNoteTitleMaxLength : 50;
 
                     // Prepare replacements
                     string formattedTitle = titleFormat
@@ -91,20 +88,20 @@ namespace SlingMD.Outlook.Services
                     // Build metadata for frontmatter
                     var metadata = new Dictionary<string, object>
                     {
-                        { "title", noteTitle },
+                        { "title", appointment.Subject },
                         { "organizer", $"[[{appointment.GetOrganizer().Name}]]" },
-                        { "organizerEmail", appointment.GetOrganizer().Address },
+                        { "organizerEmail", _contactService.GetSMTPEmailAddress(appointment.GetOrganizer()) },
                         { "attendees", _contactService.BuildLinkedNames(appointment.Recipients, new[] { OlMeetingRecipientType.olOptional, OlMeetingRecipientType.olRequired } ) },
                         { "attendeesEmail", _contactService.BuildEmailList(appointment.Recipients, new[] { OlMeetingRecipientType.olOptional, OlMeetingRecipientType.olRequired } ) },
                         { "Resources", _contactService.GetMeetingResourceData(appointment.Recipients) },
                         { "startDateTime", appointment.Start.ToString("yyyy-MM-dd HH:mm:ss") },
                         { "endDateTime", appointment.End.ToString("yyyy-MM-dd HH:mm:ss") },
                         { "dailyNoteLink", $"[[{appointment.Start:yyyy-MM-dd}]]" },
-                        { "tags", (_settings.MeetingDefaultNoteTags != null && _settings.MeetingDefaultNoteTags.Count > 0) ? new List<string>(_settings.MeetingDefaultNoteTags) : new List<string> { "meeting" } }
+                        { "tags", (_settings.AppointmentDefaultNoteTags != null && _settings.AppointmentDefaultNoteTags.Count > 0) ? new List<string>(_settings.AppointmentDefaultNoteTags) : new List<string> { "meeting" } }
                     };
 
                     //if attachments are to be processed, add metadata references
-                    if(_settings.MeetingSaveAttachments)
+                    if(_settings.AppointmentSaveAttachments)
                     {
                         metadata.Add("HasAttachments", appointment.Attachments.Count > 0 ? "Yes" : "No");
                         var attachmentLinks = new List<string>();
@@ -124,29 +121,47 @@ namespace SlingMD.Outlook.Services
                     status.UpdateProgress("Writing note file", 75);
 
                     // Check for duplicate email before writing the note
-                    if (IsDuplicate(_settings.GetMeetingsPath(), formattedTitle))
+                    if (IsDuplicate(_settings.GetAppointmentsPath(), formattedTitle))
                     {
                         status.UpdateProgress("Duplicate meeting detected. Skipping note creation.", 100);
                         return;
                     }
 
 
-                    var noteFolder = _settings.GetMeetingsPath();                 
-                    
+                    var noteFolder = _settings.GetAppointmentsPath();
+                    var folderName = Path.GetFileName(noteFolder) ?? string.Empty;
 
-                    fileName = Path.Combine(noteFolder, $"{formattedTitle}.md");
-                    var fileNameNoExtResult = Path.GetFileNameWithoutExtension(fileName);
-                    obsidianLinkPath = fileNameNoExtResult;
-
-                    if (_settings.MeetingSaveAttachments)
+                    if (_settings.AppointmentSaveAttachments && appointment.Attachments.Count > 0)
                     {
                         noteFolder = Path.Combine(noteFolder, formattedTitle);
-                        obsidianLinkPath = $"{noteFolder}/{fileNameNoExtResult}";
+                        folderName = Path.Combine(folderName, formattedTitle);
                     }
+
+                    fileName = Path.Combine(noteFolder, $"{formattedTitle}.md");
+                    obsidianLinkPath = Path.Combine(folderName,
+                        Path.GetFileNameWithoutExtension(fileName));
 
 
                     _fileService.EnsureDirectoryExists(noteFolder);
                     _fileService.WriteUtf8File(fileName, content.ToString());
+
+
+                    if (_settings.AppointmentSaveAttachments && appointment.Attachments.Count > 0)
+                    {
+                        foreach (Attachment attachment in appointment.Attachments)
+                        {
+                            try
+                            {
+                                var attachmentPath = Path.Combine(noteFolder, attachment.FileName);
+                                attachment.SaveAsFile(attachmentPath);
+                            }
+                            catch(System.Exception ex)
+                            {
+                                MessageBox.Show($"Error saving attachment: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                    }
+
 
                     status.UpdateProgress("Completing appointment processing", 100);
 
@@ -201,7 +216,7 @@ namespace SlingMD.Outlook.Services
             }
 
             // Launch Obsidian if enabled
-            if (_settings.LaunchObsidian)
+            if (_settings.LaunchObsidian && !disableLaunchObsidian)
             {
                 try
                 {

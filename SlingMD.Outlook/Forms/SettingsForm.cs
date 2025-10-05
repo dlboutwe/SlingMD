@@ -202,7 +202,7 @@ namespace SlingMD.Outlook.Forms
             this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            //this.mainLayout.Size = new System.Drawing.Size(1175, 840);
+            this.mainLayout.Size = new System.Drawing.Size(1175, 880);
             this.mainLayout.TabIndex = 0;
             // 
             // grpVault
@@ -212,7 +212,7 @@ namespace SlingMD.Outlook.Forms
             this.grpVault.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpVault.Location = new System.Drawing.Point(3, 3);
             this.grpVault.Name = "grpVault";
-            //this.grpVault.Size = new System.Drawing.Size(1156, 173);
+            this.grpVault.Size = new System.Drawing.Size(1169, 152);
             this.grpVault.TabIndex = 0;
             this.grpVault.TabStop = false;
             this.grpVault.Text = "Vault Settings";
@@ -233,96 +233,94 @@ namespace SlingMD.Outlook.Forms
             this.vaultLayout.Controls.Add(this.lblContactsFolder, 0, 4);
             this.vaultLayout.Controls.Add(this.txtContactsFolder, 1, 4);
             this.vaultLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.vaultLayout.Location = new System.Drawing.Point(3, 22);
+            this.vaultLayout.Location = new System.Drawing.Point(3, 16);
             this.vaultLayout.Name = "vaultLayout";
             this.vaultLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.vaultLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.vaultLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.vaultLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.vaultLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            //this.vaultLayout.Size = new System.Drawing.Size(1150, 148);
+            this.vaultLayout.Size = new System.Drawing.Size(1163, 133);
             this.vaultLayout.TabIndex = 0;
             // 
             // lblVaultName
             // 
             this.lblVaultName.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblVaultName.AutoSize = true;
             this.lblVaultName.Location = new System.Drawing.Point(3, 6);
             this.lblVaultName.Name = "lblVaultName";
-            //this.lblVaultName.Size = new System.Drawing.Size(100, 20);
-            this.lblVaultName.AutoSize = true;
+            this.lblVaultName.Size = new System.Drawing.Size(65, 13);
             this.lblVaultName.TabIndex = 0;
             this.lblVaultName.Text = "Vault Name:";
             // 
             // txtVaultName
             // 
             this.txtVaultName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtVaultName.Location = new System.Drawing.Point(348, 3);
+            this.txtVaultName.Location = new System.Drawing.Point(351, 3);
             this.txtVaultName.Name = "txtVaultName";
-            //this.txtVaultName.Size = new System.Drawing.Size(799, 26);
+            this.txtVaultName.Size = new System.Drawing.Size(809, 20);
             this.txtVaultName.TabIndex = 1;
             // 
             // lblVaultPath
             // 
             this.lblVaultPath.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblVaultPath.Location = new System.Drawing.Point(3, 38);
+            this.lblVaultPath.AutoSize = true;
+            this.lblVaultPath.Location = new System.Drawing.Point(3, 32);
             this.lblVaultPath.Name = "lblVaultPath";
-            //this.lblVaultPath.Size = new System.Drawing.Size(100, 20);
-            this.lblVaultPath .AutoSize = true;
+            this.lblVaultPath.Size = new System.Drawing.Size(86, 13);
             this.lblVaultPath.TabIndex = 2;
             this.lblVaultPath.Text = "Vault Base Path:";
             // 
             // txtVaultPath
             // 
             this.txtVaultPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtVaultPath.Location = new System.Drawing.Point(348, 35);
+            this.txtVaultPath.Location = new System.Drawing.Point(351, 29);
             this.txtVaultPath.Name = "txtVaultPath";
-            //this.txtVaultPath.Size = new System.Drawing.Size(799, 26);
-            this.txtVaultName .AutoSize = true;
+            this.txtVaultPath.Size = new System.Drawing.Size(809, 20);
             this.txtVaultPath.TabIndex = 3;
             // 
             // btnBrowse
             // 
             this.btnBrowse.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnBrowse.Location = new System.Drawing.Point(348, 67);
-            this.btnBrowse.Name = "btnBrowse";
-            //this.btnBrowse.Size = new System.Drawing.Size(75, 14);
             this.btnBrowse.AutoSize = true;
+            this.btnBrowse.Location = new System.Drawing.Point(351, 55);
+            this.btnBrowse.Name = "btnBrowse";
+            this.btnBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnBrowse.TabIndex = 4;
             this.btnBrowse.Text = "Browse...";
             // 
             // lblInboxFolder
             // 
             this.lblInboxFolder.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblInboxFolder.Location = new System.Drawing.Point(3, 90);
+            this.lblInboxFolder.Location = new System.Drawing.Point(3, 82);
             this.lblInboxFolder.Name = "lblInboxFolder";
-            //this.lblInboxFolder.Size = new System.Drawing.Size(100, 20);
+            this.lblInboxFolder.Size = new System.Drawing.Size(100, 23);
             this.lblInboxFolder.TabIndex = 5;
             this.lblInboxFolder.Text = "Inbox Folder:";
             // 
             // txtInboxFolder
             // 
             this.txtInboxFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtInboxFolder.Location = new System.Drawing.Point(348, 87);
+            this.txtInboxFolder.Location = new System.Drawing.Point(351, 84);
             this.txtInboxFolder.Name = "txtInboxFolder";
-            //this.txtInboxFolder.Size = new System.Drawing.Size(799, 26);
+            this.txtInboxFolder.Size = new System.Drawing.Size(809, 20);
             this.txtInboxFolder.TabIndex = 6;
             // 
             // lblContactsFolder
             // 
             this.lblContactsFolder.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblContactsFolder.Location = new System.Drawing.Point(3, 122);
+            this.lblContactsFolder.Location = new System.Drawing.Point(3, 108);
             this.lblContactsFolder.Name = "lblContactsFolder";
-            //this.lblContactsFolder.Size = new System.Drawing.Size(100, 20);
+            this.lblContactsFolder.Size = new System.Drawing.Size(100, 23);
             this.lblContactsFolder.TabIndex = 7;
             this.lblContactsFolder.Text = "Contacts Folder:";
             // 
             // txtContactsFolder
             // 
             this.txtContactsFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtContactsFolder.Location = new System.Drawing.Point(348, 119);
+            this.txtContactsFolder.Location = new System.Drawing.Point(351, 110);
             this.txtContactsFolder.Name = "txtContactsFolder";
-            //this.txtContactsFolder.Size = new System.Drawing.Size(799, 26);
-            
+            this.txtContactsFolder.Size = new System.Drawing.Size(809, 20);
             this.txtContactsFolder.TabIndex = 8;
             // 
             // grpGeneral
@@ -330,9 +328,9 @@ namespace SlingMD.Outlook.Forms
             this.grpGeneral.AutoSize = true;
             this.grpGeneral.Controls.Add(this.generalLayout);
             this.grpGeneral.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpGeneral.Location = new System.Drawing.Point(3, 182);
+            this.grpGeneral.Location = new System.Drawing.Point(3, 161);
             this.grpGeneral.Name = "grpGeneral";
-            //this.grpGeneral.Size = new System.Drawing.Size(1156, 145);
+            this.grpGeneral.Size = new System.Drawing.Size(1169, 111);
             this.grpGeneral.TabIndex = 1;
             this.grpGeneral.TabStop = false;
             this.grpGeneral.Text = "General Settings";
@@ -352,13 +350,13 @@ namespace SlingMD.Outlook.Forms
             this.generalLayout.Controls.Add(this.chkAskForDates, 0, 3);
             this.generalLayout.Controls.Add(this.chkGroupEmailThreads, 1, 3);
             this.generalLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.generalLayout.Location = new System.Drawing.Point(3, 22);
+            this.generalLayout.Location = new System.Drawing.Point(3, 16);
             this.generalLayout.Name = "generalLayout";
             this.generalLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.generalLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.generalLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.generalLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            //this.generalLayout.Size = new System.Drawing.Size(1150, 120);
+            this.generalLayout.Size = new System.Drawing.Size(1163, 92);
             this.generalLayout.TabIndex = 0;
             // 
             // chkEnableContactSaving
@@ -367,7 +365,7 @@ namespace SlingMD.Outlook.Forms
             this.chkEnableContactSaving.AutoSize = true;
             this.chkEnableContactSaving.Location = new System.Drawing.Point(3, 3);
             this.chkEnableContactSaving.Name = "chkEnableContactSaving";
-            //this.chkEnableContactSaving.Size = new System.Drawing.Size(569, 24);
+            this.chkEnableContactSaving.Size = new System.Drawing.Size(575, 17);
             this.chkEnableContactSaving.TabIndex = 0;
             this.chkEnableContactSaving.Text = "Enable Contact Saving";
             // 
@@ -375,9 +373,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkSearchEntireVaultForContacts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkSearchEntireVaultForContacts.AutoSize = true;
-            this.chkSearchEntireVaultForContacts.Location = new System.Drawing.Point(578, 3);
+            this.chkSearchEntireVaultForContacts.Location = new System.Drawing.Point(584, 3);
             this.chkSearchEntireVaultForContacts.Name = "chkSearchEntireVaultForContacts";
-            //this.chkSearchEntireVaultForContacts.Size = new System.Drawing.Size(569, 24);
+            this.chkSearchEntireVaultForContacts.Size = new System.Drawing.Size(576, 17);
             this.chkSearchEntireVaultForContacts.TabIndex = 1;
             this.chkSearchEntireVaultForContacts.Text = "Search entire vault for contacts";
             // 
@@ -385,9 +383,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkLaunchObsidian.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkLaunchObsidian.AutoSize = true;
-            this.chkLaunchObsidian.Location = new System.Drawing.Point(3, 33);
+            this.chkLaunchObsidian.Location = new System.Drawing.Point(3, 26);
             this.chkLaunchObsidian.Name = "chkLaunchObsidian";
-            //this.chkLaunchObsidian.Size = new System.Drawing.Size(569, 24);
+            this.chkLaunchObsidian.Size = new System.Drawing.Size(575, 17);
             this.chkLaunchObsidian.TabIndex = 2;
             this.chkLaunchObsidian.Text = "Launch Obsidian after saving";
             // 
@@ -395,9 +393,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkShowCountdown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkShowCountdown.AutoSize = true;
-            this.chkShowCountdown.Location = new System.Drawing.Point(578, 33);
+            this.chkShowCountdown.Location = new System.Drawing.Point(584, 26);
             this.chkShowCountdown.Name = "chkShowCountdown";
-            //this.chkShowCountdown.Size = new System.Drawing.Size(569, 24);
+            this.chkShowCountdown.Size = new System.Drawing.Size(576, 17);
             this.chkShowCountdown.TabIndex = 3;
             this.chkShowCountdown.Text = "Show countdown";
             // 
@@ -405,9 +403,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkCreateObsidianTask.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkCreateObsidianTask.AutoSize = true;
-            this.chkCreateObsidianTask.Location = new System.Drawing.Point(3, 63);
+            this.chkCreateObsidianTask.Location = new System.Drawing.Point(3, 49);
             this.chkCreateObsidianTask.Name = "chkCreateObsidianTask";
-            //this.chkCreateObsidianTask.Size = new System.Drawing.Size(569, 24);
+            this.chkCreateObsidianTask.Size = new System.Drawing.Size(575, 17);
             this.chkCreateObsidianTask.TabIndex = 4;
             this.chkCreateObsidianTask.Text = "Create task in Obsidian note";
             // 
@@ -415,9 +413,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkCreateOutlookTask.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkCreateOutlookTask.AutoSize = true;
-            this.chkCreateOutlookTask.Location = new System.Drawing.Point(578, 63);
+            this.chkCreateOutlookTask.Location = new System.Drawing.Point(584, 49);
             this.chkCreateOutlookTask.Name = "chkCreateOutlookTask";
-            //this.chkCreateOutlookTask.Size = new System.Drawing.Size(569, 24);
+            this.chkCreateOutlookTask.Size = new System.Drawing.Size(576, 17);
             this.chkCreateOutlookTask.TabIndex = 5;
             this.chkCreateOutlookTask.Text = "Create task in Outlook";
             // 
@@ -425,9 +423,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkAskForDates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkAskForDates.AutoSize = true;
-            this.chkAskForDates.Location = new System.Drawing.Point(3, 93);
+            this.chkAskForDates.Location = new System.Drawing.Point(3, 72);
             this.chkAskForDates.Name = "chkAskForDates";
-            //this.chkAskForDates.Size = new System.Drawing.Size(569, 24);
+            this.chkAskForDates.Size = new System.Drawing.Size(575, 17);
             this.chkAskForDates.TabIndex = 6;
             this.chkAskForDates.Text = "Ask for dates and times each time";
             // 
@@ -435,9 +433,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkGroupEmailThreads.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkGroupEmailThreads.AutoSize = true;
-            this.chkGroupEmailThreads.Location = new System.Drawing.Point(578, 93);
+            this.chkGroupEmailThreads.Location = new System.Drawing.Point(584, 72);
             this.chkGroupEmailThreads.Name = "chkGroupEmailThreads";
-            //this.chkGroupEmailThreads.Size = new System.Drawing.Size(569, 24);
+            this.chkGroupEmailThreads.Size = new System.Drawing.Size(576, 17);
             this.chkGroupEmailThreads.TabIndex = 7;
             this.chkGroupEmailThreads.Text = "Group email threads";
             // 
@@ -446,9 +444,9 @@ namespace SlingMD.Outlook.Forms
             this.grpTiming.AutoSize = true;
             this.grpTiming.Controls.Add(this.timingLayout);
             this.grpTiming.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpTiming.Location = new System.Drawing.Point(3, 333);
+            this.grpTiming.Location = new System.Drawing.Point(3, 278);
             this.grpTiming.Name = "grpTiming";
-            //this.grpTiming.Size = new System.Drawing.Size(1156, 153);
+            this.grpTiming.Size = new System.Drawing.Size(1169, 123);
             this.grpTiming.TabIndex = 2;
             this.grpTiming.TabStop = false;
             this.grpTiming.Text = "Timing Settings";
@@ -468,101 +466,101 @@ namespace SlingMD.Outlook.Forms
             this.timingLayout.Controls.Add(this.lblReminderHour, 0, 3);
             this.timingLayout.Controls.Add(this.numDefaultReminderHour, 1, 3);
             this.timingLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.timingLayout.Location = new System.Drawing.Point(3, 22);
+            this.timingLayout.Location = new System.Drawing.Point(3, 16);
             this.timingLayout.Name = "timingLayout";
             this.timingLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.timingLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.timingLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.timingLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            //this.timingLayout.Size = new System.Drawing.Size(1150, 128);
+            this.timingLayout.Size = new System.Drawing.Size(1163, 104);
             this.timingLayout.TabIndex = 0;
             // 
             // lblDelay
             // 
             this.lblDelay.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblDelay.Location = new System.Drawing.Point(3, 6);
+            this.lblDelay.Location = new System.Drawing.Point(3, 1);
             this.lblDelay.Name = "lblDelay";
-            //this.lblDelay.Size = new System.Drawing.Size(14, 20);
+            this.lblDelay.Size = new System.Drawing.Size(100, 23);
             this.lblDelay.TabIndex = 0;
             this.lblDelay.Text = "Delay (seconds):";
             // 
             // numDelay
             // 
             this.numDelay.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numDelay.Location = new System.Drawing.Point(23, 3);
+            this.numDelay.Location = new System.Drawing.Point(109, 3);
             this.numDelay.Maximum = new decimal(new int[] {
             10,
             0,
             0,
             0});
             this.numDelay.Name = "numDelay";
-            //this.numDelay.Size = new System.Drawing.Size(120, 26);
+            this.numDelay.Size = new System.Drawing.Size(120, 20);
             this.numDelay.TabIndex = 1;
             // 
             // lblDueDays
             // 
             this.lblDueDays.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblDueDays.Location = new System.Drawing.Point(3, 38);
+            this.lblDueDays.Location = new System.Drawing.Point(3, 27);
             this.lblDueDays.Name = "lblDueDays";
-            //this.lblDueDays.Size = new System.Drawing.Size(14, 20);
+            this.lblDueDays.Size = new System.Drawing.Size(100, 23);
             this.lblDueDays.TabIndex = 2;
             this.lblDueDays.Text = "Due in Days:";
             // 
             // numDefaultDueDays
             // 
             this.numDefaultDueDays.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numDefaultDueDays.Location = new System.Drawing.Point(23, 35);
+            this.numDefaultDueDays.Location = new System.Drawing.Point(109, 29);
             this.numDefaultDueDays.Maximum = new decimal(new int[] {
             30,
             0,
             0,
             0});
             this.numDefaultDueDays.Name = "numDefaultDueDays";
-            //this.numDefaultDueDays.Size = new System.Drawing.Size(120, 26);
+            this.numDefaultDueDays.Size = new System.Drawing.Size(120, 20);
             this.numDefaultDueDays.TabIndex = 3;
             // 
             // lblReminderDays
             // 
             this.lblReminderDays.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblReminderDays.Location = new System.Drawing.Point(3, 70);
+            this.lblReminderDays.Location = new System.Drawing.Point(3, 53);
             this.lblReminderDays.Name = "lblReminderDays";
-            //this.lblReminderDays.Size = new System.Drawing.Size(14, 20);
+            this.lblReminderDays.Size = new System.Drawing.Size(100, 23);
             this.lblReminderDays.TabIndex = 4;
             this.lblReminderDays.Text = "Reminder Days:";
             // 
             // numDefaultReminderDays
             // 
             this.numDefaultReminderDays.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numDefaultReminderDays.Location = new System.Drawing.Point(23, 67);
+            this.numDefaultReminderDays.Location = new System.Drawing.Point(109, 55);
             this.numDefaultReminderDays.Maximum = new decimal(new int[] {
             30,
             0,
             0,
             0});
             this.numDefaultReminderDays.Name = "numDefaultReminderDays";
-            //this.numDefaultReminderDays.Size = new System.Drawing.Size(120, 26);
+            this.numDefaultReminderDays.Size = new System.Drawing.Size(120, 20);
             this.numDefaultReminderDays.TabIndex = 5;
             // 
             // lblReminderHour
             // 
             this.lblReminderHour.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblReminderHour.Location = new System.Drawing.Point(3, 102);
+            this.lblReminderHour.Location = new System.Drawing.Point(3, 79);
             this.lblReminderHour.Name = "lblReminderHour";
-            //this.lblReminderHour.Size = new System.Drawing.Size(14, 20);
+            this.lblReminderHour.Size = new System.Drawing.Size(100, 23);
             this.lblReminderHour.TabIndex = 6;
             this.lblReminderHour.Text = "Reminder Hour:";
             // 
             // numDefaultReminderHour
             // 
             this.numDefaultReminderHour.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numDefaultReminderHour.Location = new System.Drawing.Point(23, 99);
+            this.numDefaultReminderHour.Location = new System.Drawing.Point(109, 81);
             this.numDefaultReminderHour.Maximum = new decimal(new int[] {
             23,
             0,
             0,
             0});
             this.numDefaultReminderHour.Name = "numDefaultReminderHour";
-            //this.numDefaultReminderHour.Size = new System.Drawing.Size(120, 26);
+            this.numDefaultReminderHour.Size = new System.Drawing.Size(120, 20);
             this.numDefaultReminderHour.TabIndex = 7;
             // 
             // grpPatterns
@@ -570,9 +568,9 @@ namespace SlingMD.Outlook.Forms
             this.grpPatterns.AutoSize = true;
             this.grpPatterns.Controls.Add(this.patternsLayout);
             this.grpPatterns.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpPatterns.Location = new System.Drawing.Point(3, 492);
+            this.grpPatterns.Location = new System.Drawing.Point(3, 407);
             this.grpPatterns.Name = "grpPatterns";
-            //this.grpPatterns.Size = new System.Drawing.Size(1156, 118);
+            this.grpPatterns.Size = new System.Drawing.Size(1169, 120);
             this.grpPatterns.TabIndex = 3;
             this.grpPatterns.TabStop = false;
             this.grpPatterns.Text = "Subject Cleanup Patterns";
@@ -586,18 +584,17 @@ namespace SlingMD.Outlook.Forms
             this.patternsLayout.Controls.Add(this.lstPatterns, 0, 0);
             this.patternsLayout.Controls.Add(this.btnPanel, 1, 0);
             this.patternsLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.patternsLayout.Location = new System.Drawing.Point(3, 22);
+            this.patternsLayout.Location = new System.Drawing.Point(3, 16);
             this.patternsLayout.Name = "patternsLayout";
             this.patternsLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            //this.patternsLayout.Size = new System.Drawing.Size(1150, 93);
+            this.patternsLayout.Size = new System.Drawing.Size(1163, 101);
             this.patternsLayout.TabIndex = 0;
             // 
             // lstPatterns
             // 
-            this.lstPatterns.ItemHeight = 20;
             this.lstPatterns.Location = new System.Drawing.Point(3, 3);
             this.lstPatterns.Name = "lstPatterns";
-            //this.lstPatterns.Size = new System.Drawing.Size(14, 4);
+            this.lstPatterns.Size = new System.Drawing.Size(120, 95);
             this.lstPatterns.TabIndex = 0;
             // 
             // btnPanel
@@ -607,35 +604,35 @@ namespace SlingMD.Outlook.Forms
             this.btnPanel.Controls.Add(this.btnEdit);
             this.btnPanel.Controls.Add(this.btnRemove);
             this.btnPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.btnPanel.Location = new System.Drawing.Point(23, 3);
+            this.btnPanel.Location = new System.Drawing.Point(129, 3);
             this.btnPanel.Name = "btnPanel";
-            //this.btnPanel.Size = new System.Drawing.Size(81, 87);
+            this.btnPanel.Size = new System.Drawing.Size(81, 87);
             this.btnPanel.TabIndex = 1;
             // 
             // btnAdd
             // 
+            this.btnAdd.AutoSize = true;
             this.btnAdd.Location = new System.Drawing.Point(3, 3);
             this.btnAdd.Name = "btnAdd";
-            //this.btnAdd.Size = new System.Drawing.Size(75, 23);
+            this.btnAdd.Size = new System.Drawing.Size(75, 23);
             this.btnAdd.TabIndex = 0;
             this.btnAdd.Text = "Add";
-            this.btnAdd.AutoSize = true;
             // 
             // btnEdit
             // 
+            this.btnEdit.AutoSize = true;
             this.btnEdit.Location = new System.Drawing.Point(3, 32);
             this.btnEdit.Name = "btnEdit";
-            //this.btnEdit.Size = new System.Drawing.Size(75, 23);
+            this.btnEdit.Size = new System.Drawing.Size(75, 23);
             this.btnEdit.TabIndex = 1;
             this.btnEdit.Text = "Edit";
-            this.btnEdit.AutoSize = true;
             // 
             // btnRemove
             // 
+            this.btnRemove.AutoSize = true;
             this.btnRemove.Location = new System.Drawing.Point(3, 61);
             this.btnRemove.Name = "btnRemove";
-            //this.btnRemove.Size = new System.Drawing.Size(75, 23);
-            this.btnRemove.AutoSize = true;
+            this.btnRemove.Size = new System.Drawing.Size(75, 23);
             this.btnRemove.TabIndex = 2;
             this.btnRemove.Text = "Remove";
             // 
@@ -644,9 +641,9 @@ namespace SlingMD.Outlook.Forms
             this.grpNoteCustomization.AutoSize = true;
             this.grpNoteCustomization.Controls.Add(this.noteTagLayout);
             this.grpNoteCustomization.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpNoteCustomization.Location = new System.Drawing.Point(3, 616);
+            this.grpNoteCustomization.Location = new System.Drawing.Point(3, 533);
             this.grpNoteCustomization.Name = "grpNoteCustomization";
-            //this.grpNoteCustomization.Size = new System.Drawing.Size(1156, 189);
+            this.grpNoteCustomization.Size = new System.Drawing.Size(1169, 182);
             this.grpNoteCustomization.TabIndex = 4;
             this.grpNoteCustomization.TabStop = false;
             this.grpNoteCustomization.Text = "Note & Tag Customization";
@@ -667,14 +664,14 @@ namespace SlingMD.Outlook.Forms
             this.noteTagLayout.Controls.Add(this.numNoteTitleMaxLength, 1, 3);
             this.noteTagLayout.Controls.Add(this.dateOptionsLayout, 1, 4);
             this.noteTagLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.noteTagLayout.Location = new System.Drawing.Point(3, 22);
+            this.noteTagLayout.Location = new System.Drawing.Point(3, 16);
             this.noteTagLayout.Name = "noteTagLayout";
             this.noteTagLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.noteTagLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.noteTagLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.noteTagLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.noteTagLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            //.noteTagLayout.Size = new System.Drawing.Size(1150, 164);
+            this.noteTagLayout.Size = new System.Drawing.Size(1163, 163);
             this.noteTagLayout.TabIndex = 0;
             // 
             // lblDefaultNoteTags
@@ -683,7 +680,7 @@ namespace SlingMD.Outlook.Forms
             this.lblDefaultNoteTags.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblDefaultNoteTags.Location = new System.Drawing.Point(3, 0);
             this.lblDefaultNoteTags.Name = "lblDefaultNoteTags";
-            //this.lblDefaultNoteTags.Size = new System.Drawing.Size(396, 32);
+            this.lblDefaultNoteTags.Size = new System.Drawing.Size(401, 26);
             this.lblDefaultNoteTags.TabIndex = 0;
             this.lblDefaultNoteTags.Text = "Default Note Tags (comma-separated):";
             this.lblDefaultNoteTags.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -691,18 +688,18 @@ namespace SlingMD.Outlook.Forms
             // txtDefaultNoteTags
             // 
             this.txtDefaultNoteTags.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtDefaultNoteTags.Location = new System.Drawing.Point(405, 3);
+            this.txtDefaultNoteTags.Location = new System.Drawing.Point(410, 3);
             this.txtDefaultNoteTags.Name = "txtDefaultNoteTags";
-            //this.txtDefaultNoteTags.Size = new System.Drawing.Size(742, 26);
+            this.txtDefaultNoteTags.Size = new System.Drawing.Size(750, 20);
             this.txtDefaultNoteTags.TabIndex = 1;
             // 
             // lblDefaultTaskTags
             // 
             this.lblDefaultTaskTags.AutoEllipsis = true;
             this.lblDefaultTaskTags.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblDefaultTaskTags.Location = new System.Drawing.Point(3, 32);
+            this.lblDefaultTaskTags.Location = new System.Drawing.Point(3, 26);
             this.lblDefaultTaskTags.Name = "lblDefaultTaskTags";
-            //this.lblDefaultTaskTags.Size = new System.Drawing.Size(396, 32);
+            this.lblDefaultTaskTags.Size = new System.Drawing.Size(401, 26);
             this.lblDefaultTaskTags.TabIndex = 2;
             this.lblDefaultTaskTags.Text = "Default Task Tags (comma-separated, will be rendered as #tags):";
             this.lblDefaultTaskTags.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -710,18 +707,18 @@ namespace SlingMD.Outlook.Forms
             // txtDefaultTaskTags
             // 
             this.txtDefaultTaskTags.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtDefaultTaskTags.Location = new System.Drawing.Point(405, 35);
+            this.txtDefaultTaskTags.Location = new System.Drawing.Point(410, 29);
             this.txtDefaultTaskTags.Name = "txtDefaultTaskTags";
-            //this.txtDefaultTaskTags.Size = new System.Drawing.Size(742, 26);
+            this.txtDefaultTaskTags.Size = new System.Drawing.Size(750, 20);
             this.txtDefaultTaskTags.TabIndex = 3;
             // 
             // lblNoteTitleFormat
             // 
             this.lblNoteTitleFormat.AutoEllipsis = true;
             this.lblNoteTitleFormat.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblNoteTitleFormat.Location = new System.Drawing.Point(3, 64);
+            this.lblNoteTitleFormat.Location = new System.Drawing.Point(3, 52);
             this.lblNoteTitleFormat.Name = "lblNoteTitleFormat";
-            //this.lblNoteTitleFormat.Size = new System.Drawing.Size(396, 32);
+            this.lblNoteTitleFormat.Size = new System.Drawing.Size(401, 26);
             this.lblNoteTitleFormat.TabIndex = 4;
             this.lblNoteTitleFormat.Text = "Note Title Format (use {Subject}, {Sender}, {Date}):";
             this.lblNoteTitleFormat.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -729,18 +726,18 @@ namespace SlingMD.Outlook.Forms
             // txtNoteTitleFormat
             // 
             this.txtNoteTitleFormat.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtNoteTitleFormat.Location = new System.Drawing.Point(405, 67);
+            this.txtNoteTitleFormat.Location = new System.Drawing.Point(410, 55);
             this.txtNoteTitleFormat.Name = "txtNoteTitleFormat";
-            //this.txtNoteTitleFormat.Size = new System.Drawing.Size(742, 26);
+            this.txtNoteTitleFormat.Size = new System.Drawing.Size(750, 20);
             this.txtNoteTitleFormat.TabIndex = 5;
             // 
             // lblNoteTitleMaxLength
             // 
             this.lblNoteTitleMaxLength.AutoEllipsis = true;
             this.lblNoteTitleMaxLength.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblNoteTitleMaxLength.Location = new System.Drawing.Point(3, 96);
+            this.lblNoteTitleMaxLength.Location = new System.Drawing.Point(3, 78);
             this.lblNoteTitleMaxLength.Name = "lblNoteTitleMaxLength";
-           // this.lblNoteTitleMaxLength.Size = new System.Drawing.Size(396, 32);
+            this.lblNoteTitleMaxLength.Size = new System.Drawing.Size(401, 26);
             this.lblNoteTitleMaxLength.TabIndex = 6;
             this.lblNoteTitleMaxLength.Text = "Max Title Length:";
             this.lblNoteTitleMaxLength.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -748,7 +745,7 @@ namespace SlingMD.Outlook.Forms
             // numNoteTitleMaxLength
             // 
             this.numNoteTitleMaxLength.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numNoteTitleMaxLength.Location = new System.Drawing.Point(405, 99);
+            this.numNoteTitleMaxLength.Location = new System.Drawing.Point(410, 81);
             this.numNoteTitleMaxLength.Maximum = new decimal(new int[] {
             200,
             0,
@@ -760,7 +757,7 @@ namespace SlingMD.Outlook.Forms
             0,
             0});
             this.numNoteTitleMaxLength.Name = "numNoteTitleMaxLength";
-            //this.numNoteTitleMaxLength.Size = new System.Drawing.Size(742, 26);
+            this.numNoteTitleMaxLength.Size = new System.Drawing.Size(750, 20);
             this.numNoteTitleMaxLength.TabIndex = 7;
             this.numNoteTitleMaxLength.Value = new decimal(new int[] {
             10,
@@ -775,18 +772,18 @@ namespace SlingMD.Outlook.Forms
             this.dateOptionsLayout.Controls.Add(this.lblNoteTitleIncludeDate);
             this.dateOptionsLayout.Controls.Add(this.chkNoteTitleIncludeDate);
             this.dateOptionsLayout.Controls.Add(this.chkMoveDateToFrontInThread);
-            this.dateOptionsLayout.Location = new System.Drawing.Point(405, 131);
+            this.dateOptionsLayout.Location = new System.Drawing.Point(410, 118);
             this.dateOptionsLayout.Name = "dateOptionsLayout";
-            //this.dateOptionsLayout.Size = new System.Drawing.Size(687, 30);
+            this.dateOptionsLayout.Size = new System.Drawing.Size(505, 30);
             this.dateOptionsLayout.TabIndex = 8;
             // 
             // lblNoteTitleIncludeDate
             // 
             this.lblNoteTitleIncludeDate.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblNoteTitleIncludeDate.AutoSize = true;
-            this.lblNoteTitleIncludeDate.Location = new System.Drawing.Point(3, 5);
+            this.lblNoteTitleIncludeDate.Location = new System.Drawing.Point(3, 8);
             this.lblNoteTitleIncludeDate.Name = "lblNoteTitleIncludeDate";
-            //this.lblNoteTitleIncludeDate.Size = new System.Drawing.Size(153, 20);
+            this.lblNoteTitleIncludeDate.Size = new System.Drawing.Size(105, 13);
             this.lblNoteTitleIncludeDate.TabIndex = 0;
             this.lblNoteTitleIncludeDate.Text = "Include Date in Title:";
             this.lblNoteTitleIncludeDate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -794,9 +791,9 @@ namespace SlingMD.Outlook.Forms
             // chkNoteTitleIncludeDate
             // 
             this.chkNoteTitleIncludeDate.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.chkNoteTitleIncludeDate.Location = new System.Drawing.Point(162, 3);
+            this.chkNoteTitleIncludeDate.Location = new System.Drawing.Point(114, 3);
             this.chkNoteTitleIncludeDate.Name = "chkNoteTitleIncludeDate";
-            //this.chkNoteTitleIncludeDate.Size = new System.Drawing.Size(104, 24);
+            this.chkNoteTitleIncludeDate.Size = new System.Drawing.Size(104, 24);
             this.chkNoteTitleIncludeDate.TabIndex = 1;
             this.chkNoteTitleIncludeDate.CheckedChanged += new System.EventHandler(this.chkNoteTitleIncludeDate_CheckedChanged);
             // 
@@ -804,9 +801,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkMoveDateToFrontInThread.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.chkMoveDateToFrontInThread.AutoSize = true;
-            this.chkMoveDateToFrontInThread.Location = new System.Drawing.Point(272, 3);
+            this.chkMoveDateToFrontInThread.Location = new System.Drawing.Point(224, 6);
             this.chkMoveDateToFrontInThread.Name = "chkMoveDateToFrontInThread";
-            //this.chkMoveDateToFrontInThread.Size = new System.Drawing.Size(412, 24);
+            this.chkMoveDateToFrontInThread.Size = new System.Drawing.Size(278, 17);
             this.chkMoveDateToFrontInThread.TabIndex = 2;
             this.chkMoveDateToFrontInThread.Text = "Move date to front of filename when grouping threads";
             // 
@@ -815,9 +812,9 @@ namespace SlingMD.Outlook.Forms
             this.grpDevelopment.AutoSize = true;
             this.grpDevelopment.Controls.Add(this.devLayout);
             this.grpDevelopment.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpDevelopment.Location = new System.Drawing.Point(3, 811);
+            this.grpDevelopment.Location = new System.Drawing.Point(3, 721);
             this.grpDevelopment.Name = "grpDevelopment";
-            //this.grpDevelopment.Size = new System.Drawing.Size(1156, 125);
+            this.grpDevelopment.Size = new System.Drawing.Size(1169, 119);
             this.grpDevelopment.TabIndex = 5;
             this.grpDevelopment.TabStop = false;
             this.grpDevelopment.Text = "Development Settings";
@@ -829,7 +826,7 @@ namespace SlingMD.Outlook.Forms
             this.devLayout.Controls.Add(this.chkShowThreadDebug);
             this.devLayout.Location = new System.Drawing.Point(0, 0);
             this.devLayout.Name = "devLayout";
-            //this.devLayout.Size = new System.Drawing.Size(416, 100);
+            this.devLayout.Size = new System.Drawing.Size(287, 100);
             this.devLayout.TabIndex = 0;
             // 
             // chkShowDevelopmentSettings
@@ -838,7 +835,7 @@ namespace SlingMD.Outlook.Forms
             this.chkShowDevelopmentSettings.AutoSize = true;
             this.chkShowDevelopmentSettings.Location = new System.Drawing.Point(3, 3);
             this.chkShowDevelopmentSettings.Name = "chkShowDevelopmentSettings";
-            //this.chkShowDevelopmentSettings.Size = new System.Drawing.Size(230, 24);
+            this.chkShowDevelopmentSettings.Size = new System.Drawing.Size(156, 17);
             this.chkShowDevelopmentSettings.TabIndex = 0;
             this.chkShowDevelopmentSettings.Text = "Show development settings";
             // 
@@ -846,9 +843,9 @@ namespace SlingMD.Outlook.Forms
             // 
             this.chkShowThreadDebug.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkShowThreadDebug.AutoSize = true;
-            this.chkShowThreadDebug.Location = new System.Drawing.Point(239, 3);
+            this.chkShowThreadDebug.Location = new System.Drawing.Point(165, 3);
             this.chkShowThreadDebug.Name = "chkShowThreadDebug";
-            //this.chkShowThreadDebug.Size = new System.Drawing.Size(174, 24);
+            this.chkShowThreadDebug.Size = new System.Drawing.Size(119, 17);
             this.chkShowThreadDebug.TabIndex = 1;
             this.chkShowThreadDebug.Text = "Show thread debug";
             // 
@@ -859,35 +856,35 @@ namespace SlingMD.Outlook.Forms
             this.btnLayout.Controls.Add(this.btnCancel);
             this.btnLayout.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btnLayout.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.btnLayout.Location = new System.Drawing.Point(3, 942);
+            this.btnLayout.Location = new System.Drawing.Point(3, 848);
             this.btnLayout.Name = "btnLayout";
-            //this.btnLayout.Size = new System.Drawing.Size(1156, 29);
+            this.btnLayout.Size = new System.Drawing.Size(1169, 29);
             this.btnLayout.TabIndex = 6;
             // 
             // btnSave
             // 
-            this.btnSave.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnSave.Location = new System.Drawing.Point(1078, 3);
-            this.btnSave.Name = "btnSave";
-            //this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.AutoSize = true;
+            this.btnSave.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btnSave.Location = new System.Drawing.Point(1091, 3);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 0;
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // btnCancel
             // 
-            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(997, 3);
-            this.btnCancel.Name = "btnCancel";
-            //this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.AutoSize = true;
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnCancel.Location = new System.Drawing.Point(1010, 3);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 1;
             this.btnCancel.Text = "Cancel";
             // 
             // SettingsForm
             // 
-            this.ClientSize = new System.Drawing.Size(1175, 840);
+            this.ClientSize = new System.Drawing.Size(1175, 880);
             this.Controls.Add(this.mainLayout);
             this.Name = "SettingsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -914,6 +911,7 @@ namespace SlingMD.Outlook.Forms
             this.patternsLayout.ResumeLayout(false);
             this.patternsLayout.PerformLayout();
             this.btnPanel.ResumeLayout(false);
+            this.btnPanel.PerformLayout();
             this.grpNoteCustomization.ResumeLayout(false);
             this.grpNoteCustomization.PerformLayout();
             this.noteTagLayout.ResumeLayout(false);
@@ -926,7 +924,9 @@ namespace SlingMD.Outlook.Forms
             this.devLayout.ResumeLayout(false);
             this.devLayout.PerformLayout();
             this.btnLayout.ResumeLayout(false);
+            this.btnLayout.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

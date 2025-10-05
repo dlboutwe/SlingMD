@@ -13,7 +13,7 @@ namespace SlingMD.Outlook.Models
         public string VaultBasePath { get; set; } = @"C:\Users\CalebBennett\Documents\Notes\";
         public string InboxFolder { get; set; } = "Inbox";
         public string ContactsFolder { get; set; } = "Contacts";
-        public string MeetingsFolder { get; set; } = "Meetings";
+        public string AppointmentsFolder { get; set; } = "Appointments";
         public bool EnableContactSaving { get; set; } = true;
         public bool SearchEntireVaultForContacts { get; set; } = false;
         public bool LaunchObsidian { get; set; } = true;
@@ -61,23 +61,23 @@ namespace SlingMD.Outlook.Models
         public bool MoveDateToFrontInThread { get; set; } = true;
 
         /// <summary>
-        /// Format for the meeting title. Use placeholders: {Subject}, {Sender}, {Date}.
+        /// Format for the Appointment title. Use placeholders: {Subject}, {Sender}, {Date}.
         /// </summary>
-        public string MeetingNoteTitleFormat { get; set; } = "{Date} - {Subject}";
+        public string AppointmentNoteTitleFormat { get; set; } = "{Date} - {Subject}";
 
         /// <summary>
-        /// Maximum length for the meeting notes title. Titles longer than this will be trimmed with ellipsis.
+        /// Maximum length for the Appointment notes title. Titles longer than this will be trimmed with ellipsis.
         /// </summary>
-        public int MeetingNoteTitleMaxLength { get; set; } = 50;
+        public int AppointmentNoteTitleMaxLength { get; set; } = 50;
         /// <summary>
-        /// Default tags to apply to the meeting note's frontmatter.
+        /// Default tags to apply to the Appointment note's frontmatter.
         /// </summary>
-        public List<string> MeetingDefaultNoteTags { get; set; } = new List<string> { "meeting" };
+        public List<string> AppointmentDefaultNoteTags { get; set; } = new List<string> { "Appointment" };
         /// <summary>
         /// Whether the processor saves any attachments to the vault. If true, this will create a folder 
-        /// under the meetings directory to package the note and attachments.
+        /// under the Appointments directory to package the note and attachments.
         /// </summary>
-        public bool MeetingSaveAttachments { get; set; } = true;
+        public bool AppointmentSaveAttachments { get; set; } = true;
 
 
 
@@ -117,9 +117,9 @@ namespace SlingMD.Outlook.Models
             return Path.Combine(GetFullVaultPath(), ContactsFolder);
         }
 
-        public string GetMeetingsPath()
+        public string GetAppointmentsPath()
         {
-            return Path.Combine(GetFullVaultPath(), MeetingsFolder);
+            return Path.Combine(GetFullVaultPath(), AppointmentsFolder);
         }
 
         public void Save()
@@ -152,11 +152,11 @@ namespace SlingMD.Outlook.Models
                 { "NoteTitleMaxLength", NoteTitleMaxLength },
                 { "NoteTitleIncludeDate", NoteTitleIncludeDate },
                 { "MoveDateToFrontInThread", MoveDateToFrontInThread },
-                { "MeetingsFolder", MeetingsFolder },
-                { "MeetingNoteTitleFormat", MeetingNoteTitleFormat },
-                {"MeetingNoteTitleMaxLength",MeetingNoteTitleMaxLength },
-                {"MeetingDefaultNoteTags",MeetingDefaultNoteTags },
-                {"MeetingSaveAttachments", MeetingSaveAttachments }
+                { "AppointmentsFolder", AppointmentsFolder },
+                { "AppointmentNoteTitleFormat", AppointmentNoteTitleFormat },
+                {"AppointmentNoteTitleMaxLength",AppointmentNoteTitleMaxLength },
+                {"AppointmentDefaultNoteTags",AppointmentDefaultNoteTags },
+                {"AppointmentSaveAttachments", AppointmentSaveAttachments }
             };
 
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
@@ -296,29 +296,29 @@ namespace SlingMD.Outlook.Models
                     MoveDateToFrontInThread = settings["MoveDateToFrontInThread"].Value<bool>();
                 }
 
-                if (settings.ContainsKey("MeetingsFolder"))
+                if (settings.ContainsKey("AppointmentsFolder"))
                 {
-                    MeetingsFolder = settings["MeetingsFolder"].Value<string>();
+                    AppointmentsFolder = settings["AppointmentsFolder"].Value<string>();
                 }
-                if (settings.ContainsKey("MeetingNoteTitleFormat"))
+                if (settings.ContainsKey("AppointmentNoteTitleFormat"))
                 {
-                    MeetingNoteTitleFormat = settings["MeetingNoteTitleFormat"].Value<string>();
+                    AppointmentNoteTitleFormat = settings["AppointmentNoteTitleFormat"].Value<string>();
                 }
-                if (settings.ContainsKey("MeetingNoteTitleMaxLength"))
+                if (settings.ContainsKey("AppointmentNoteTitleMaxLength"))
                 {
-                    MeetingNoteTitleMaxLength = settings["MeetingNoteTitleMaxLength"].Value<int>();
+                    AppointmentNoteTitleMaxLength = settings["AppointmentNoteTitleMaxLength"].Value<int>();
                 }
-                if (settings.ContainsKey("MeetingDefaultNoteTags"))
+                if (settings.ContainsKey("AppointmentDefaultNoteTags"))
                 {
-                    var tags = settings["MeetingDefaultNoteTags"].ToObject<List<string>>();
+                    var tags = settings["AppointmentDefaultNoteTags"].ToObject<List<string>>();
                     if (tags != null && tags.Count > 0)
                     {
-                        MeetingDefaultNoteTags = tags;
+                        AppointmentDefaultNoteTags = tags;
                     }
                 }
-                if (settings.ContainsKey("MeetingSaveAttachments"))
+                if (settings.ContainsKey("AppointmentSaveAttachments"))
                 {
-                    MeetingSaveAttachments = settings["MeetingSaveAttachments"].Value<bool>();
+                    AppointmentSaveAttachments = settings["AppointmentSaveAttachments"].Value<bool>();
                 }
             }
         }

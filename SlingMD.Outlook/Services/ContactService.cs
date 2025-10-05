@@ -78,6 +78,37 @@ namespace SlingMD.Outlook.Services
             }
         }
 
+        public string GetSMTPEmailAddress(Recipient recipient)
+        {
+            try
+            {
+                // Try to get SMTP address using PR_SMTP_ADDRESS property
+                const string PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
+                return recipient.PropertyAccessor.GetProperty(PR_SMTP_ADDRESS);
+            }
+            catch
+            {
+                // Fallback to SenderEmailAddress
+                return recipient.AddressEntry.Address;
+            }
+        }
+
+        public string GetSMTPEmailAddress(AddressEntry entry)
+        {
+            if (entry.Type == "EX")
+            {
+                return entry.GetExchangeUser().PrimarySmtpAddress;
+            }
+            else if (entry.Type == "SMTP")
+            {
+                return entry.Address;
+            }
+
+            return string.Empty;
+        }
+
+
+
         /// <summary>
         /// Builds a list of Obsidian wiki-links (e.g. <c>[[Jane Doe]]</c>) for all recipients in a list.
         /// </summary>
@@ -342,7 +373,7 @@ namespace SlingMD.Outlook.Services
         /// Creates a stub markdown note for <paramref name="contactName"/> inside the configured contacts
         /// folder and populates it with a dataview script that lists every email mentioning the contact.
         /// </summary>
-        public void CreateContactNote(string contactName)
+        public void CreateContactNote(string contactName, string contactEmail = "")
         {
             // Check if contact saving is enabled in settings
             if (!_settings.EnableContactSaving)
@@ -368,6 +399,11 @@ namespace SlingMD.Outlook.Services
                 { "created", DateTime.Now.ToString("yyyy-MM-dd HH:mm") },
                 { "tags", "contact" }
             };
+
+            if (!string.IsNullOrEmpty(contactEmail))
+            {
+                metadata.Add("email",contactEmail);
+            }
 
             var content = new StringBuilder();
             content.Append(_templateService.BuildFrontMatter(metadata));

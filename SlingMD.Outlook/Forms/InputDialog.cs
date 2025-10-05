@@ -73,6 +73,8 @@ namespace SlingMD.Outlook.Forms
             this.ClientSize = new System.Drawing.Size(384, 141);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "InputDialog";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.TopMost = true;
             this.ResumeLayout(false);
 
         }

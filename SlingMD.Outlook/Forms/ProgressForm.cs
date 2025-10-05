@@ -16,37 +16,42 @@ namespace SlingMD.Outlook.Forms
 
         private void InitializeComponent()
         {
+            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.lblStatus = new System.Windows.Forms.Label();
             this.SuspendLayout();
-
-            // Create progress bar
-            this.progressBar = new ProgressBar();
-            this.progressBar.Minimum = 0;
-            this.progressBar.Maximum = 100;
+            // 
+            // progressBar
+            // 
+            this.progressBar.Location = new System.Drawing.Point(12, 50);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(350, 30);
             this.progressBar.Step = 1;
-            this.progressBar.Location = new Point(12, 50);
-            this.progressBar.Size = new Size(350, 30);
-
-            // Create status label
-            this.lblStatus = new Label();
+            this.progressBar.TabIndex = 0;
+            // 
+            // lblStatus
+            // 
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new Point(12, 20);
-            this.lblStatus.Size = new Size(350, 20);
+            this.lblStatus.Location = new System.Drawing.Point(12, 20);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(68, 13);
+            this.lblStatus.TabIndex = 1;
             this.lblStatus.Text = "Processing...";
-
-            // Configure form
-            this.ClientSize = new Size(374, 100);
+            // 
+            // ProgressForm
+            // 
+            this.ClientSize = new System.Drawing.Size(374, 100);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.lblStatus);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ProgressForm";
-            this.StartPosition = FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SlingMD";
             this.TopMost = true;
-
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         public void UpdateProgress(string message, int percentage)

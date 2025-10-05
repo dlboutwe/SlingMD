@@ -65,7 +65,7 @@ namespace SlingMD.Outlook.Ribbon
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error processing email: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error processing email or appointment: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -80,6 +80,20 @@ namespace SlingMD.Outlook.Ribbon
                 MessageBox.Show($"Error showing settings: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        public void OnAppointmentsTodayButtonClick(Office.IRibbonControl control)
+        {
+            try
+            {
+                _addIn.SaveTodaysAppointments();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error processing appointments: {ex.Message}", "SlingMD Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
 
         public Bitmap GetSlingButtonImage(Office.IRibbonControl control)
         {

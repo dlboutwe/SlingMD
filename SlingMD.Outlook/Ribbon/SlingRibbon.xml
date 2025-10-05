@@ -3,7 +3,7 @@
   <ribbon>
     <tabs>
       <tab id="SlingTab" label="Sling">
-        <group id="EmailGroup" label="Email">
+        <group id="EmailGroup" label="Sling">
           <button id="SlingButton" 
                   label="Sling" 
                   size="large"
@@ -17,6 +17,13 @@
                   imageMso="ControlProperties"
                   onAction="OnSettingsButtonClick" />
         </group>
+	      <group id="AppointmentsGroup" label="Appointments">
+		      <button id="AppointmentsTodayButton"
+		              label="Save Today's Appointments"
+		              size="large"
+		              imageMso="NewAppointment"
+		              onAction="OnAppointmentsTodayButtonClick" />
+	      </group>
       </tab>
     </tabs>
   </ribbon>
