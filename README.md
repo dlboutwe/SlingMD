@@ -10,9 +10,9 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 
 ## Features
 
-- Export Outlook emails directly to Obsidian markdown format
-- Preserve email metadata and formatting
-- Create follow-up tasks in Obsidian notes and/or Outlook
+- Export Outlook emails / appointments directly to Obsidian markdown format
+- Preserve email / appointment metadata and formatting
+- Create follow-up tasks in Obsidian notes and/or Outlook (email only)
 - Seamless integration with Outlook's interface
 - Easy-to-use ribbon interface
 - Support for attachments and email threading
@@ -22,15 +22,13 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 - Customisable note title formatting (placeholders for {Subject}, {Sender}, {Date}) with max-length trimming
 - Advanced subject clean-up engine using user-defined regex patterns
 - Configurable default tags for notes and tasks
-- Relative vs. absolute reminder modes with optional per-task prompt
-- Development/debug mode to surface internal thread-matching diagnostics
 - Duplicate-email protection and safe file-naming, including chronological prefixes for threads
 - User-overrideable markdown templates for both email and thread notes
 
 ## Installation
 
-1. Go to the [Releases](./Releases) folder in this repository
-2. Download the latest version (currently `SlingMD.Outlook_1_0_0_44.zip`)
+1. Go to the [Releases](https://github.com/dlboutwe/SlingMD/releases) for this repository
+2. Download the latest version
 3. **Important Security Step - Unblock the ZIP File**:
    - Right-click the downloaded ZIP file
    - Click "Properties"
@@ -60,9 +58,9 @@ SlingMD is a powerful Outlook add-in that bridges the gap between your email com
 ## Usage
 
 1. Open Microsoft Outlook
-2. Select any email you want to save to Obsidian
+2. Select any email or calendar appointment you want to save to Obsidian
 3. In the Outlook ribbon menu, locate and click the "Sling" button from the Sling Ribbon
-4. The email will be converted to Markdown format and saved to your configured Obsidian vault
+4. The selected item will be converted to Markdown format and saved to your configured Obsidian vault
 5. If enabled, follow-up tasks will be created in Obsidian and/or Outlook
 
 ## Configuration
@@ -71,35 +69,44 @@ Before using SlingMD, you'll need to configure your Obsidian vault settings:
 
 1. Click the "Settings" button in the Sling Ribbon
 2. Configure the following options:
-   - **Vault Name**: Enter the name of your Obsidian vault
-   - **Vault Base Path**: Set the path to your Obsidian vault folder (e.g., C:\Users\YourName\Documents\Notes)
-   - **Inbox Folder**: Specify the folder within your vault where emails should be saved (default: "Inbox")
-   - **Launch Obsidian**: Toggle whether Obsidian should automatically open after saving an email
-   - **Delay (seconds)**: Set how long to wait before launching Obsidian (default: 1 second)
-   - **Show countdown**: Toggle whether to show a countdown before launching Obsidian
-   - **Create task in Obsidian note**: Toggle whether to create a follow-up task in the Obsidian note
-   - **Create task in Outlook**: Toggle whether to create a follow-up task in Outlook
-   - **Due in Days**: Set the default number of days until tasks are due (0 = today, 1 = tomorrow, etc.)
-   - **Use Relative Dates**: Choose between relative or absolute date mode:
-     - When enabled (relative): Reminder days are calculated backwards from the due date
-     - When disabled (absolute): Reminder date is calculated forward from today
-   - **Reminder Days**: Set the default reminder timing:
-     - In relative mode: How many days before the due date
-     - In absolute mode: How many days from today
-   - **Reminder Hour**: Set the default hour for task reminders (24-hour format)
-   - **Ask for dates**: Toggle whether to prompt for dates each time (shows the Task Options form)
-   - **Group Email Threads**: Toggle whether to automatically organize related emails into thread folders
+   - **Vault Settings**
+   -    **Vault Name**: Enter the name of your Obsidian vault
+   -    **Vault Base Path**: Set the path to your Obsidian vault folder (e.g., C:\Users\YourName\Documents\Notes)
+   -    **Inbox Folder**: Specify the folder within your vault where emails should be saved (default: "Inbox")
+   -    **Contacts Folder**: Where new contact notes will be stored (default: "Contacts")
+   -    **Appointments Folder Path**: Specify the path to the folder withing your vault where emails shoudl be saved (ex: "Journal\Meeting Notes")
+   - **General Settings**
+   -    **Enable Contact Saving**: Toggle automatic creation of contact notes
+   -    **Search Entire Vault For Contacts**: When enabled, SlingMD will look outside the contacts folder before creating a new contact note
+   -    **Show countdown**: Toggle whether to show a countdown before launching Obsidian
+   -    **Launch Obsidian**: Toggle whether Obsidian should automatically open after saving an email
+   - **Timing Settings**
+   -    **Delay (seconds)**: Set how long to wait before launching Obsidian (default: 1 second)
+   -    **Due in Days**: Set the default number of days until tasks are due (0 = today, 1 = tomorrow, etc.)
+   -    **Reminder Days**: Set the default reminder timing:
+   -       - In relative mode: How many days before the due date
+   -       - In absolute mode: How many days from today
+   -    **Reminder Hour**: Set the default hour for task reminders (24-hour format)
    - **Subject Cleanup Patterns**: Configure patterns for cleaning up email subjects (e.g., removing "Re:", "[EXTERNAL]", etc.)
-   - **Contacts Folder**: Where new contact notes will be stored (default: "Contacts")
-   - **Enable Contact Saving**: Toggle automatic creation of contact notes
-   - **Search Entire Vault For Contacts**: When enabled, SlingMD will look outside the contacts folder before creating a new contact note
-   - **Note Title Format / Max Length / Include Date**: Fine-tune how note titles are constructed
-   - **Move Date To Front In Thread**: When grouping emails, place the date at the beginning of the filename
-   - **Default Note Tags / Task Tags**: Tags automatically assigned to new notes or tasks
-   - **Show Development Settings**: Reveals additional debug options in the settings dialog
-   - **Show Thread Debug**: Pops up a diagnostic window listing every file that matches a conversationId
+   - **Email Settings Tab**
+   -    **Group Email Threads**: Toggle whether to automatically organize related emails into thread folders
+   -    **Note Title Format / Max Length / Include Date**: Fine-tune how note titles are constructed
+   -    **Move Date To Front In Thread**: When grouping emails, place the date at the beginning of the filename
+   -    **Default Note Tags**: Tags automatically assigned to new email notes
+   - **Appointment Settings Tab**
+   -    **Note Title Format / Max Length**: Fine-tune how note titles are constructed
+   -    **Save Attachments**: Toggle whether to save attachments. If attachments are present, this will create a folder with the same name as the markdown file and save all attachments to that folder. Links will be added into the note to launch the files.
+   -    **Default Appointment Tags**: Tags automatically assigned to new appointment notes
+   - **Task Settings Tab**
+   -    **Create task in Outlook**: Toggle whether to create a follow-up task in Outlook
+   -    **Create task in Obsidian note**: Toggle whether to create a follow-up task in the Obsidian note
+   -    **Ask for dates**: Toggle whether to prompt for dates each time (shows the Task Options form)
+   - **Development Settings Tab** (depreceated)
+   -    **Show Development Settings**: Reveals additional debug options in the settings dialog
+   -    **Show Thread Debug**: Pops up a diagnostic window listing every file that matches a conversationId
 
-3. Click "Save" to apply your settings
+
+4. Click "Save" to apply your settings
 
 Note: Make sure your Vault Base Path points to an existing Obsidian vault directory. If you haven't created a vault yet, please set one up in Obsidian first.
 
@@ -169,6 +176,12 @@ If you encounter any issues or have questions, please open an issue in the GitHu
 
 ## Changelog
 
+### Version 1.1.0.0
+- Added functionality to create notes from calendar items (appointments)
+-    Can Save attachments
+-    Can bulk add all appointments for the day
+- Updated Settings Form
+
 ### Version 1.0.0.44
 - Added automatic email thread detection and organization
 - Added thread summary pages with timeline views
@@ -204,6 +217,5 @@ The author is not responsible for any data loss, corruption, or other issues tha
 
 ---
 
-☕ Like what I'm building? Help fuel my next project (or my next coffee)!  
-Support me on [Buy Me a Coffee](https://buymeacoffee.com/plainsprepper) 💻🧵🔥
+Support the original creator on [Buy Me a Coffee](https://buymeacoffee.com/plainsprepper) 💻🧵🔥
 
